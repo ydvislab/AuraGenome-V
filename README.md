@@ -22,6 +22,7 @@ pilot/
     alphagenome_score.py    AlphaGenome scores from ALL_FOLDS and FOLD_0-3 (in-silico mutagenesis per element)
     borzoi_score.py         Borzoi scores from replicates rep0-rep3 (GPU)
     compute_signals.py      reliability signals, AUROC, element-level bootstrap, pre-registered go/no-go rule
+    proxy_select.py         proxy-track choice from a few measured variants (sequential discrimination panel vs baselines)
   data/                     downloaded and derived data (not tracked)
 docs/internal/              research plan, novelty check and pilot notes (Chinese; internal working documents)
 ```
@@ -46,6 +47,9 @@ python pilot/scripts/alphagenome_score.py pilot --dry-run
 python pilot/scripts/alphagenome_score.py pilot --elements PKLR-48h --versions ALL_FOLDS
 python pilot/scripts/alphagenome_score.py pilot
 python pilot/scripts/compute_signals.py pilot
+# proxy-track selection: score every biosample's tracks, then compare panel strategies
+python pilot/scripts/alphagenome_score.py pilot --all-biosamples --outputs CAGE,DNASE,ATAC --versions ALL_FOLDS --elements PKLR-48h,F9,HNF4A,IRF6,BCL11A
+python pilot/scripts/proxy_select.py pilot
 # optional, GPU: pip install -r requirements-borzoi.txt
 python pilot/scripts/borzoi_score.py pilot --fasta hg38.fa --targets targets_human.txt --check
 ```
