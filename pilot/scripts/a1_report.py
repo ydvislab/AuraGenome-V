@@ -6,12 +6,13 @@ Outputs (tracked): results/a1/*.tsv, results/a1/*.png, results/a1/test_decision.
 
 usage: python a1_report.py <pilot_dir> <out_dir>
 """
-import os, sys, subprocess
+import os, sys, glob, subprocess
 import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from scipy.stats import wilcoxon
 
 pilot_dir, out = sys.argv[1], sys.argv[2]
 os.makedirs(out, exist_ok=True)
@@ -138,4 +139,30 @@ if os.path.exists(os.path.join(res("test"), "summary.tsv")):
     decision = subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "prereg_test.py"), pilot_dir],
                               capture_output=True, text=True, check=True).stdout
     open(os.path.join(out, "test_decision.txt"), "w").write(decision)
+# few-label regression baselines (added after the pre-registration; first 50 repeats), region level
+reg_dirs = sorted(glob.glob(os.path.join(pilot_dir, "results", "proxy_select_reg*")))
+if reg_dirs:
+    r = pd.concat([pd.read_csv(os.path.join(d, "runs.tsv.gz"), sep="\t",
+                               usecols=["element", "scenario", "strategy", "k", "repeat", "rho_bma"]) for d in reg_dirs])
+    r = r[(r.repeat >= 0) & (r.repeat < 50)]
+    r = r[r.scenario == r.element.map(r.groupby("element").scenario.agg(
+        lambda x: "hide_matched" if (x == "hide_matched").any() else "all"))]
+    var = pd.read_csv(os.path.join(pilot_dir, "data", "variants_grch38.tsv"), sep="\t", low_memory=False)
+    reg = var.groupby("element").agg(c=("chrom", "first"), a=("pos", "min"), b=("pos", "max"))
+    r["region"] = r.element.map(reg.c + ":" + reg.a.astype(str) + "-" + reg.b.astype(str))
+    dev_elements = set(dev.element)
+    r["set"] = np.where(r.element.isin(dev_elements), "dev", "test")
+    strategies = ["random", "disc", "random+ridge", "random+lasso", "disc+ridge", "disc+lasso"]
+    e = (r[r.strategy.isin(strategies)].groupby(["set", "region", "element", "strategy", "k"]).rho_bma.mean()
+         .groupby(["set", "region", "strategy", "k"]).mean().reset_index())
+    e.round(4).to_csv(os.path.join(out, "regression_baselines_by_region.tsv"), sep="\t", index=False)
+    lines = []
+    for st in ["dev", "test"]:
+        t = e[(e.set == st) & (e.k == 8)].pivot(index="region", columns="strategy", values="rho_bma")
+        for b in ["random+lasso", "random+ridge", "disc+lasso", "disc+ridge"]:
+            d = t.disc - t[b]
+            p = wilcoxon(t.disc, t[b], alternative="greater").pvalue
+            lines.append(f"{st}\tk=8\tdisc (posterior-weighted) - {b}\t{d.mean():+.3f}\t{int((d > 0).sum())}/{len(d)}\t{p:.4f}")
+    open(os.path.join(out, "regression_baselines_k8.tsv"), "w").write(
+        "set\tbudget\tcomparison\tmean_diff\tregions_positive\twilcoxon_p_one_sided\n" + "\n".join(lines) + "\n")
 print("wrote", sorted(os.listdir(out)))

@@ -13,7 +13,9 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 > **Status (2026-10-28): pilot passed.** On the pre-registered held-out test (11 regions, 17 MPRA experiments, the
 > element's own cell-type tracks hidden), 8 discrimination-chosen measurements beat random panels (+0.08 Spearman,
 > Wilcoxon p = 0.003) and the label-free all-track mean (+0.07, 8/11 regions); the advantage over picking variants
-> with the largest predicted effect is not significant (+0.03, p = 0.14).
+> with the largest predicted effect is not significant (+0.03, p = 0.14). With the same 8 labels it also beats
+> LASSO over all tracks, the protocol AlphaGenome uses on this benchmark with all labels (+0.12, p = 0.002;
+> baseline added after the pre-registration).
 > Collaborators: start with **[docs/STATUS_zh.md](docs/STATUS_zh.md)** (project overview, in Chinese) and the
 > figures in [results/a1/](results/a1/).
 

@@ -1,0 +1,9 @@
+set	budget	comparison	mean_diff	regions_positive	wilcoxon_p_one_sided
+dev	k=8	disc (posterior-weighted) - random+lasso	+0.143	5/5	0.0312
+dev	k=8	disc (posterior-weighted) - random+ridge	+0.126	5/5	0.0312
+dev	k=8	disc (posterior-weighted) - disc+lasso	+0.046	5/5	0.0312
+dev	k=8	disc (posterior-weighted) - disc+ridge	+0.031	5/5	0.0312
+test	k=8	disc (posterior-weighted) - random+lasso	+0.117	9/11	0.0024
+test	k=8	disc (posterior-weighted) - random+ridge	+0.111	8/11	0.0068
+test	k=8	disc (posterior-weighted) - disc+lasso	+0.035	8/11	0.0122
+test	k=8	disc (posterior-weighted) - disc+ridge	+0.024	8/11	0.0415
