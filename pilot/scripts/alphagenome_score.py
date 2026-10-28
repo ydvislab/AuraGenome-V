@@ -33,6 +33,9 @@ ap.add_argument("--seq-len", default="SEQUENCE_LENGTH_1MB", help="key of dna_cli
 ap.add_argument("--keep-biosamples", default="K562;HepG2", help="always keep these biosamples (cross-cell-type contrast)")
 ap.add_argument("--include-mouse-cell-elements", action="store_true")
 ap.add_argument("--chunk-bp", type=int, default=100, help="ISM positions per API call (memory bound)")
+ap.add_argument("--all-biosamples", action="store_true",
+                help="keep every biosample's tracks (proxy-selection pilot) instead of only the matched ones; "
+                     "outputs go to predictions/alphagenome_all/ so they never mix with the filtered runs")
 ap.add_argument("--dry-run", action="store_true")
 a = ap.parse_args()
 
@@ -49,7 +52,7 @@ regions = (var.groupby("element").agg(chrom=("chrom", "first"), start=("pos", "m
            .reset_index())
 regions["region"] = regions.chrom + ":" + regions.start.astype(str) + "-" + regions.end.astype(str)
 versions = a.versions.split(",")
-out_dir = os.path.join(a.pilot_dir, "predictions", "alphagenome")
+out_dir = os.path.join(a.pilot_dir, "predictions", "alphagenome_all" if a.all_biosamples else "alphagenome")
 os.makedirs(out_dir, exist_ok=True)
 
 print(f"elements {len(regions)}, unique regions {regions.region.nunique()}, SNVs {len(var)}, "
@@ -69,6 +72,8 @@ seq_len = dna_client.SUPPORTED_SEQUENCE_LENGTHS[a.seq_len]
 always = [k for k in a.keep_biosamples.split(";") if k]
 
 def keep(df, keywords):
+    if a.all_biosamples:
+        return df
     kws = [k for k in keywords.split(";") if k] + always
     name = df.get("biosample_name", pd.Series("", index=df.index)).fillna("").astype(str)
     track = df["track_name"].fillna("").astype(str)
