@@ -77,6 +77,21 @@ Cross-model triage (gpt-5.6-sol, thread 01a18187…): **TOP: A1, C1, E1.**
 | C1 locus-exposure delta | AlphaGenome docs/paper: FOLD_k used for aggregate out-of-fold evaluation; Flashzoi notes train–test similarity concerns; no per-locus ALL_FOLDS-vs-held-out comparison found | per-locus, user-facing diagnostic of training exposure; confound: distillation |
 | E1 explanation compiler | Multi-ISM (bioRxiv 2026-09) benchmarks *attribution maps* against CAGI5 saturation MPRA; GeneAgent (Nat Methods 2025) verifies LLM gene-set claims against *databases*; EVEE (LLM-as-judge only); position paper 2026 on anecdotal interpretability | executable, structured explanation claims (LLM or attribution) falsified against *per-base experimental footprints* — no paper found; Multi-ISM is the nearest race and must be cited |
 
+### Update 2026-10-28 20:55 — reframed A1 only (verdict still BLOCKED)
+
+Codex returned "usage limit … try again at Oct 29th, 2026 1:52 AM" for both gpt-6-astra and gpt-5.6-sol. The
+dossier for the reframed A1 is `idea-stage/NOVELTY_DOSSIER_A1.md` (method frozen, pre-registered held-out test GO,
+few-label LASSO/ridge baselines). Additional Phase-B finding, executor search only, not a verdict:
+
+| Prior work | Overlap | What stays different (to be verified by the reviewer) |
+|---|---|---|
+| MODEL SELECTOR (Okanovic et al., arXiv 2410.13609; AISTATS 2025) | label few examples to identify the best of >1,500 pretrained classifiers | regression with an unknown per-candidate affine map, marginalised; posterior-weighted prediction rather than a single pick; thousands of correlated output heads of one genomic model; unprofiled-cell-type application with a pre-registered held-out test |
+| Model Picker (Karimi et al. 2021), CAMS (NeurIPS 2024) | streaming active model selection among pretrained classifiers | same as above; pool-based, ≤16 labels |
+| Box & Hill 1967; Bayesian design for model discrimination | sequential discrimination design | scale (≈1,000 correlated candidates) and the genomic setting |
+| AlphaGenome (CAGI5 LASSO over tracks) | uses labels to combine tracks | with 8 labels our method beats it by +0.117 Spearman on the held-out regions (post hoc) |
+
+Implication for the paper: MODEL SELECTOR must be cited and, ideally, adapted to regression as a baseline.
+
 ## User decision (2026-10-28, before the cross-model verdict)
 
 - **Selected direction: A1 only**, reframed so the core contribution is a CS method: *label-efficient discrimination among thousands of correlated foundation-model output tracks for a cell type the model does not profile* (choose the few variants whose measurements best separate candidate tracks; stopping rule; visual-analytics interface), validated on real genomic data (Kircher 2019 MPRA). Target: *Bioinformatics* Original Paper.
