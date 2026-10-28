@@ -24,3 +24,5 @@ jobs:
         run: python pilot/scripts/compute_signals.py pilot --simulate
       - name: Syntax check (GPU script)
         run: python -m py_compile pilot/scripts/borzoi_score.py
+      - name: Syntax check (A1 analysis scripts)
+        run: python -m py_compile pilot/scripts/proxy_select.py pilot/scripts/prereg_test.py pilot/scripts/a1_report.py

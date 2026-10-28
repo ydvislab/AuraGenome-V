@@ -1,0 +1,6 @@
+element	disc	random	high_effect	disagree	all_mean	oracle	scenario
+BCL11A	0.0548	0.0447	0.0744	0.1112	0.0769	0.2137	hide_matched
+F9	0.4514	0.3056	0.4186	0.3859	0.402	0.5127	hide_matched
+HNF4A	0.2498	0.1887	0.2781	0.2359	0.3214	0.3576	hide_matched
+IRF6	0.5139	0.3838	0.4747	0.4907	0.43	0.5617	hide_matched
+PKLR-48h	0.5359	0.4506	0.499	0.5178	0.4772	0.6388	hide_matched

@@ -1,0 +1,37 @@
+version	strategy	k	rho_bma	rho_pick
+v1 (frozen)	disc	2	0.2758	0.1224
+v1 (frozen)	disc	8	0.3612	0.3053
+v1 (frozen)	disc	16	0.378	0.3484
+v1 (frozen)	random	2	0.1576	0.0934
+v1 (frozen)	random	8	0.2747	0.2007
+v1 (frozen)	random	16	0.322	0.2675
+v1 (frozen)	high_effect	2	0.3237	0.1173
+v1 (frozen)	high_effect	8	0.349	0.2405
+v1 (frozen)	high_effect	16	0.339	0.2942
++ measurement noise	disc	2	0.2168	0.0933
++ measurement noise	disc	8	0.3628	0.3073
++ measurement noise	disc	16	0.3803	0.3508
++ measurement noise	random	2	0.1571	0.085
++ measurement noise	random	8	0.2803	0.2119
++ measurement noise	random	16	0.3335	0.2787
++ measurement noise	high_effect	2	0.3257	0.1177
++ measurement noise	high_effect	8	0.3516	0.2422
++ measurement noise	high_effect	16	0.3376	0.2941
++ ensemble hypotheses	disc	2	0.2781	0.2886
++ ensemble hypotheses	disc	8	0.3583	0.325
++ ensemble hypotheses	disc	16	0.3804	0.3414
++ ensemble hypotheses	random	2	0.1513	0.1366
++ ensemble hypotheses	random	8	0.272	0.2404
++ ensemble hypotheses	random	16	0.3205	0.2901
++ ensemble hypotheses	high_effect	2	0.3198	0.3187
++ ensemble hypotheses	high_effect	8	0.348	0.3324
++ ensemble hypotheses	high_effect	16	0.3422	0.3291
++ both	disc	2	0.2483	0.2621
++ both	disc	8	0.3608	0.3199
++ both	disc	16	0.3814	0.3353
++ both	random	2	0.1517	0.141
++ both	random	8	0.2774	0.2487
++ both	random	16	0.3296	0.2938
++ both	high_effect	2	0.3247	0.3182
++ both	high_effect	8	0.35	0.3296
++ both	high_effect	16	0.341	0.3296

@@ -1,16 +1,20 @@
 # AuraGenome-V
 
-**Verifying genomic foundation-model predictions with multi-source evidence.**
+**Choosing which foundation-model track to trust for a cell type the model does not profile, from a handful of measurements.**
 
-Genomic foundation models such as AlphaGenome and Borzoi predict the effect of any variant on thousands of
-functional genomic tracks, but they give no indication of *where* a prediction can be trusted. AuraGenome-V
-(working name) builds a reliability profile for every prediction, places the prediction next to independent
-experimental evidence, and presents both in a multi-scale visualization with an evidence-constrained LLM
-assistant, so that researchers can separate reliable from unreliable predictions during variant interpretation.
+Genomic foundation models such as AlphaGenome predict the effect of any variant on thousands of functional
+tracks (cell types × assays). When the cell type of interest is not among them, a researcher has to pick a proxy
+track, and that choice can flip conclusions. AuraGenome-V (working name) treats every track as a hypothesis,
+chooses the few variants whose measurement best discriminates between the tracks (sequential Bayesian model
+discrimination), and returns a posterior-weighted prediction with a stopping rule; a visual-analytics interface
+will show how the posterior spreads over track clusters. Validation uses saturation-mutagenesis MPRA
+(Kircher et al. 2019) with labels masked.
 
-> **Status: pilot.** The repository currently contains the feasibility pilot (research plan, weeks 3–6):
-> can model-internal reliability signals tell correct from incorrect variant-effect predictions, measured
-> against saturation-mutagenesis MPRA ground truth? The visualization and LLM components come after the pilot.
+> **Status (2026-10-28): pilot.** Development set done, method frozen, held-out test pre-registered and running.
+> Collaborators: start with **[docs/STATUS_zh.md](docs/STATUS_zh.md)** (project overview, in Chinese) and the
+> figures in [results/a1/](results/a1/).
+
+![Development-set learning curve](results/a1/fig1_dev_learning_curve.png)
 
 ## Repository layout
 
@@ -19,44 +23,43 @@ pilot/
   scripts/
     download_data.py        ground truth: Kircher et al. 2019 saturation-mutagenesis MPRA (pinned, checksummed)
     build_variant_table.py  SNV table (GRCh38) with measured effects and ground-truth classes
-    alphagenome_score.py    AlphaGenome scores from ALL_FOLDS and FOLD_0-3 (in-silico mutagenesis per element)
-    borzoi_score.py         Borzoi scores from replicates rep0-rep3 (GPU)
-    compute_signals.py      reliability signals, AUROC, element-level bootstrap, pre-registered go/no-go rule
-    proxy_select.py         proxy-track choice from a few measured variants (sequential discrimination panel vs baselines)
-  data/                     downloaded and derived data (not tracked)
-docs/internal/              research plan, novelty check and pilot notes (Chinese; internal working documents)
+    alphagenome_score.py    AlphaGenome in-silico mutagenesis per element (--all-biosamples keeps every track)
+    proxy_select.py         A1 method (frozen) and baselines: panel strategies x budgets x repeats
+    prereg_test.py          pre-registered held-out test and decision rule
+    a1_report.py            collects tracked tables and figures into results/a1/
+    compute_signals.py      superseded "reliability profile" pilot (kept for reference)
+    borzoi_score.py         Borzoi replicate scores (GPU; planned robustness analysis)
+  data/, predictions/, results/   downloaded and derived data (not tracked)
+results/a1/                 tracked summary tables and figures
+docs/STATUS_zh.md           project overview for collaborators (Chinese)
+docs/internal/              pre-registration, pilot notes, idea-selection report; older plans marked superseded
 ```
 
-## Quick start (pilot)
+## Reproduce
 
-Requires Python ≥ 3.10.
+Requires Python ≥ 3.10 and an AlphaGenome API key (non-commercial terms; each person uses their own key,
+exported in the shell, never committed).
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python pilot/scripts/download_data.py pilot
 python pilot/scripts/build_variant_table.py pilot
-python pilot/scripts/compute_signals.py pilot --simulate        # pipeline test on synthetic predictions
-```
-
-Real predictions:
-
-```bash
-export ALPHAGENOME_API_KEY=...                                  # non-commercial terms of use apply
-python pilot/scripts/alphagenome_score.py pilot --dry-run
-python pilot/scripts/alphagenome_score.py pilot --elements PKLR-48h --versions ALL_FOLDS
-python pilot/scripts/alphagenome_score.py pilot
-python pilot/scripts/compute_signals.py pilot
-# proxy-track selection: score every biosample's tracks, then compare panel strategies
+export ALPHAGENOME_API_KEY=...
+# development set (5 elements, ~25 min of API time)
 python pilot/scripts/alphagenome_score.py pilot --all-biosamples --outputs CAGE,DNASE,ATAC --versions ALL_FOLDS --elements PKLR-48h,F9,HNF4A,IRF6,BCL11A
 python pilot/scripts/proxy_select.py pilot
-# optional, GPU: pip install -r requirements-borzoi.txt
-python pilot/scripts/borzoi_score.py pilot --fasta hg38.fa --targets targets_human.txt --check
+# ablations
+python pilot/scripts/proxy_select.py pilot --noise --tag noise
+python pilot/scripts/proxy_select.py pilot --ensemble --tag ensemble
+python pilot/scripts/proxy_select.py pilot --ensemble --noise --tag full
+# held-out test set (pre-registered: docs/internal/preregistration_A1_zh.md)
+TEST=FOXE1,GP1BA,HBB,HBG1,IRF4,LDLR,LDLR.2,MSMB,MYCrs11986220,MYCrs6983267,SORT1,SORT1-flip,SORT1.2,TERT-GAa,TERT-GBM,TERT-GSc,TERT-HEK
+python pilot/scripts/alphagenome_score.py pilot --all-biosamples --outputs CAGE,DNASE,ATAC --versions ALL_FOLDS --elements $TEST
+python pilot/scripts/proxy_select.py pilot --elements $TEST --tag test
+python pilot/scripts/prereg_test.py pilot
+python pilot/scripts/a1_report.py pilot results/a1
 ```
-
-**Pre-registered decision rule.** The pilot is a GO if the element-bootstrap 95% CI of the combined signal's
-AUROC (direction correct vs. wrong) has a lower bound ≥ 0.6 and the top reliability tertile is at least 15
-percentage points more accurate than the bottom tertile.
 
 ## Data and model terms
 
