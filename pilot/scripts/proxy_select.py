@@ -33,6 +33,10 @@ Panels (k measured variants, chosen from a random pool of variants that "could b
                 predictions correlate >= --stop-r with those of the MAP tracks of the previous
                 --stop-patience panels (uses no held-out labels)
 All panels use the same track-choice rule, so they differ only in which variants get measured.
+With --regression, few-label regression baselines (the AlphaGenome CAGI5 protocol fits LASSO over all tracks
+with every label) are also fitted on the random and disc panels of the first --regression-repeats repeats: ridge (penalty by exact leave-one-out) and
+LASSO (scikit-learn LassoCV, leave-one-out), both over all single tracks. They add rows only; every other
+number is unchanged.
 Label-free references: matched (mean of metadata-matched tracks), all_mean, oracle (best single track
 using every label; an upper bound, not a method).
 Scenarios: all tracks, and hide_matched (tracks of the element's own cell type removed, which mimics
@@ -44,11 +48,13 @@ usage:
   python proxy_select.py <pilot_dir> --ensemble --noise --tag full          # ablation: both refinements
 Output: <pilot_dir>/results/proxy_select[_<tag>]/{runs.tsv.gz, summary.tsv, tracks/<element>.tsv}
 """
-import os, glob, argparse, time
+import os, glob, argparse, time, warnings
 import numpy as np
 import pandas as pd
 from scipy.stats import rankdata, norm
 from scipy.cluster.hierarchy import linkage, fcluster
+from sklearn.linear_model import LassoCV
+from sklearn.model_selection import LeaveOneOut
 
 ap = argparse.ArgumentParser()
 ap.add_argument("pilot_dir")
@@ -69,6 +75,8 @@ ap.add_argument("--stop-r", type=float, default=0.95)
 ap.add_argument("--stop-patience", type=int, default=2)
 ap.add_argument("--min-labels", type=int, default=3, help="disc_stop never stops before this many labels")
 ap.add_argument("--cluster-r", type=float, default=0.9, help="tracks correlated above this share a cluster (reported only)")
+ap.add_argument("--regression", action="store_true", help="also fit few-label ridge/LASSO baselines")
+ap.add_argument("--regression-repeats", type=int, default=50, help="regression baselines on the first N repeats (slow)")
 ap.add_argument("--seed", type=int, default=0)
 a = ap.parse_args()
 
@@ -157,6 +165,27 @@ def evaluate(Z, y, se, cls, panel, track_rho, logprior):
                 acc_pick=np.mean(np.sign(pick[sig]) == cls[test][sig]),
                 acc_bma=np.mean(np.sign(bma[sig]) == cls[test][sig]),
                 pick_pct=np.mean(track_rho <= track_rho[t]))
+
+
+def regress(Z, y, panel):
+    """Few-label ridge and LASSO over all single tracks, fitted on the panel; predictions for every variant."""
+    Xs, ys = Z[panel], y[panel]
+    xm, ym = Xs.mean(0), ys.mean()
+    Xc, yc = Xs - xm, ys - ym
+    K = Xc @ Xc.T
+    best = None
+    for lam in np.trace(K) / len(panel) * np.logspace(-3, 3, 13):
+        Hm = K @ np.linalg.inv(K + lam * np.eye(len(panel)))      # hat matrix of the centred fit
+        loo = np.mean(((yc - Hm @ yc) / np.maximum(1 - np.diag(Hm) - 1 / len(panel), 1e-6)) ** 2)
+        if best is None or loo < best[0]:
+            best = (loo, lam)
+    w = Xc.T @ np.linalg.solve(K + best[1] * np.eye(len(panel)), yc)
+    out = {"ridge": ym + (Z - xm) @ w}
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        lasso = LassoCV(alphas=20, cv=LeaveOneOut(), max_iter=5000).fit(Xs, ys)
+    out["lasso"] = lasso.predict(Z)
+    return out
 
 
 def disc_sequence(Z, y, se, pool, C, logprior):
@@ -257,6 +286,18 @@ for element in elements:
                                  rho_pick=r["rho_pick"], rho_bma=r["rho_bma"], acc_pick=r["acc_pick"],
                                  acc_bma=r["acc_bma"], pick_pct=r["pick_pct"], rho_oracle=rho_oracle,
                                  regret=rho_oracle - h_rho[t]))
+            if a.regression and rep < a.regression_repeats:
+                for pname in ["random", "disc"]:
+                    for k in [4, 8, 16]:
+                        panel = panels[pname][:k]
+                        test = np.ones(n, bool)
+                        test[panel] = False
+                        sig_t = cls[test] != 0
+                        for name, pred in regress(Z, y, panel).items():
+                            runs.append(dict(base, strategy=f"{pname}+{name}", k=k, repeat=rep, labels=k,
+                                             rho_bma=rank_corr(pred[test], y[test])[0],
+                                             acc_bma=np.mean(np.sign(pred[test][sig_t]) == cls[test][sig_t]),
+                                             rho_oracle=rho_oracle))
         print(f"  {scen}: {a.repeats} repeats done, {time.time() - t0:.0f}s", flush=True)
 
 runs = pd.DataFrame(runs)
