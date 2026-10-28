@@ -19,7 +19,9 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 > **Limitation found after the test:** when metadata-matched or related-cell tracks are kept, simply averaging them
 > is as good as the method (method − matched mean −0.03, 3/11 regions positive); the method helps where the matched
 > proxy is poor (e.g. LDLR 0.24 → 0.51). The next version puts metadata into the prior and will be tested on a
-> second dataset. Cross-model novelty check: PROCEED WITH CAUTION (7/10).
+> second dataset. Re-scoring every method and reference on one common evaluation set (variants outside the pool)
+> leaves all conclusions unchanged (`results/a1/common_eval_*`). Cross-model novelty check: PROCEED WITH CAUTION
+> (7/10); cross-model review: PROCEED WITH CAUTION, readiness 5/10.
 > Collaborators: start with **[docs/STATUS_zh.md](docs/STATUS_zh.md)** (project overview, in Chinese) and the
 > figures in [results/a1/](results/a1/).
 

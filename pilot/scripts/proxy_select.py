@@ -37,8 +37,10 @@ With --regression, few-label regression baselines (the AlphaGenome CAGI5 protoco
 with every label) are also fitted on the random and disc panels of the first --regression-repeats repeats: ridge (penalty by exact leave-one-out) and
 LASSO (scikit-learn LassoCV, leave-one-out), both over all single tracks. They add rows only; every other
 number is unchanged.
-Label-free references: matched (mean of metadata-matched tracks), all_mean, oracle (best single track
-using every label; an upper bound, not a method).
+Label-free references: matched (mean of metadata-matched tracks), all_mean, oracle (best single raw track
+using every label; a reference, not a method and not an upper bound: the fitted slope may be negative and a
+posterior average can beat every single track).
+With --common-eval, every strategy and reference is scored on the variants outside the repeat's pool.
 Scenarios: all tracks, and hide_matched (tracks of the element's own cell type removed, which mimics
 a cell type the model does not profile).
 
@@ -77,6 +79,10 @@ ap.add_argument("--min-labels", type=int, default=3, help="disc_stop never stops
 ap.add_argument("--cluster-r", type=float, default=0.9, help="tracks correlated above this share a cluster (reported only)")
 ap.add_argument("--regression", action="store_true", help="also fit few-label ridge/LASSO baselines")
 ap.add_argument("--regression-repeats", type=int, default=50, help="regression baselines on the first N repeats (slow)")
+ap.add_argument("--common-eval", action="store_true",
+                help="score every strategy and label-free reference on the same variants: those outside the "
+                     "repeat's pool (added 2026-10-29 after review; the frozen v1 scores each panel on its own "
+                     "non-panel variants and the references on all variants)")
 ap.add_argument("--seed", type=int, default=0)
 a = ap.parse_args()
 
@@ -150,13 +156,14 @@ def softmax(ll):
     return w / w.sum()
 
 
-def evaluate(Z, y, se, cls, panel, track_rho, logprior):
-    """Fit the posterior on the panel and score the MAP hypothesis and the posterior average on every
-    variant outside the panel."""
+def evaluate(Z, y, se, cls, panel, track_rho, logprior, test=None):
+    """Fit the posterior on the panel and score the MAP hypothesis and the posterior average on `test`
+    (default: every variant outside the panel)."""
     ll, A, B, _ = posterior(Z[panel], y[panel], se[panel], logprior)
     w = softmax(ll)
-    test = np.ones(len(y), bool)
-    test[panel] = False
+    if test is None:
+        test = np.ones(len(y), bool)
+        test[panel] = False
     t = int(np.argmax(ll))
     pick = A[t] + B[t] * Z[test, t]
     bma = (A + Z[test] * B) @ w
@@ -255,19 +262,28 @@ for element in elements:
             logprior[T:] = np.log(a.ensemble_prior / len(ens))
         C = np.corrcoef(H.T)
 
-        def label_free(name, pred):
-            runs.append(dict(base, strategy=name, k=0, repeat=-1, labels=0, rho_pick=rank_corr(pred, y)[0],
-                             acc_pick=np.mean(np.sign(pred[sig]) == cls[sig]), rho_oracle=rho_oracle))
-        label_free("oracle", Z[:, best])
-        label_free("all_mean", Z.mean(1))
+        def label_free(name, pred, m=None, rep=-1):
+            m = np.ones(n, bool) if m is None else m
+            runs.append(dict(base, strategy=name, k=0, repeat=rep, labels=0, rho_pick=rank_corr(pred[m], y[m])[0],
+                             acc_pick=np.mean(np.sign(pred[m & sig]) == cls[m & sig]), rho_oracle=rho_oracle))
+        refs = {"oracle": Z[:, best], "all_mean": Z.mean(1)}
         if scen == "all" and meta.matched.any():
-            label_free("matched", Z[:, meta.matched.to_numpy()].mean(1))
+            refs["matched"] = Z[:, meta.matched.to_numpy()].mean(1)
+        if not a.common_eval:
+            for name, pred in refs.items():
+                label_free(name, pred)
 
         mean_pred = np.abs(Z.mean(1))
         spread = Z.var(1)
         for rep in range(a.repeats):
             rng = np.random.default_rng([a.seed, rep])
             pool = rng.choice(n, int(a.pool_frac * n), replace=False)
+            outside = None
+            if a.common_eval:
+                outside = np.ones(n, bool)
+                outside[pool] = False
+                for name, pred in refs.items():
+                    label_free(name, pred, outside, rep)
             order, k_stop = disc_sequence(H, y, se, pool, C, logprior)
             panels = {"random": rng.permutation(pool),
                       "high_effect": pool[np.argsort(-mean_pred[pool], kind="stable")],
@@ -276,7 +292,7 @@ for element in elements:
             todo = [(s, k, p[:k]) for s, p in panels.items() for k in budgets]
             todo.append(("disc_stop", kmax, np.array(order[:k_stop])))
             for strategy, k, panel in todo:
-                r = evaluate(H, y, se, cls, panel, h_rho, logprior)
+                r = evaluate(H, y, se, cls, panel, h_rho, logprior, outside)
                 t = r["pick"]
                 runs.append(dict(base, strategy=strategy, k=k, repeat=rep, labels=len(panel),
                                  pick_track=hmeta.index[t], pick_biosample=hmeta.biosample_name.iloc[t],
@@ -290,8 +306,11 @@ for element in elements:
                 for pname in ["random", "disc"]:
                     for k in [4, 8, 16]:
                         panel = panels[pname][:k]
-                        test = np.ones(n, bool)
-                        test[panel] = False
+                        if outside is None:
+                            test = np.ones(n, bool)
+                            test[panel] = False
+                        else:
+                            test = outside
                         sig_t = cls[test] != 0
                         for name, pred in regress(Z, y, panel).items():
                             runs.append(dict(base, strategy=f"{pname}+{name}", k=k, repeat=rep, labels=k,

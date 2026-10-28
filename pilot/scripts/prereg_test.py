@@ -11,14 +11,17 @@ Decision: H1 and H2 -> GO; H1 only -> reframe; not H1 -> drop the A1 claim.
 usage:
   python proxy_select.py <pilot_dir> --elements <test elements> --tag test
   python prereg_test.py <pilot_dir>
+  python prereg_test.py <pilot_dir> ce_test     # same test on results/proxy_select_ce_test (common evaluation
+                                                # set, added 2026-10-29; not part of the pre-registration)
 """
 import os, sys
 import pandas as pd
 from scipy.stats import wilcoxon
 
 pilot_dir = sys.argv[1]
+tag = sys.argv[2] if len(sys.argv) > 2 else "test"
 K = 8
-s = pd.read_csv(os.path.join(pilot_dir, "results", "proxy_select_test", "summary.tsv"), sep="\t")
+s = pd.read_csv(os.path.join(pilot_dir, "results", f"proxy_select_{tag}", "summary.tsv"), sep="\t")
 var = pd.read_csv(os.path.join(pilot_dir, "data", "variants_grch38.tsv"), sep="\t", low_memory=False)
 reg = var.groupby("element").agg(chrom=("chrom", "first"), start=("pos", "min"), end=("pos", "max"))
 region = (reg.chrom + ":" + reg.start.astype(str) + "-" + reg.end.astype(str)).rename("region")

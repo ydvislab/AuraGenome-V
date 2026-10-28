@@ -189,22 +189,47 @@ if reg_dirs:
 var = pd.read_csv(os.path.join(pilot_dir, "data", "variants_grch38.tsv"), sep="\t", low_memory=False)
 reg = var.groupby("element").agg(c=("chrom", "first"), a=("pos", "min"), b=("pos", "max"))
 region_of = reg.c + ":" + reg.a.astype(str) + "-" + reg.b.astype(str)
-lines = []
-for name, s in [("dev", dev)] + ([("test", test)] if "test" in dir() else []):
-    a = s[s.scenario == "all"]
-    g = lambda st, k, col: a[(a.strategy == st) & (a.k == k)].set_index("element")[col]
-    for k in [8, 16]:
-        t = pd.DataFrame({"matched": g("matched", 0, "rho_pick"), "all_mean": g("all_mean", 0, "rho_pick"),
-                          "oracle": g("oracle", 0, "rho_pick"), "disc": g("disc", k, "rho_bma"),
-                          "disc_map": g("disc", k, "rho_pick"), "random": g("random", k, "rho_bma"),
-                          "high_effect": g("high_effect", k, "rho_bma")}).dropna(subset=["matched"])
-        t.round(4).assign(k=k).to_csv(os.path.join(out, f"deployment_{name}_k{k}_by_element.tsv"), sep="\t")
-        t = t.groupby(t.index.map(region_of)).mean()
-        for col in ["disc", "disc_map", "random", "high_effect"]:
-            d = t[col] - t.matched
-            p = wilcoxon(t[col], t.matched, alternative="two-sided").pvalue
-            lines.append(f"{name}\tk={k}\t{col} - matched\t{d.mean():+.3f}\t{d.median():+.3f}\t"
-                         f"{int((d > 0).sum())}/{len(d)}\t{p:.4f}")
-open(os.path.join(out, "deployment_vs_matched.tsv"), "w").write(
-    "set\tbudget\tcomparison\tmean_diff\tmedian_diff\tregions_positive\twilcoxon_p_two_sided\n" + "\n".join(lines) + "\n")
+def deployment(sets, prefix):
+    lines = []
+    for name, s in sets:
+        a = s[s.scenario == "all"]
+        g = lambda st, k, col: a[(a.strategy == st) & (a.k == k)].set_index("element")[col]
+        for k in [8, 16]:
+            t = pd.DataFrame({"matched": g("matched", 0, "rho_pick"), "all_mean": g("all_mean", 0, "rho_pick"),
+                              "oracle": g("oracle", 0, "rho_pick"), "disc": g("disc", k, "rho_bma"),
+                              "disc_map": g("disc", k, "rho_pick"), "random": g("random", k, "rho_bma"),
+                              "high_effect": g("high_effect", k, "rho_bma")}).dropna(subset=["matched"])
+            t.round(4).assign(k=k).to_csv(os.path.join(out, f"{prefix}_{name}_k{k}_by_element.tsv"), sep="\t")
+            t = t.groupby(t.index.map(region_of)).mean()
+            for col in ["disc", "disc_map", "random", "high_effect"]:
+                d = t[col] - t.matched
+                p = wilcoxon(t[col], t.matched, alternative="two-sided").pvalue
+                lines.append(f"{name}\tk={k}\t{col} - matched\t{d.mean():+.3f}\t{d.median():+.3f}\t"
+                             f"{int((d > 0).sum())}/{len(d)}\t{p:.4f}")
+    open(os.path.join(out, f"{prefix}_vs_matched.tsv"), "w").write(
+        "set\tbudget\tcomparison\tmean_diff\tmedian_diff\tregions_positive\twilcoxon_p_two_sided\n"
+        + "\n".join(lines) + "\n")
+
+
+deployment([("dev", dev)] + ([("test", test)] if "test" in dir() else []), "deployment")
+
+# common evaluation set (added 2026-10-29 after review): every strategy and reference scored on the variants
+# outside each repeat's pool. Per-element runs: proxy_select.py --common-eval --tag ce_<element>
+ce_dirs = [d for d in glob.glob(os.path.join(pilot_dir, "results", "proxy_select_ce_*"))
+           if os.path.basename(d) not in ("proxy_select_ce_dev", "proxy_select_ce_test")]
+if ce_dirs:
+    ce = pd.concat([pd.read_csv(os.path.join(d, "summary.tsv"), sep="\t") for d in sorted(ce_dirs)])
+    ce_sets = {"dev": ce[ce.element.isin(set(dev.element))], "test": ce[~ce.element.isin(set(dev.element))]}
+    for name, s in ce_sets.items():
+        d = os.path.join(pilot_dir, "results", f"proxy_select_ce_{name}")
+        os.makedirs(d, exist_ok=True)
+        s.to_csv(os.path.join(d, "summary.tsv"), sep="\t", index=False, float_format="%.4f")
+        s.to_csv(os.path.join(out, f"common_eval_{name}_summary.tsv"), sep="\t", index=False, float_format="%.4f")
+        k8_table(s).round(4).to_csv(os.path.join(out, f"common_eval_{name}_k8_by_element.tsv"), sep="\t")
+    learning_curve(ce_sets["test"], "Held-out test set, common evaluation set (variants outside the pool)",
+                   os.path.join(out, "fig5_test_learning_curve_common_eval.png"))
+    deployment(list(ce_sets.items()), "common_eval_deployment")
+    decision = subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "prereg_test.py"), pilot_dir,
+                               "ce_test"], capture_output=True, text=True, check=True).stdout
+    open(os.path.join(out, "common_eval_test_decision.txt"), "w").write(decision)
 print("wrote", sorted(os.listdir(out)))
