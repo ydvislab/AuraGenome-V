@@ -118,7 +118,14 @@ for version in versions:
             continue
         union = ";".join(sorted({k for r in todo for k in r.keywords.split(";") if k}))
         print(f"{region} {version} -> {[r.element for r in todo]}", flush=True)
-        df = score_region(client, todo[0].chrom, int(todo[0].start), int(todo[0].end), union)
+        # reuse a finished sibling experiment of the same region when it already covers the keywords
+        done = [r for r in grp.itertuples() if r not in todo and
+                set(union.split(";")) <= set(r.keywords.split(";"))]
+        if done:
+            df = pd.read_csv(os.path.join(out_dir, f"{done[0].element}__{version}.tsv.gz"), sep="\t", low_memory=False)
+            print(f"  reusing {done[0].element}__{version}", flush=True)
+        else:
+            df = score_region(client, todo[0].chrom, int(todo[0].start), int(todo[0].end), union)
         for r in todo:
             keep(df, r.keywords).to_csv(os.path.join(out_dir, f"{r.element}__{version}.tsv.gz"), sep="\t", index=False)
 print("done")
