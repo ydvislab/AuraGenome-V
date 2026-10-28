@@ -1,0 +1,26 @@
+name: pilot pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Download and check ground truth
+        run: python pilot/scripts/download_data.py pilot
+      - name: Build variant table
+        run: python pilot/scripts/build_variant_table.py pilot
+      - name: AlphaGenome plan (no API call)
+        run: python pilot/scripts/alphagenome_score.py pilot --dry-run
+      - name: Signal pipeline on simulated predictions
+        run: python pilot/scripts/compute_signals.py pilot --simulate
+      - name: Syntax check (GPU script)
+        run: python -m py_compile pilot/scripts/borzoi_score.py

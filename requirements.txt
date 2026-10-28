@@ -1,0 +1,3 @@
+pandas>=2.0
+numpy>=1.24
+alphagenome==0.10.0
