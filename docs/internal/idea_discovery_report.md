@@ -1,6 +1,6 @@
 # Idea Discovery Report
 
-> Copied from the ARIS run directory on 2026-10-29. The cross-model novelty verdict for A1 is in "Novelty Verification" (PROCEED WITH CAUTION, 7/10); see [`docs/STATUS_zh.md`](../STATUS_zh.md) for the current state of the project.
+> Copied from the ARIS run directory on 2026-10-29. Cross-model novelty verdict for A1: PROCEED WITH CAUTION (7/10); cross-model research review: PROCEED WITH CAUTION, readiness 5/10 (see "External Critical Review"). Current project state: [`docs/STATUS_zh.md`](../STATUS_zh.md).
 
 **Direction**: concrete, practical problems where CS (visualization, uncertainty quantification, LLMs) advances bioinformatics analysis of genomic foundation-model variant-effect predictions. Target: *Bioinformatics* (Original Paper).
 **Date**: 2026-10-28
@@ -114,6 +114,55 @@ Thread 01a183a7-289f-7440-96fe-a0ce59f0e22c; trace `.aris/traces/novelty-check/2
 - **Second dataset**: Siraj SatMut is public (Zenodo 15297965, `data_satmut.zip`).
 - **Defensible claim now**: at eight measurements, the Bayesian adapter beats random-panel adaptation and
   indiscriminate track averaging; the value of sequential acquisition over simpler targeted panels is unresolved.
+
+## External Critical Review
+
+**2026-10-29, Codex MCP (requested gpt-6-astra, xhigh; the reply did not self-report a model id), thread
+01a184bc-aa73-7960-9842-81142cc6d582, trace `.aris/traces/research-review/2026-10-29_run01/`.**
+Bundle: `idea-stage/REVIEW_BUNDLE_A1.md`, which includes the post-test deployment finding (v1 − matched-track mean
+−0.032, 3/11 regions).
+
+**Bottom line: PROCEED WITH CAUTION, not abandon.** Submission readiness is 5/10 now and is expected to reach 7/10
+only if the plan below succeeds on frozen external data.
+
+**Defensible claim today:** with metadata-selected tracks withheld, 8 measured variants improve prediction over
+random-panel adaptation and over indiscriminate track averaging. Advantages over simple targeted panels and over
+available metadata proxies are not established. Losses against the matched mean exceed 0.05 in 7/11 regions.
+
+**What the "safety net" claim needs:** one frozen procedure that shows rescue and preservation together on
+independent data, with:
+- per-locus paired differences on identical evaluation variants;
+- a noninferiority margin and a harm-rate bound, both pre-specified;
+- "poor proxy" defined without the outcome.
+
+**Required before more tuning:** a common outside-pool evaluation set for all methods and references. Corrected v1
+is reported separately and not retuned.
+
+**v2 design constraints:**
+- fixed or very small grid, with leave-one-element-out sensitivity;
+- an unchanged-proxy control and a metadata-centred shrinkage baseline (the affine fit can flip the matched mean);
+- a family prior defined without labels and invariant to duplicated tracks;
+- Siraj stays untouched until v2 is frozen.
+
+**Scope of the Siraj data:** it is external-locus validation, not unprofiled-cell validation. Handle sequence
+backgrounds and locus grouping.
+
+**Mandatory baselines:**
+- unchanged matched mean and all-track mean;
+- matched-mean calibration and metadata shrinkage at the same budget;
+- the acquisition strategies under identical inference;
+- one-round batch panel;
+- budget-matched ridge/LASSO;
+- ablations;
+- continuous EIG if active design stays central.
+
+Citing MODEL SELECTOR and CODA is mandatory; implementing them is conditional.
+
+**Order of work:** evaluation fix → minimal metadata-aware adapter and controls → freeze and pre-register on Siraj
+→ Siraj and C1 → decide on manuscript → interface.
+
+**Stop rule:** drop the safety-net claim if v2 cannot beat simple metadata-centred adaptation, or cannot deliver
+rescue with controlled harm.
 
 ## User decision (2026-10-28, before the cross-model verdict)
 
