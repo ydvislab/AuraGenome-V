@@ -10,11 +10,14 @@ discrimination), and returns a posterior-weighted prediction with a stopping rul
 will show how the posterior spreads over track clusters. Validation uses saturation-mutagenesis MPRA
 (Kircher et al. 2019) with labels masked.
 
-> **Status (2026-10-28): pilot.** Development set done, method frozen, held-out test pre-registered and running.
+> **Status (2026-10-28): pilot passed.** On the pre-registered held-out test (11 regions, 17 MPRA experiments, the
+> element's own cell-type tracks hidden), 8 discrimination-chosen measurements beat random panels (+0.08 Spearman,
+> Wilcoxon p = 0.003) and the label-free all-track mean (+0.07, 8/11 regions); the advantage over picking variants
+> with the largest predicted effect is not significant (+0.03, p = 0.14).
 > Collaborators: start with **[docs/STATUS_zh.md](docs/STATUS_zh.md)** (project overview, in Chinese) and the
 > figures in [results/a1/](results/a1/).
 
-![Development-set learning curve](results/a1/fig1_dev_learning_curve.png)
+![Held-out test learning curve](results/a1/fig3_test_learning_curve.png)
 
 ## Repository layout
 

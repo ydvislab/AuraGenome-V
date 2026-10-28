@@ -1,0 +1,40 @@
+experiments (k = 8, rho_bma; all_mean and oracle are label-free references)
+                disc  random  high_effect  all_mean  oracle      scenario                    region
+element                                                                                            
+FOXE1         -0.012   0.006        0.016     0.051   0.110  hide_matched    chr9:97853255-97853854
+GP1BA          0.418   0.307        0.385     0.372   0.511  hide_matched   chr22:19723266-19723650
+HBB            0.464   0.439        0.495     0.483   0.562  hide_matched     chr11:5227022-5227208
+HBG1           0.576   0.407        0.385     0.181   0.551  hide_matched     chr11:5249805-5250078
+IRF4           0.551   0.403        0.450     0.344   0.670  hide_matched        chr6:396143-396593
+LDLR           0.514   0.372        0.372     0.430   0.537  hide_matched   chr19:11089231-11089548
+LDLR.2         0.540   0.421        0.397     0.446   0.567  hide_matched   chr19:11089231-11089548
+MSMB           0.283   0.156        0.276     0.242   0.333  hide_matched   chr10:46046244-46046834
+MYCrs11986220  0.000   0.013        0.001    -0.018   0.151  hide_matched  chr8:127519270-127519732
+MYCrs6983267   0.152   0.090        0.226     0.148   0.281  hide_matched  chr8:127400829-127401428
+SORT1          0.473   0.343        0.440     0.396   0.623  hide_matched  chr1:109274652-109275251
+SORT1-flip     0.501   0.371        0.470     0.428   0.628  hide_matched  chr1:109274652-109275251
+SORT1.2        0.460   0.334        0.420     0.378   0.620  hide_matched  chr1:109274652-109275251
+TERT-GAa       0.598   0.594        0.595     0.635   0.665  hide_matched      chr5:1294989-1295247
+TERT-GBM       0.659   0.661        0.665     0.698   0.706  hide_matched      chr5:1294989-1295247
+TERT-GSc       0.638   0.633        0.638     0.668   0.680  hide_matched      chr5:1294989-1295247
+TERT-HEK       0.495   0.437        0.497     0.501   0.557  hide_matched      chr5:1294989-1295247
+
+regions: 11
+                                                     elements   disc  random  high_effect  all_mean  oracle
+region                                                                                                     
+chr10:46046244-46046834                                  MSMB  0.283   0.156        0.276     0.242   0.333
+chr11:5227022-5227208                                     HBB  0.464   0.439        0.495     0.483   0.562
+chr11:5249805-5250078                                    HBG1  0.576   0.407        0.385     0.181   0.551
+chr19:11089231-11089548                           LDLR,LDLR.2  0.527   0.396        0.384     0.438   0.552
+chr1:109274652-109275251             SORT1,SORT1-flip,SORT1.2  0.478   0.349        0.444     0.401   0.623
+chr22:19723266-19723650                                 GP1BA  0.418   0.307        0.385     0.372   0.511
+chr5:1294989-1295247      TERT-GAa,TERT-GBM,TERT-GSc,TERT-HEK  0.597   0.581        0.599     0.625   0.652
+chr6:396143-396593                                       IRF4  0.551   0.403        0.450     0.344   0.670
+chr8:127400829-127401428                         MYCrs6983267  0.152   0.090        0.226     0.148   0.281
+chr8:127519270-127519732                        MYCrs11986220  0.000   0.013        0.001    -0.018   0.151
+chr9:97853255-97853854                                  FOXE1 -0.012   0.006        0.016     0.051   0.110
+
+H1 disc > random:       mean diff +0.081, 9/11 regions, Wilcoxon p = 0.0034 -> True
+H2 disc - all_mean:     mean +0.070, positive in 8/11 (need mean >= 0.03 and >= 7) -> True
+H3 disc > high_effect:  mean diff +0.034, Wilcoxon p = 0.1392 -> False
+DECISION: GO
