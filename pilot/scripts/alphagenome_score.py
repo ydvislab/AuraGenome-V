@@ -77,6 +77,19 @@ def keep(df, keywords):
         hit |= name.str.contains(k, case=False, regex=False) | track.str.contains(k, case=False, regex=False)
     return df[hit]
 
+def attach_scorers(scores):
+    """alphagenome 0.10.0: score_ism_variants returns one AnnData per scorer for each variant but,
+    unlike score_variant, does not record which scorer produced it, so tidy_scores rejects it.
+    Attach scorers by position (the order score_variant itself relies on) and check that every
+    position carries the same track set across variants, so a different order would fail loudly."""
+    tracks_at = {}
+    for per_variant in scores:
+        assert len(per_variant) == len(scorers), f"expected {len(scorers)} scores per variant, got {len(per_variant)}"
+        for k, ad in enumerate(per_variant):
+            ad.uns["variant_scorer"] = scorers[k]
+            names = tuple(ad.var["name"]) if "name" in ad.var else tuple(ad.var.index)
+            assert tracks_at.setdefault(k, names) == names, f"scorer {k}: track set differs between variants"
+
 def score_region(client, chrom, start, end, keywords):
     """ISM over [start, end] (1-based, inclusive) in chunks, keeping matched tracks only.
     The prediction window is centred on the whole region so all chunks share one context."""
@@ -89,6 +102,7 @@ def score_region(client, chrom, start, end, keywords):
         t0 = time.time()
         scores = client.score_ism_variants(interval=interval, ism_interval=ism, variant_scorers=scorers,
                                            organism=dna_client.Organism.HOMO_SAPIENS, progress_bar=False)
+        attach_scorers(scores)
         df = keep(variant_scorers.tidy_scores(scores), keywords)
         print(f"  {chrom}:{s}-{e}: {len(df)} kept rows, {time.time() - t0:.0f}s", flush=True)
         parts.append(df)
