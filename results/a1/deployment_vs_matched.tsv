@@ -1,0 +1,17 @@
+set	budget	comparison	mean_diff	median_diff	regions_positive	wilcoxon_p_two_sided
+dev	k=8	disc - matched	-0.048	-0.088	1/5	0.1875
+dev	k=8	disc_map - matched	-0.105	-0.110	0/5	0.0625
+dev	k=8	random - matched	-0.137	-0.147	0/5	0.0625
+dev	k=8	high_effect - matched	-0.062	-0.060	1/5	0.1875
+dev	k=16	disc - matched	-0.032	-0.077	2/5	0.3125
+dev	k=16	disc_map - matched	-0.059	-0.055	1/5	0.1250
+dev	k=16	random - matched	-0.089	-0.095	0/5	0.0625
+dev	k=16	high_effect - matched	-0.073	-0.109	1/5	0.1250
+test	k=8	disc - matched	-0.032	-0.064	3/11	0.3652
+test	k=8	disc_map - matched	-0.077	-0.057	1/11	0.0322
+test	k=8	random - matched	-0.115	-0.150	1/11	0.0137
+test	k=8	high_effect - matched	-0.067	-0.105	2/11	0.0674
+test	k=16	disc - matched	-0.020	-0.026	3/11	0.4648
+test	k=16	disc_map - matched	-0.054	-0.053	3/11	0.1230
+test	k=16	random - matched	-0.056	-0.102	2/11	0.1230
+test	k=16	high_effect - matched	-0.032	-0.031	3/11	0.2783

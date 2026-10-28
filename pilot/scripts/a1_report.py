@@ -152,17 +152,59 @@ if reg_dirs:
     r["region"] = r.element.map(reg.c + ":" + reg.a.astype(str) + "-" + reg.b.astype(str))
     dev_elements = set(dev.element)
     r["set"] = np.where(r.element.isin(dev_elements), "dev", "test")
+    # LASSO can shrink every coefficient to zero; the constant prediction has an undefined Spearman. Rules:
+    # "zero" = no ranking information (main); "all_mean" = fall back to the label-free all-track mean (kinder
+    # to LASSO); "drop" = omit the repeat (the rule used before 2026-10-29)
+    sums = pd.concat([dev, test]) if "test" in dir() else dev
+    fallback = sums[sums.strategy == "all_mean"].set_index(["element", "scenario"]).rho_pick
+    r["n_undefined"] = r.rho_bma.isna().astype(int)
     strategies = ["random", "disc", "random+ridge", "random+lasso", "disc+ridge", "disc+lasso"]
-    e = (r[r.strategy.isin(strategies)].groupby(["set", "region", "element", "strategy", "k"]).rho_bma.mean()
-         .groupby(["set", "region", "strategy", "k"]).mean().reset_index())
-    e.round(4).to_csv(os.path.join(out, "regression_baselines_by_region.tsv"), sep="\t", index=False)
-    lines = []
-    for st in ["dev", "test"]:
-        t = e[(e.set == st) & (e.k == 8)].pivot(index="region", columns="strategy", values="rho_bma")
-        for b in ["random+lasso", "random+ridge", "disc+lasso", "disc+ridge"]:
-            d = t.disc - t[b]
-            p = wilcoxon(t.disc, t[b], alternative="greater").pvalue
-            lines.append(f"{st}\tk=8\tdisc (posterior-weighted) - {b}\t{d.mean():+.3f}\t{int((d > 0).sum())}/{len(d)}\t{p:.4f}")
+    lines, tables = [], []
+    for rule in ["zero", "all_mean", "drop"]:
+        q = r[r.strategy.isin(strategies)].copy()
+        if rule == "zero":
+            q["rho_bma"] = q.rho_bma.fillna(0.0)
+        elif rule == "all_mean":
+            q["rho_bma"] = q.rho_bma.fillna(pd.Series(fallback.reindex(pd.MultiIndex.from_frame(
+                q[["element", "scenario"]])).to_numpy(), index=q.index))
+        e = (q.groupby(["set", "region", "element", "strategy", "k"]).agg(rho_bma=("rho_bma", "mean"),
+                                                                        n_undefined=("n_undefined", "sum"))
+             .groupby(["set", "region", "strategy", "k"]).agg(rho_bma=("rho_bma", "mean"),
+                                                             n_undefined=("n_undefined", "sum")).reset_index())
+        tables.append(e.assign(undefined_rule=rule))
+        for st in ["dev", "test"]:
+            t = e[(e.set == st) & (e.k == 8)].pivot(index="region", columns="strategy", values="rho_bma")
+            for b in ["random+lasso", "random+ridge", "disc+lasso", "disc+ridge"]:
+                d = t.disc - t[b]
+                p = wilcoxon(t.disc, t[b], alternative="greater").pvalue
+                lines.append(f"{rule}\t{st}\tk=8\tdisc (posterior-weighted) - {b}\t{d.mean():+.3f}\t"
+                             f"{int((d > 0).sum())}/{len(d)}\t{p:.4f}")
+    pd.concat(tables).round(4).to_csv(os.path.join(out, "regression_baselines_by_region.tsv"), sep="\t", index=False)
     open(os.path.join(out, "regression_baselines_k8.tsv"), "w").write(
-        "set\tbudget\tcomparison\tmean_diff\tregions_positive\twilcoxon_p_one_sided\n" + "\n".join(lines) + "\n")
+        "undefined_rule\tset\tbudget\tcomparison\tmean_diff\tregions_positive\twilcoxon_p_one_sided\n"
+        + "\n".join(lines) + "\n")
+
+# deployment comparison (added 2026-10-29 after the cross-model review): keep every track, including the
+# metadata-matched or related-cell proxies, and compare against the label-free mean of those matched tracks
+var = pd.read_csv(os.path.join(pilot_dir, "data", "variants_grch38.tsv"), sep="\t", low_memory=False)
+reg = var.groupby("element").agg(c=("chrom", "first"), a=("pos", "min"), b=("pos", "max"))
+region_of = reg.c + ":" + reg.a.astype(str) + "-" + reg.b.astype(str)
+lines = []
+for name, s in [("dev", dev)] + ([("test", test)] if "test" in dir() else []):
+    a = s[s.scenario == "all"]
+    g = lambda st, k, col: a[(a.strategy == st) & (a.k == k)].set_index("element")[col]
+    for k in [8, 16]:
+        t = pd.DataFrame({"matched": g("matched", 0, "rho_pick"), "all_mean": g("all_mean", 0, "rho_pick"),
+                          "oracle": g("oracle", 0, "rho_pick"), "disc": g("disc", k, "rho_bma"),
+                          "disc_map": g("disc", k, "rho_pick"), "random": g("random", k, "rho_bma"),
+                          "high_effect": g("high_effect", k, "rho_bma")}).dropna(subset=["matched"])
+        t.round(4).assign(k=k).to_csv(os.path.join(out, f"deployment_{name}_k{k}_by_element.tsv"), sep="\t")
+        t = t.groupby(t.index.map(region_of)).mean()
+        for col in ["disc", "disc_map", "random", "high_effect"]:
+            d = t[col] - t.matched
+            p = wilcoxon(t[col], t.matched, alternative="two-sided").pvalue
+            lines.append(f"{name}\tk={k}\t{col} - matched\t{d.mean():+.3f}\t{d.median():+.3f}\t"
+                         f"{int((d > 0).sum())}/{len(d)}\t{p:.4f}")
+open(os.path.join(out, "deployment_vs_matched.tsv"), "w").write(
+    "set\tbudget\tcomparison\tmean_diff\tmedian_diff\tregions_positive\twilcoxon_p_two_sided\n" + "\n".join(lines) + "\n")
 print("wrote", sorted(os.listdir(out)))

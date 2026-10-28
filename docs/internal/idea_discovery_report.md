@@ -1,6 +1,6 @@
 # Idea Discovery Report
 
-> Copied from the ARIS run directory on 2026-10-28. The cross-model novelty verdict is still pending (reviewer usage limit); see [`docs/STATUS_zh.md`](../STATUS_zh.md) for the current state of the project.
+> Copied from the ARIS run directory on 2026-10-29. The cross-model novelty verdict for A1 is in "Novelty Verification" (PROCEED WITH CAUTION, 7/10); see [`docs/STATUS_zh.md`](../STATUS_zh.md) for the current state of the project.
 
 **Direction**: concrete, practical problems where CS (visualization, uncertainty quantification, LLMs) advances bioinformatics analysis of genomic foundation-model variant-effect predictions. Target: *Bioinformatics* (Original Paper).
 **Date**: 2026-10-28
@@ -69,7 +69,7 @@ Cross-model triage (gpt-5.6-sol, thread 01a18187…): **TOP: A1, C1, E1.**
 
 ## Novelty Verification
 
-**Status: BLOCKED — cross-model verdict not yet obtained.** The Codex reviewer returned "usage limit reached, try again at 8:49 PM" (2026-10-28). Phase B (multi-source search) is complete; Phase C (cross-model verdict) must be re-run. Dossier: `idea-stage/NOVELTY_DOSSIER.md`. The notes below are search findings, not verdicts.
+**Status (2026-10-29): A1 verdict obtained — PROCEED WITH CAUTION 7/10 (see below). C1 and E1 were not re-checked (deferred by the user).** Earlier status: BLOCKED — cross-model verdict not yet obtained. The Codex reviewer returned "usage limit reached, try again at 8:49 PM" (2026-10-28). Phase B (multi-source search) is complete; Phase C (cross-model verdict) must be re-run. Dossier: `idea-stage/NOVELTY_DOSSIER.md`. The notes below are search findings, not verdicts.
 
 | Idea | Closest prior work found | What stays different (to be verified by reviewer) |
 |---|---|---|
@@ -91,6 +91,29 @@ few-label LASSO/ridge baselines). Additional Phase-B finding, executor search on
 | AlphaGenome (CAGI5 LASSO over tracks) | uses labels to combine tracks | with 8 labels our method beats it by +0.117 Spearman on the held-out regions (post hoc) |
 
 Implication for the paper: MODEL SELECTOR must be cited and, ideally, adapted to regression as a baseline.
+
+### Cross-model verdict 2026-10-29 01:56 — A1: PROCEED WITH CAUTION, 7/10
+
+Reviewer: Codex MCP, requested model gpt-6-astra (xhigh, read-only); the reply did not self-report a model id.
+Thread 01a183a7-289f-7440-96fe-a0ce59f0e22c; trace `.aris/traces/novelty-check/2026-10-29_run01/`.
+
+- **Clears the check**: no published paper contains the combination of small-panel calibration, predictive
+  averaging across genomic tracks, and the validation.
+- **Delta (verifiable)**: "Unlike pretrained-classifier selection and AlphaGenome's supervised CAGI5 aggregation, A1
+  uses a tiny, adaptively acquired panel of quantitative variant effects to marginalize affine calibration across
+  frozen genomic tracks and produce locus-specific predictions for unmeasured variants."
+- **Why caution**: the acquisition score is posterior-weighted pairwise disagreement (Box–Hill mean separation), and
+  its edge over simple targeted panels is unproven (H3 failed; disc − static disagreement only +0.010, 7/11).
+- **New prior work to cite**: CODA (Kay et al., ICCV 2025), SELECT-LLM (arXiv 2510.09418v2), Gardner et al. NIPS
+  2015, Olofsson et al. ICML 2018, Sugiyama & Rubens, Sawade et al. 2008/2012, Enformer Celltyping, Borzoi PEFT.
+- **Correction**: AlphaGenome's CAGI5 LASSO uses the challenge training labels, not all labels.
+- **Audit findings to fix**: (1) `hide_matched` also removes legitimate related proxies — add the deployment
+  comparison with them retained (IRF4: metadata proxy 0.652 vs disc 0.575); (2) undefined LASSO Spearman values
+  silently dropped (221/850 random+LASSO at test k = 8); (3) "oracle" is a reference, not an upper bound;
+  (4) score all strategies on a common outside-pool set.
+- **Second dataset**: Siraj SatMut is public (Zenodo 15297965, `data_satmut.zip`).
+- **Defensible claim now**: at eight measurements, the Bayesian adapter beats random-panel adaptation and
+  indiscriminate track averaging; the value of sequential acquisition over simpler targeted panels is unresolved.
 
 ## User decision (2026-10-28, before the cross-model verdict)
 

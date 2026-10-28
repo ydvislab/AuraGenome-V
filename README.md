@@ -10,12 +10,16 @@ discrimination), and returns a posterior-weighted prediction with a stopping rul
 will show how the posterior spreads over track clusters. Validation uses saturation-mutagenesis MPRA
 (Kircher et al. 2019) with labels masked.
 
-> **Status (2026-10-28): pilot passed.** On the pre-registered held-out test (11 regions, 17 MPRA experiments, the
-> element's own cell-type tracks hidden), 8 discrimination-chosen measurements beat random panels (+0.08 Spearman,
-> Wilcoxon p = 0.003) and the label-free all-track mean (+0.07, 8/11 regions); the advantage over picking variants
-> with the largest predicted effect is not significant (+0.03, p = 0.14). With the same 8 labels it also beats
-> LASSO over all tracks, the protocol AlphaGenome uses on this benchmark with all labels (+0.12, p = 0.002;
-> baseline added after the pre-registration).
+> **Status (2026-10-29): pilot passed; method v2 needed.** On the pre-registered held-out test (11 regions, 17 MPRA
+> experiments, tracks of the element's own and related cell types hidden), 8 discrimination-chosen measurements beat
+> random panels (+0.08 Spearman, Wilcoxon p = 0.003) and the label-free all-track mean (+0.07, 8/11 regions); the
+> advantage over picking variants with the largest predicted effect is not significant (+0.03, p = 0.14). With the
+> same 8 labels it also beats LASSO over all tracks, the protocol AlphaGenome uses on this benchmark (+0.11 to +0.18
+> depending on how degenerate LASSO fits are scored, p = 0.002; added after the pre-registration).
+> **Limitation found after the test:** when metadata-matched or related-cell tracks are kept, simply averaging them
+> is as good as the method (method − matched mean −0.03, 3/11 regions positive); the method helps where the matched
+> proxy is poor (e.g. LDLR 0.24 → 0.51). The next version puts metadata into the prior and will be tested on a
+> second dataset. Cross-model novelty check: PROCEED WITH CAUTION (7/10).
 > Collaborators: start with **[docs/STATUS_zh.md](docs/STATUS_zh.md)** (project overview, in Chinese) and the
 > figures in [results/a1/](results/a1/).
 
