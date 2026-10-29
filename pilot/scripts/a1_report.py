@@ -140,10 +140,10 @@ if os.path.exists(os.path.join(res("test"), "summary.tsv")):
                               capture_output=True, text=True, check=True).stdout
     open(os.path.join(out, "test_decision.txt"), "w").write(decision)
 # few-label regression baselines (added after the pre-registration; first 50 repeats), region level
-reg_dirs = sorted(glob.glob(os.path.join(pilot_dir, "results", "proxy_select_reg*")))
-if reg_dirs:
+def regression(reg_dirs, prefix):
     r = pd.concat([pd.read_csv(os.path.join(d, "runs.tsv.gz"), sep="\t",
-                               usecols=["element", "scenario", "strategy", "k", "repeat", "rho_bma"]) for d in reg_dirs])
+                               usecols=["element", "scenario", "strategy", "k", "repeat", "rho_bma", "rho_pick"])
+                   for d in reg_dirs])
     r = r[(r.repeat >= 0) & (r.repeat < 50)]
     r = r[r.scenario == r.element.map(r.groupby("element").scenario.agg(
         lambda x: "hide_matched" if (x == "hide_matched").any() else "all"))]
@@ -154,9 +154,16 @@ if reg_dirs:
     r["set"] = np.where(r.element.isin(dev_elements), "dev", "test")
     # LASSO can shrink every coefficient to zero; the constant prediction has an undefined Spearman. Rules:
     # "zero" = no ranking information (main); "all_mean" = fall back to the label-free all-track mean (kinder
-    # to LASSO); "drop" = omit the repeat (the rule used before 2026-10-29)
-    sums = pd.concat([dev, test]) if "test" in dir() else dev
-    fallback = sums[sums.strategy == "all_mean"].set_index(["element", "scenario"]).rho_pick
+    # to LASSO); "drop" = omit the repeat (the rule used before 2026-10-29). On the common evaluation set the
+    # all-track mean is scored per repeat on the same variants, so the fallback is taken per repeat.
+    per_repeat = (r.strategy == "all_mean").any()
+    if per_repeat:
+        fb = r[r.strategy == "all_mean"].set_index(["element", "scenario", "repeat"]).rho_pick
+        keys = ["element", "scenario", "repeat"]
+    else:
+        sums = pd.concat([dev, test]) if "test" in globals() else dev
+        fb = sums[sums.strategy == "all_mean"].set_index(["element", "scenario"]).rho_pick
+        keys = ["element", "scenario"]
     r["n_undefined"] = r.rho_bma.isna().astype(int)
     strategies = ["random", "disc", "random+ridge", "random+lasso", "disc+ridge", "disc+lasso"]
     lines, tables = [], []
@@ -165,8 +172,8 @@ if reg_dirs:
         if rule == "zero":
             q["rho_bma"] = q.rho_bma.fillna(0.0)
         elif rule == "all_mean":
-            q["rho_bma"] = q.rho_bma.fillna(pd.Series(fallback.reindex(pd.MultiIndex.from_frame(
-                q[["element", "scenario"]])).to_numpy(), index=q.index))
+            q["rho_bma"] = q.rho_bma.fillna(pd.Series(fb.reindex(pd.MultiIndex.from_frame(q[keys])).to_numpy(),
+                                                      index=q.index))
         e = (q.groupby(["set", "region", "element", "strategy", "k"]).agg(rho_bma=("rho_bma", "mean"),
                                                                         n_undefined=("n_undefined", "sum"))
              .groupby(["set", "region", "strategy", "k"]).agg(rho_bma=("rho_bma", "mean"),
@@ -179,10 +186,19 @@ if reg_dirs:
                 p = wilcoxon(t.disc, t[b], alternative="greater").pvalue
                 lines.append(f"{rule}\t{st}\tk=8\tdisc (posterior-weighted) - {b}\t{d.mean():+.3f}\t"
                              f"{int((d > 0).sum())}/{len(d)}\t{p:.4f}")
-    pd.concat(tables).round(4).to_csv(os.path.join(out, "regression_baselines_by_region.tsv"), sep="\t", index=False)
-    open(os.path.join(out, "regression_baselines_k8.tsv"), "w").write(
+    pd.concat(tables).round(4).to_csv(os.path.join(out, f"{prefix}_by_region.tsv"), sep="\t", index=False)
+    open(os.path.join(out, f"{prefix}_k8.tsv"), "w").write(
         "undefined_rule\tset\tbudget\tcomparison\tmean_diff\tregions_positive\twilcoxon_p_one_sided\n"
         + "\n".join(lines) + "\n")
+
+
+reg_dirs = sorted(glob.glob(os.path.join(pilot_dir, "results", "proxy_select_reg*")))
+if reg_dirs:
+    regression(reg_dirs, "regression_baselines")
+# the same on the common evaluation set (2026-10-29): proxy_select.py --common-eval --regression --tag commonreg/<element>
+reg_dirs = sorted(glob.glob(os.path.join(pilot_dir, "results", "proxy_select_commonreg", "*")))
+if reg_dirs:
+    regression(reg_dirs, "common_eval_regression_baselines")
 
 # deployment comparison (added 2026-10-29 after the cross-model review): keep every track, including the
 # metadata-matched or related-cell proxies, and compare against the label-free mean of those matched tracks

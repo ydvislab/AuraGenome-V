@@ -239,7 +239,18 @@ Codex 评审指出，主分析的 `hide_matched` 场景不只藏起了本细胞�
 - [`results/a1/common_eval_*`](../results/a1/)
 - [`fig5_test_learning_curve_common_eval.png`](../results/a1/fig5_test_learning_curve_common_eval.png)
 
-预注册的原始结果照原样保留。回归基线还没有用统一评估集重跑，因为 LASSO 很慢；之后与 v2 一起跑。
+预注册的原始结果照原样保留。
+
+回归基线在统一评估集上的重跑已完成（10/29 11:00），结论不变。检验集 k = 8，11 个区域：
+
+| disc 减去 | 原评估 | 统一评估集 | 为正 | 单侧 p |
+|---|---|---|---|---|
+| random + LASSO | +0.107 到 +0.178 | +0.110 到 +0.182 | 9 到 10/11 | ≤ 0.0024 |
+| random + 岭回归 | +0.111 | +0.116 | 8/11 | 0.0068 |
+| disc + LASSO | +0.034 到 +0.048 | +0.034 到 +0.048 | 8/11 | ≤ 0.016 |
+| disc + 岭回归 | +0.024 | +0.023 | 8/11 | 0.042 |
+
+LASSO 的范围对应三种处理全零系数的规则。详见 `results/a1/common_eval_regression_baselines_k8.tsv`。
 
 v2 的参数只能在 Kircher 开发集上调。调完冻结，再在 Siraj SatMut 上做一次新的预注册检验。Kircher 检验集的现有结果照原样报告，不重新解释。
 

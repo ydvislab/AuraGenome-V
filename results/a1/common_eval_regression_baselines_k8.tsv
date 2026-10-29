@@ -1,0 +1,25 @@
+undefined_rule	set	budget	comparison	mean_diff	regions_positive	wilcoxon_p_one_sided
+zero	dev	k=8	disc (posterior-weighted) - random+lasso	+0.193	5/5	0.0312
+zero	dev	k=8	disc (posterior-weighted) - random+ridge	+0.128	5/5	0.0312
+zero	dev	k=8	disc (posterior-weighted) - disc+lasso	+0.056	5/5	0.0312
+zero	dev	k=8	disc (posterior-weighted) - disc+ridge	+0.031	5/5	0.0312
+zero	test	k=8	disc (posterior-weighted) - random+lasso	+0.182	9/11	0.0024
+zero	test	k=8	disc (posterior-weighted) - random+ridge	+0.116	8/11	0.0068
+zero	test	k=8	disc (posterior-weighted) - disc+lasso	+0.048	8/11	0.0161
+zero	test	k=8	disc (posterior-weighted) - disc+ridge	+0.023	8/11	0.0415
+all_mean	dev	k=8	disc (posterior-weighted) - random+lasso	+0.113	5/5	0.0312
+all_mean	dev	k=8	disc (posterior-weighted) - random+ridge	+0.128	5/5	0.0312
+all_mean	dev	k=8	disc (posterior-weighted) - disc+lasso	+0.042	4/5	0.0625
+all_mean	dev	k=8	disc (posterior-weighted) - disc+ridge	+0.031	5/5	0.0312
+all_mean	test	k=8	disc (posterior-weighted) - random+lasso	+0.110	10/11	0.0015
+all_mean	test	k=8	disc (posterior-weighted) - random+ridge	+0.116	8/11	0.0068
+all_mean	test	k=8	disc (posterior-weighted) - disc+lasso	+0.034	8/11	0.0122
+all_mean	test	k=8	disc (posterior-weighted) - disc+ridge	+0.023	8/11	0.0415
+drop	dev	k=8	disc (posterior-weighted) - random+lasso	+0.144	5/5	0.0312
+drop	dev	k=8	disc (posterior-weighted) - random+ridge	+0.128	5/5	0.0312
+drop	dev	k=8	disc (posterior-weighted) - disc+lasso	+0.045	4/5	0.0625
+drop	dev	k=8	disc (posterior-weighted) - disc+ridge	+0.031	5/5	0.0312
+drop	test	k=8	disc (posterior-weighted) - random+lasso	+0.121	9/11	0.0024
+drop	test	k=8	disc (posterior-weighted) - random+ridge	+0.116	8/11	0.0068
+drop	test	k=8	disc (posterior-weighted) - disc+lasso	+0.034	8/11	0.0122
+drop	test	k=8	disc (posterior-weighted) - disc+ridge	+0.023	8/11	0.0415
