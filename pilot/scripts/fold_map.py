@@ -5,17 +5,26 @@ AlphaGenome's FOLD_k checkpoints each hold out a validation and a test fold of t
 FOLD_3 -> fold6/fold7; ALL_FOLDS (the default, distilled) saw every fold. For each element we list the
 folds of the training windows that overlap its region and the checkpoint(s) that held all of them out.
 
-usage: python fold_map.py <pilot_dir>
-Output: <pilot_dir>/data/element_folds.tsv, plus the scoring commands grouped by checkpoint
+usage: python fold_map.py <pilot_dir> [--variants data/siraj/variants_grch38.tsv --out data/siraj/element_folds.tsv]
+Output: <pilot_dir>/data/element_folds.tsv (Kircher default), plus the scoring commands grouped by checkpoint.
+Only positions are read from the variant table.
 """
-import os, sys
+import os, argparse
 import pandas as pd
 from alphagenome.data import fold_intervals as fi
 from alphagenome.models.v1 import dna_client
 
-pilot_dir = sys.argv[1]
-var = pd.read_csv(os.path.join(pilot_dir, "data", "variants_grch38.tsv"), sep="\t", low_memory=False)
-var = var[var.human_cells]
+ap = argparse.ArgumentParser()
+ap.add_argument("pilot_dir")
+ap.add_argument("--variants", default="data/variants_grch38.tsv", help="relative to pilot_dir")
+ap.add_argument("--out", default="data/element_folds.tsv", help="relative to pilot_dir")
+a = ap.parse_args()
+pilot_dir = a.pilot_dir
+var = pd.read_csv(os.path.join(pilot_dir, a.variants), sep="\t", usecols=lambda c: c in
+                  ("element", "chrom", "pos", "human_cells"), low_memory=False)
+if "human_cells" in var:   # Kircher: human elements only
+    var = var[var.human_cells]
+var["element"] = var.element.str.replace(":", "_")   # as in alphagenome_score.py
 el = var.groupby("element").agg(chrom=("chrom", "first"), start=("pos", "min"), end=("pos", "max")).reset_index()
 
 held_out = {}   # fold name -> checkpoint that never trained on it
@@ -38,7 +47,7 @@ for r in el.itertuples():
                      held_out_checkpoint=versions[0] if len(versions) == 1 else "",
                      note="" if len(versions) == 1 else f"windows from several folds: {versions}"))
 out = pd.DataFrame(rows)
-out.to_csv(os.path.join(pilot_dir, "data", "element_folds.tsv"), sep="\t", index=False)
+out.to_csv(os.path.join(pilot_dir, a.out), sep="\t", index=False)
 print(out.to_string(index=False))
 print("\nscoring commands (held-out checkpoint per element):")
 for v, g in out[out.held_out_checkpoint != ""].groupby("held_out_checkpoint"):
