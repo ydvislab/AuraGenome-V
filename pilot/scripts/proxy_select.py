@@ -41,6 +41,10 @@ Label-free references: matched (mean of metadata-matched tracks), all_mean, orac
 using every label; a reference, not a method and not an upper bound: the fitted slope may be negative and a
 posterior average can beat every single track).
 With --common-eval, every strategy and reference is scored on the variants outside the repeat's pool.
+Method v2 (docs/internal/method_v2_zh.md): --anchor-prior adds the mean of the matched tracks as a hypothesis holding
+that prior mass, with its slope prior centred on +sqrt(beta)*s; --family-prior splits the tracks' prior equally between
+prediction clusters (no labels used; duplicating a track changes nothing); --controls adds same-budget metadata
+controls (+matched_cal, +meta_ridge) on the random and disc panels.
 Scenarios: all tracks, and hide_matched (tracks of the element's own cell type removed, which mimics
 a cell type the model does not profile).
 
@@ -83,8 +87,19 @@ ap.add_argument("--common-eval", action="store_true",
                 help="score every strategy and label-free reference on the same variants: those outside the "
                      "repeat's pool (added 2026-10-29 after review; the frozen v1 scores each panel on its own "
                      "non-panel variants and the references on all variants)")
+ap.add_argument("--anchor-prior", type=float, default=0.0,
+                help="method v2: prior mass of the metadata anchor hypothesis (mean of the matched tracks, positive "
+                     "slope prior); 0 = no anchor (v1). See docs/internal/method_v2_zh.md")
+ap.add_argument("--anchor-slope-sd", type=float, default=0.5,
+                help="sd of the anchor's slope prior as a fraction of its mean sqrt(beta)*s")
+ap.add_argument("--family-prior", action="store_true",
+                help="method v2: equal prior mass per prediction cluster (--cluster-r), split within the cluster")
+ap.add_argument("--controls", action="store_true",
+                help="same-budget metadata controls where matched tracks exist: +matched_cal and +meta_ridge")
+ap.add_argument("--scenarios", default="all,hide_matched")
 ap.add_argument("--seed", type=int, default=0)
 a = ap.parse_args()
+assert not (a.ensemble and a.anchor_prior > 0), "--ensemble and --anchor-prior are alternatives"
 
 budgets = [int(k) for k in a.budgets.split(",")]
 kmax = max(budgets)
@@ -136,19 +151,29 @@ def rank_corr(M, y):
     return (R * r[:, None]).sum(0) / np.sqrt((R ** 2).sum(0) * (r ** 2).sum())
 
 
-def posterior(Zs, ys, ses, logprior):
+def posterior(Zs, ys, ses, logprior, slope=None):
     """Log posterior (unnormalised) of every hypothesis for panel (Zs (k, T), ys (k,), standard errors
     ses (k,)), the posterior-mean intercept and slope of each hypothesis' map from scaled prediction to
-    the true effect, and the signal variance s^2."""
+    the true effect, and the signal variance s^2. slope = (mean (T,), variance (T,)) of each hypothesis'
+    slope prior in units of s and s^2; default N(0, beta s^2) for all (v1)."""
     k, T = Zs.shape
     m2 = float(np.mean(ys ** 2))
     s2 = max(m2 - float(np.mean(ses ** 2)), 0.1 * m2, 1e-6)
     zt = Zs.T
-    S = s2 * ((1 - a.beta) * np.eye(k) + a.alpha + a.beta * zt[:, :, None] * zt[:, None, :]) + np.diag(ses ** 2)
+    if slope is None:
+        S = s2 * ((1 - a.beta) * np.eye(k) + a.alpha + a.beta * zt[:, :, None] * zt[:, None, :]) + np.diag(ses ** 2)
+        L = np.linalg.cholesky(S)
+        c = np.linalg.solve(S, np.broadcast_to(ys, (T, k))[..., None])[..., 0]
+        ll = -0.5 * ((ys * c).sum(1) + 2 * np.log(np.diagonal(L, axis1=1, axis2=2)).sum(1)) + logprior
+        return ll, s2 * a.alpha * c.sum(1), s2 * a.beta * (zt * c).sum(1), s2
+    mb, vb = slope
+    s = np.sqrt(s2)
+    S = s2 * ((1 - a.beta) * np.eye(k) + a.alpha + vb[:, None, None] * zt[:, :, None] * zt[:, None, :]) + np.diag(ses ** 2)
     L = np.linalg.cholesky(S)
-    c = np.linalg.solve(S, np.broadcast_to(ys, (T, k))[..., None])[..., 0]
-    ll = -0.5 * ((ys * c).sum(1) + 2 * np.log(np.diagonal(L, axis1=1, axis2=2)).sum(1)) + logprior
-    return ll, s2 * a.alpha * c.sum(1), s2 * a.beta * (zt * c).sum(1), s2
+    r = ys - s * mb[:, None] * zt                       # (T, k) residual from each prior-mean line
+    c = np.linalg.solve(S, r[..., None])[..., 0]
+    ll = -0.5 * ((r * c).sum(1) + 2 * np.log(np.diagonal(L, axis1=1, axis2=2)).sum(1)) + logprior
+    return ll, s2 * a.alpha * c.sum(1), s * mb + s2 * vb * (zt * c).sum(1), s2
 
 
 def softmax(ll):
@@ -156,10 +181,10 @@ def softmax(ll):
     return w / w.sum()
 
 
-def evaluate(Z, y, se, cls, panel, track_rho, logprior, test=None):
+def evaluate(Z, y, se, cls, panel, track_rho, logprior, test=None, slope=None):
     """Fit the posterior on the panel and score the MAP hypothesis and the posterior average on `test`
     (default: every variant outside the panel)."""
-    ll, A, B, _ = posterior(Z[panel], y[panel], se[panel], logprior)
+    ll, A, B, _ = posterior(Z[panel], y[panel], se[panel], logprior, slope)
     w = softmax(ll)
     if test is None:
         test = np.ones(len(y), bool)
@@ -176,6 +201,17 @@ def evaluate(Z, y, se, cls, panel, track_rho, logprior, test=None):
 
 def regress(Z, y, panel):
     """Few-label ridge and LASSO over all single tracks, fitted on the panel; predictions for every variant."""
+    out = {"ridge": ridge(Z, y, panel)}
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        lasso = LassoCV(alphas=20, cv=LeaveOneOut(), max_iter=5000).fit(Z[panel], y[panel])
+    out["lasso"] = lasso.predict(Z)
+    return out
+
+
+def ridge(Z, y, panel):
+    """Ridge over all single tracks fitted on the panel, penalty by exact leave-one-out; predictions for
+    every variant."""
     Xs, ys = Z[panel], y[panel]
     xm, ym = Xs.mean(0), ys.mean()
     Xc, yc = Xs - xm, ys - ym
@@ -187,15 +223,10 @@ def regress(Z, y, panel):
         if best is None or loo < best[0]:
             best = (loo, lam)
     w = Xc.T @ np.linalg.solve(K + best[1] * np.eye(len(panel)), yc)
-    out = {"ridge": ym + (Z - xm) @ w}
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        lasso = LassoCV(alphas=20, cv=LeaveOneOut(), max_iter=5000).fit(Xs, ys)
-    out["lasso"] = lasso.predict(Z)
-    return out
+    return ym + (Z - xm) @ w
 
 
-def disc_sequence(Z, y, se, pool, C, logprior):
+def disc_sequence(Z, y, se, pool, C, logprior, slope=None):
     """Sequential discriminating panel. Returns the panel order and the first panel size at which the
     MAP track correlates >= --stop-r with the MAP tracks of the previous --stop-patience panels (kmax if
     never). C is the track x track correlation of predictions."""
@@ -211,7 +242,7 @@ def disc_sequence(Z, y, se, pool, C, logprior):
         j = int(np.argmax(score))
         left[j] = False
         order.append(pool[j])
-        ll, A, B, s2 = posterior(Z[order], y[order], se[order], logprior)
+        ll, A, B, s2 = posterior(Z[order], y[order], se[order], logprior, slope)
         w = softmax(ll)
         mu = A + Z[pool] * B
         noise = s2 * (1 - a.beta) + se[pool] ** 2
@@ -230,6 +261,7 @@ for element in elements:
     scenarios = {"all": np.ones(len(meta_all), bool)}
     if meta_all.matched.any():
         scenarios["hide_matched"] = ~meta_all.matched.to_numpy()
+    scenarios = {k: v for k, v in scenarios.items() if k in a.scenarios.split(",")}
     track_rho_all = rank_corr(Z_all, y)
     clusters_all = fcluster(linkage(Z_all.T, method="average", metric="correlation"),
                             t=1 - a.cluster_r, criterion="distance")
@@ -251,6 +283,9 @@ for element in elements:
         ens = {"ensemble|all_mean": Z.mean(1)} if a.ensemble else {}
         if ens and scen == "all" and meta.matched.any():
             ens["ensemble|matched"] = Z[:, meta.matched.to_numpy()].mean(1)
+        has_matched = scen == "all" and meta.matched.any()
+        if a.anchor_prior > 0 and has_matched:
+            ens = {"anchor|matched": Z[:, meta.matched.to_numpy()].mean(1)}
         T = Z.shape[1]
         H = np.column_stack([Z] + [v / v.std() for v in ens.values()])
         hmeta = pd.concat([meta, pd.DataFrame(dict(biosample_name=list(ens), matched=[k.endswith("matched") for k in ens]),
@@ -260,6 +295,17 @@ for element in elements:
         logprior = np.full(H.shape[1], np.log((1 - a.ensemble_prior) / T) if ens else -np.log(T))
         if ens:
             logprior[T:] = np.log(a.ensemble_prior / len(ens))
+        slope = None
+        anchor_slope = (np.array([np.sqrt(a.beta)]), np.array([(a.anchor_slope_sd * np.sqrt(a.beta)) ** 2]))
+        if a.family_prior or a.anchor_prior > 0:
+            # method v2: the tracks' mass is split equally between prediction clusters, then within each;
+            # the anchor holds --anchor-prior and its slope prior is centred on a positive value
+            lp = (-np.log(clusters.max() + 1) - np.log(np.bincount(clusters)[clusters]) if a.family_prior
+                  else np.full(T, -np.log(T)))
+            mass = a.anchor_prior if ens else 0.0
+            logprior = np.concatenate([lp + np.log1p(-mass), np.full(len(ens), np.log(max(mass, 1e-300)))])
+            if ens:
+                slope = (np.concatenate([np.zeros(T), anchor_slope[0]]), np.concatenate([np.full(T, a.beta), anchor_slope[1]]))
         C = np.corrcoef(H.T)
 
         def label_free(name, pred, m=None, rep=-1):
@@ -284,7 +330,7 @@ for element in elements:
                 outside[pool] = False
                 for name, pred in refs.items():
                     label_free(name, pred, outside, rep)
-            order, k_stop = disc_sequence(H, y, se, pool, C, logprior)
+            order, k_stop = disc_sequence(H, y, se, pool, C, logprior, slope)
             panels = {"random": rng.permutation(pool),
                       "high_effect": pool[np.argsort(-mean_pred[pool], kind="stable")],
                       "disagree": pool[np.argsort(-spread[pool], kind="stable")],
@@ -292,7 +338,7 @@ for element in elements:
             todo = [(s, k, p[:k]) for s, p in panels.items() for k in budgets]
             todo.append(("disc_stop", kmax, np.array(order[:k_stop])))
             for strategy, k, panel in todo:
-                r = evaluate(H, y, se, cls, panel, h_rho, logprior, outside)
+                r = evaluate(H, y, se, cls, panel, h_rho, logprior, outside, slope)
                 t = r["pick"]
                 runs.append(dict(base, strategy=strategy, k=k, repeat=rep, labels=len(panel),
                                  pick_track=hmeta.index[t], pick_biosample=hmeta.biosample_name.iloc[t],
@@ -313,6 +359,30 @@ for element in elements:
                             test = outside
                         sig_t = cls[test] != 0
                         for name, pred in regress(Z, y, panel).items():
+                            runs.append(dict(base, strategy=f"{pname}+{name}", k=k, repeat=rep, labels=k,
+                                             rho_bma=rank_corr(pred[test], y[test])[0],
+                                             acc_bma=np.mean(np.sign(pred[test][sig_t]) == cls[test][sig_t]),
+                                             rho_oracle=rho_oracle))
+            if a.controls and has_matched:
+                # same-budget metadata controls: the matched mean recalibrated with a symmetric slope prior
+                # (v1 inference on that one hypothesis), and metadata-centred ridge (matched mean calibrated
+                # with the anchor's positive slope prior, then ridge over all tracks on the residuals)
+                m = Z[:, meta.matched.to_numpy()].mean(1)
+                m = (m / m.std())[:, None]
+                for pname in ["random", "disc"]:
+                    for k in [4, 8, 16]:
+                        panel = panels[pname][:k]
+                        if outside is None:
+                            test = np.ones(n, bool)
+                            test[panel] = False
+                        else:
+                            test = outside
+                        sig_t = cls[test] != 0
+                        _, A, B, _ = posterior(m[panel], y[panel], se[panel], np.zeros(1))
+                        cal = A[0] + B[0] * m[:, 0]
+                        _, A, B, _ = posterior(m[panel], y[panel], se[panel], np.zeros(1), anchor_slope)
+                        off = A[0] + B[0] * m[:, 0]
+                        for name, pred in {"matched_cal": cal, "meta_ridge": off + ridge(Z, y - off, panel)}.items():
                             runs.append(dict(base, strategy=f"{pname}+{name}", k=k, repeat=rep, labels=k,
                                              rho_bma=rank_corr(pred[test], y[test])[0],
                                              acc_bma=np.mean(np.sign(pred[test][sig_t]) == cls[test][sig_t]),
