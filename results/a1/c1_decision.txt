@@ -1,0 +1,10 @@
+v1 disc - random: ALL_FOLDS +0.0839 -> held-out fold +0.0929 (change +0.0090, 95% CI [-0.0154, +0.0380]) sign kept
+v1 disc - all_mean: ALL_FOLDS +0.0739 -> held-out fold +0.0540 (change -0.0199, 95% CI [-0.0507, +0.0135]) sign kept
+v1 disc - high_effect: ALL_FOLDS +0.0314 -> held-out fold +0.0388 (change +0.0074, 95% CI [-0.0337, +0.0499]) sign kept
+v2 all: disc - matched: ALL_FOLDS +0.0006 -> held-out fold -0.0055 (change -0.0061, 95% CI [-0.0172, +0.0034]) sign FLIPPED
+v2 hide_matched: disc - all_mean: ALL_FOLDS +0.0767 -> held-out fold +0.0588 (change -0.0179, 95% CI [-0.0500, +0.0210]) sign kept
+H1 (v1 disc - random) under ALL_FOLDS: mean +0.0839, 9/11 positive, one-sided Wilcoxon p = 0.002441
+H1 (v1 disc - random) under held-out fold: mean +0.0929, 10/11 positive, one-sided Wilcoxon p = 0.001465
+H2 (v1 disc - all_mean) under ALL_FOLDS: mean +0.0739, 8/11 positive, one-sided Wilcoxon p = 0.0415
+H2 (v1 disc - all_mean) under held-out fold: mean +0.0540, 7/11 positive, one-sided Wilcoxon p = 0.06152
+READING: DEPENDS ON TRAINING EXPOSURE - a contrast flips sign or H1/H2 lose p < 0.05.

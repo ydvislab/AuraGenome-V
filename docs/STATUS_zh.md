@@ -19,7 +19,12 @@
 > **接下来按这个顺序做**（评审建议的顺序）：
 > 1. ~~修正评估：所有方法都在同一组池外变异上打分~~。**已完成（10/29 07:20），结论不变**，见第 5 节"统一评估集复核"；
 > 2. ~~方法 v2：最小的"元数据先验"版本，加上几个简单对照~~。**已完成（10/29）**，见第 5 节"方法 v2"和 [method_v2_zh.md](internal/method_v2_zh.md)。保住做到了（检验集 8 个标签时与匹配平均持平，16 个标签时没有区域受损）；救回需要约 16 个标签。在同一组选点上，v2 与以元数据为中心的岭回归打平；
-> 3. ~~冻结 v2，在 Siraj SatMut 上预注册检验~~。**已完成（10/29 15:30）：P1–P4 全部成立，判定为"安全网"主张成立**，见 [preregistration_v2_siraj_zh.md](internal/preregistration_v2_siraj_zh.md) 第 8 节。C1 稳健性分析所需的 FOLD 打分已完成，分析还没做；
+> 3. ~~冻结 v2，在 Siraj SatMut 上预注册检验~~。**已完成（10/29 15:30）：P1–P4 全部成立，判定为"安全网"主张成立**，见 [preregistration_v2_siraj_zh.md](internal/preregistration_v2_siraj_zh.md) 第 8 节。**C1 稳健性分析也已完成（10/29 16:21）**，按事先规则判定为"结论依赖训练暴露"：
+>    - 用留出该位点所在折的检查点后，H1（disc 优于随机）更强，p = 0.0015；
+>    - H2（disc 优于全轨道平均）减弱为 +0.054，p = 0.062；
+>    - v2 相对匹配平均从 +0.001 变为 −0.006，变差区域仍是 1 个；
+>    - 绝对精度普遍下降约 0.035。
+>    - 见 [c1_robustness_zh.md](internal/c1_robustness_zh.md)；
 > 4. 根据 Siraj 结果确定论文主张，写 *Bioinformatics* 论文。方法上再补一个算法改进：批量选点或停止规则重设计，评审也要求批量选点作为基线；
 > 5. **论文拆分（10/29 作者决定）**：先投 *Bioinformatics*，以方法为主，配结果图和软件包。可视分析的研究问题另写一篇投可视化领域，问题清单见 [vis_paper_questions_zh.md](internal/vis_paper_questions_zh.md)。
 > 建议的阅读顺序：本文 → [`results/a1/`](../results/a1/) 中的图表 → [预注册](internal/preregistration_A1_zh.md)。

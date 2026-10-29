@@ -19,6 +19,14 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 >
 > The discrimination panel is essential: a random panel falls below the label-free mean. Results are in
 > `results/a1/siraj_*.tsv` and section 8 of docs/internal/preregistration_v2_siraj_zh.md.
+>
+> **Training-exposure check (C1, docs/internal/c1_robustness_zh.md).** We reran the Kircher test using, for each
+> locus, the AlphaGenome checkpoint that held its genomic fold out. The declared reading is "depends on training
+> exposure":
+> - disc beats random panels even more clearly (+0.093, p = 0.0015);
+> - the advantage over the all-track mean weakens (+0.054, p = 0.062, 11 regions);
+> - v2 vs the matched mean moves from +0.001 to −0.006, with harmed regions unchanged at 1;
+> - absolute accuracy drops by about 0.035 throughout.
 
 > **Method v2 (2026-10-29, docs/internal/method_v2_zh.md):** the matched-track mean enters as a hypothesis with
 > prior mass 0.95 and a positive slope prior (chosen on the development set by a rule declared before the runs, then
