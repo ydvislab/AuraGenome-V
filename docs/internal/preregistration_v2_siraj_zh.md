@@ -1,15 +1,16 @@
-# A1 方法 v2：Siraj SatMut 预注册（草稿，2026-10-29）
+# A1 方法 v2：Siraj SatMut 预注册（已冻结，2026-10-29）
 
-**状态：草稿，尚未冻结。** 冻结的条件如下：
-- Siraj 的 AlphaGenome 预测已生成；
-- 评估代码已在不接触标签的情况下跑通；
-- 本文件与代码在同一个 commit 中提交，并标记为"冻结"。
-
-在冻结之前，不计算任何"预测与实测"之间的量。
+**状态：已冻结。** 本文件与评估代码（`proxy_select.py`、`siraj_report.py`）在同一个 commit 中提交。
+- 冻结时 AlphaGenome 打分还在进行，只完成了 5 个位点；
+- 冻结之后不再修改方法、参数、假设、界值或判定规则；
+- 如果之后发现代码错误必须修正，修正内容和理由会另行记录，原判定照样报告。
 
 **数据接触记录**：
 - 2026-10-29 09:05，经作者同意下载 `data_satmut.zip`（Zenodo 15297965，md5 0043848d…，CC-BY-NC-4.0），只存放在本地被 git 忽略的 `pilot/data/raw/siraj2026/`。
 - 至今只读取过结构性的列：元件、背景、细胞类型、位置、碱基。以及只为把实测值抄进变异表而读过效应列，没有对效应做过任何统计或作图。
+- 空跑：在已打分的 5 个位点上，用随机生成的假标签（`numpy` seed 123）运行了完整流程，只用于确认代码能跑通。
+  - 空跑发现，`--scenarios` 的默认值漏掉了 C2，已修正。
+  - 修正后再次核对，Kircher 的输出仍与改动前逐行一致。
 
 ## 1. 这次检验回答什么
 
@@ -86,7 +87,7 @@ proxy_select.py --common-eval --anchor-prior 0.95 --family-prior --controls
 - **S3**：`matched_cal`（8 个标签的仿射校正）对原样匹配平均。预期有害。
 - **S4**：k = 16 时的 P1、P2。
 - **S5**：家族先验对均匀先验的消融。
-- **S6**：替代等位基因背景的敏感性分析。
+- **S6**：替代等位基因背景的敏感性分析。需要额外打分，不在这一次运行中，结果另行报告。
 - **S7**：每个细胞类型分开报告。
 
 停止规则（disc_stop）在 v2 下已知会因先验惯性提前停止，不纳入本次检验。
@@ -110,6 +111,13 @@ proxy_select.py --common-eval --anchor-prior 0.95 --family-prior --controls
 2. 作者本人在自己的终端运行 AlphaGenome 打分，共 125 次 ISM 调用。API 密钥只经过作者的终端。
    - 命令：`python pilot/scripts/alphagenome_score.py pilot --variants data/siraj/variants_grch38.tsv --out predictions/siraj_all --versions ALL_FOLDS --outputs CAGE,DNASE,ATAC --all-biosamples`
    - 输出 `pilot/predictions/siraj_all/` 被 git 忽略。
-3. 适配评估代码，用随机生成的假标签做一次空跑，确认代码能跑通。
-4. 把本文件改为"冻结"，与代码一起提交、推送。
-5. 运行一次，按第 6 节判定，并原样报告。
+3. ~~适配评估代码，用随机生成的假标签做一次空跑，确认代码能跑通。~~ 已完成。
+4. ~~把本文件改为"冻结"，与代码一起提交、推送。~~ 即本 commit。
+5. 打分全部完成后运行一次，按第 6 节判定，并原样报告。命令如下，每个位点一个进程：
+   ```
+   python pilot/scripts/proxy_select.py pilot --variants data/siraj/proxy_variants.tsv --pred-dir predictions/siraj_all \
+       --common-eval --anchor-prior 0.95 --family-prior --controls --elements <locus>.K562,<locus>.HEPG2 --tag siraj/<locus>
+   python pilot/scripts/proxy_select.py ...（同上，去掉 --family-prior，加 --scenarios all，--tag siraj_uni/<locus>）   # S5
+   python pilot/scripts/siraj_report.py pilot/results/proxy_select_siraj results/a1
+   ```
+   判定写入 `results/a1/siraj_decision.txt`，逐位点的 D_i 写入 `siraj_by_locus.tsv`，次要结果写入 `siraj_secondary.tsv`。这些都是派生的汇总表，不含 Siraj 的原始数据。

@@ -98,7 +98,7 @@ ap.add_argument("--family-prior", action="store_true",
                 help="method v2: equal prior mass per prediction cluster (--cluster-r), split within the cluster")
 ap.add_argument("--controls", action="store_true",
                 help="same-budget metadata controls where matched tracks exist: +matched_cal and +meta_ridge")
-ap.add_argument("--scenarios", default="all,hide_matched")
+ap.add_argument("--scenarios", default="all,hide_exact,hide_matched")
 ap.add_argument("--seed", type=int, default=0)
 a = ap.parse_args()
 assert not (a.ensemble and a.anchor_prior > 0), "--ensemble and --anchor-prior are alternatives"
