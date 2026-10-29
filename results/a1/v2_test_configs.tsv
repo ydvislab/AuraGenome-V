@@ -1,0 +1,7 @@
+config	k	regions	disc	matched	disc_minus_matched	positive	harmed	worst	disc_map_minus_matched	random_minus_matched	anchor_mass	disc_minus_disc+meta_ridge	disc+meta_ridge_minus_matched	disc_minus_random+meta_ridge	random+meta_ridge_minus_matched	disc_minus_disc+matched_cal	disc+matched_cal_minus_matched	disc_minus_random+matched_cal	random+matched_cal_minus_matched	hide_disc	hide_random
+p0.95_fam	8	11	0.4053	0.4047	0.0006	6	1	-0.0637	-0.0065	-0.0074	0.8691	-0.0014	0.002	0.0319	-0.0312	0.0094	-0.0088	0.0792	-0.0786	0.3726	0.2828
+p0.95_fam	16	11	0.4226	0.4047	0.0179	7	0	-0.0464	-0.0085	-0.0031	0.7738	0.0003	0.0176	0.0351	-0.0172	0.0281	-0.0102	0.0612	-0.0433	0.3874	0.3394
+p0.95_uni	8	11	0.4122	0.4047	0.0076	7	1	-0.0612	-0.0064	-0.0065	0.8456										
+p0.95_uni	16	11	0.4257	0.4047	0.021	5	1	-0.0585	-0.008	-0.0001	0.745										
+v1	8	11	0.3759	0.4047	-0.0288	3	7	-0.1741	-0.0733	-0.1155	0.0									0.3697	0.2858
+v1	16	11	0.391	0.4047	-0.0137	4	4	-0.1687	-0.0487	-0.056	0.0									0.3843	0.3419

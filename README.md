@@ -10,6 +10,13 @@ discrimination), and returns a posterior-weighted prediction with a stopping rul
 will show how the posterior spreads over track clusters. Validation uses saturation-mutagenesis MPRA
 (Kircher et al. 2019) with labels masked.
 
+> **Method v2 (2026-10-29, docs/internal/method_v2_zh.md):** the matched-track mean enters as a hypothesis with
+> prior mass 0.95 and a positive slope prior (chosen on the development set by a rule declared before the runs, then
+> frozen and pushed before the test run). On the Kircher test regions, with matched tracks kept, v2 ties the matched
+> mean at k = 8 (+0.001; 1/11 regions harmed vs 7/11 for v1) and is ahead at k = 16 (+0.018, none harmed); rescue is
+> slower (LDLR 0.25 → 0.29 at k = 8, 0.41 at k = 16). Its inference ties a metadata-centred ridge on the same panel, so
+> the increment comes from the panel choice; 8-label affine recalibration of the matched mean is harmful (sign flips).
+
 > **Status (2026-10-29): pilot passed; method v2 needed.** On the pre-registered held-out test (11 regions, 17 MPRA
 > experiments, tracks of the element's own and related cell types hidden), 8 discrimination-chosen measurements beat
 > random panels (+0.08 Spearman, Wilcoxon p = 0.003) and the label-free all-track mean (+0.07, 8/11 regions); the
