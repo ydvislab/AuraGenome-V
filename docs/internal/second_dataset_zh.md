@@ -30,3 +30,11 @@ Codex 评审指出，作者的 Zenodo 数据包 [10.5281/zenodo.15297965](https:
 1. **首选 Siraj 2026 SatMut。** 请有 Nature 访问权限的合作者下载补充表，确认是否包含每个替换的效应值和 p 值。如果没有，就写信向作者要（通讯作者 Tewhey）。
 2. **MAPT 作为备选和案例研究。** 数据已公开，可以马上开始处理计数数据。
 3. 在 MPRAbase 的饱和突变分类里再筛一遍，确认没有漏掉其他公开数据集。
+
+## 更新（2026-10-29 09:05）：已下载，坐标已映射
+
+- 经作者同意，`data_satmut.zip` 已下载到本地被 git 忽略的 `pilot/data/raw/siraj2026/`，md5 已核对。
+- 每个替换都有效应值 `log2Skew` 和标准误 `log2Skew_SE`，分别在 K562 和 HepG2 中测量。
+- 每个元件有参考和替代两种等位基因背景，部分元件有四种单倍型背景。坐标为 GRCh37。
+- 映射到 GRCh38 后，得到 125 个可用位点。
+- 预注册草稿见 [preregistration_v2_siraj_zh.md](preregistration_v2_siraj_zh.md)。

@@ -66,6 +66,8 @@ ap = argparse.ArgumentParser()
 ap.add_argument("pilot_dir")
 ap.add_argument("--elements", default="", help="comma-separated; default every element with a prediction file")
 ap.add_argument("--pred-dir", default="predictions/alphagenome_all", help="relative to pilot_dir")
+ap.add_argument("--variants", default="data/variants_grch38.tsv", help="relative to pilot_dir; the Siraj table is "
+                "data/siraj/proxy_variants.tsv (with --pred-dir predictions/siraj_all)")
 ap.add_argument("--version", default="ALL_FOLDS")
 ap.add_argument("--outputs", default="CAGE,DNASE,ATAC")
 ap.add_argument("--budgets", default="2,4,8,12,16")
@@ -108,10 +110,13 @@ pred_dir = os.path.join(a.pilot_dir, a.pred_dir)
 out_dir = os.path.join(a.pilot_dir, "results", "proxy_select" + (f"_{a.tag}" if a.tag else ""))
 os.makedirs(os.path.join(out_dir, "tracks"), exist_ok=True)
 
-var = pd.read_csv(os.path.join(a.pilot_dir, "data", "variants_grch38.tsv"), sep="\t", low_memory=False)
+var = pd.read_csv(os.path.join(a.pilot_dir, a.variants), sep="\t", low_memory=False)
 var["key"] = var.chrom + ":" + var.pos.astype(str) + ":" + var.ref + ">" + var.alt
+if "pred_element" not in var:   # Kircher: one prediction file per experiment
+    var["pred_element"] = var.element
+scored = {os.path.basename(f).split("__")[0] for f in glob.glob(os.path.join(pred_dir, f"*__{a.version}.tsv.gz"))}
 elements = (a.elements.split(",") if a.elements else
-            sorted(os.path.basename(f).split("__")[0] for f in glob.glob(os.path.join(pred_dir, f"*__{a.version}.tsv.gz"))))
+            sorted(var.element[var.pred_element.isin(scored)].unique()))
 
 
 def load(element):
@@ -119,7 +124,8 @@ def load(element):
     per track."""
     lab = var[var.element == element]
     cols = ["variant_id", "output_type", "track_name", "track_strand", "biosample_name", "biosample_type", "raw_score"]
-    p = pd.read_csv(os.path.join(pred_dir, f"{element}__{a.version}.tsv.gz"), sep="\t", usecols=cols, low_memory=False)
+    p = pd.read_csv(os.path.join(pred_dir, f"{lab.pred_element.iloc[0]}__{a.version}.tsv.gz"), sep="\t", usecols=cols,
+                    low_memory=False)
     p = p[p.output_type.isin(outputs)]
     p["track"] = p.output_type + "|" + p.track_name + "|" + p.track_strand.fillna(".").astype(str)
     X = p.pivot_table(index="variant_id", columns="track", values="raw_score", aggfunc="mean")
@@ -132,10 +138,18 @@ def load(element):
     kws = [k for k in lab.model_biosample_keywords.iloc[0].split(";") if k]
     text = meta.biosample_name.fillna("").astype(str) + " " + meta.track_name.astype(str)
     meta["matched"] = np.any([text.str.contains(k, case=False, regex=False) for k in kws], axis=0)
+    # related biosamples (exact names; second dataset only): hidden with the matched ones in hide_matched, and the
+    # anchor of hide_exact, where only the matched cell line's own tracks are hidden
+    rel = lab.related_biosamples.iloc[0] if "related_biosamples" in lab else ""
+    meta["related"] = meta.biosample_name.isin([k for k in str(rel).split(";") if k]) & ~meta.matched
     # standard error c / sqrt(barcodes); c from variants whose p-value pins it down (p < 0.5, effect != 0)
-    ok = (lab.pvalue < 0.5) & (lab.effect != 0)
-    c = np.median(lab.effect[ok].abs() / norm.isf(lab.pvalue[ok].clip(lower=1e-300) / 2) * np.sqrt(lab.barcodes[ok]))
-    se = c / np.sqrt(lab.barcodes.to_numpy(float))
+    # (second dataset: the published standard errors)
+    if "barcodes" in lab:
+        ok = (lab.pvalue < 0.5) & (lab.effect != 0)
+        c = np.median(lab.effect[ok].abs() / norm.isf(lab.pvalue[ok].clip(lower=1e-300) / 2) * np.sqrt(lab.barcodes[ok]))
+        se = c / np.sqrt(lab.barcodes.to_numpy(float))
+    else:
+        se = lab.se.to_numpy(float)
     if not a.noise:
         se = np.zeros_like(se)
     return (lab.effect.to_numpy(float), se, lab.truth_class.to_numpy(int),
@@ -260,7 +274,9 @@ for element in elements:
     n = len(y)
     scenarios = {"all": np.ones(len(meta_all), bool)}
     if meta_all.matched.any():
-        scenarios["hide_matched"] = ~meta_all.matched.to_numpy()
+        scenarios["hide_matched"] = ~(meta_all.matched | meta_all.related).to_numpy()
+    if meta_all.matched.any() and meta_all.related.any():
+        scenarios["hide_exact"] = ~meta_all.matched.to_numpy()
     scenarios = {k: v for k, v in scenarios.items() if k in a.scenarios.split(",")}
     track_rho_all = rank_corr(Z_all, y)
     clusters_all = fcluster(linkage(Z_all.T, method="average", metric="correlation"),
@@ -283,9 +299,12 @@ for element in elements:
         ens = {"ensemble|all_mean": Z.mean(1)} if a.ensemble else {}
         if ens and scen == "all" and meta.matched.any():
             ens["ensemble|matched"] = Z[:, meta.matched.to_numpy()].mean(1)
-        has_matched = scen == "all" and meta.matched.any()
+        # metadata anchor: the matched tracks when kept, the related ones when only the matched are hidden
+        anchor_mask = (meta.matched if scen == "all" else meta.related if scen == "hide_exact"
+                       else pd.Series(False, index=meta.index)).to_numpy()
+        has_matched = bool(anchor_mask.any())
         if a.anchor_prior > 0 and has_matched:
-            ens = {"anchor|matched": Z[:, meta.matched.to_numpy()].mean(1)}
+            ens = {"anchor|matched": Z[:, anchor_mask].mean(1)}
         T = Z.shape[1]
         H = np.column_stack([Z] + [v / v.std() for v in ens.values()])
         hmeta = pd.concat([meta, pd.DataFrame(dict(biosample_name=list(ens), matched=[k.endswith("matched") for k in ens]),
@@ -313,8 +332,8 @@ for element in elements:
             runs.append(dict(base, strategy=name, k=0, repeat=rep, labels=0, rho_pick=rank_corr(pred[m], y[m])[0],
                              acc_pick=np.mean(np.sign(pred[m & sig]) == cls[m & sig]), rho_oracle=rho_oracle))
         refs = {"oracle": Z[:, best], "all_mean": Z.mean(1)}
-        if scen == "all" and meta.matched.any():
-            refs["matched"] = Z[:, meta.matched.to_numpy()].mean(1)
+        if has_matched:
+            refs["matched" if scen == "all" else "related"] = Z[:, anchor_mask].mean(1)
         if not a.common_eval:
             for name, pred in refs.items():
                 label_free(name, pred)
@@ -367,7 +386,7 @@ for element in elements:
                 # same-budget metadata controls: the matched mean recalibrated with a symmetric slope prior
                 # (v1 inference on that one hypothesis), and metadata-centred ridge (matched mean calibrated
                 # with the anchor's positive slope prior, then ridge over all tracks on the residuals)
-                m = Z[:, meta.matched.to_numpy()].mean(1)
+                m = Z[:, anchor_mask].mean(1)
                 m = (m / m.std())[:, None]
                 for pname in ["random", "disc"]:
                     for k in [4, 8, 16]:

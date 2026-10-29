@@ -18,6 +18,8 @@ usage:
   python alphagenome_score.py <pilot_dir> --dry-run
   python alphagenome_score.py <pilot_dir> --elements PKLR-48h,F9 --versions ALL_FOLDS,FOLD_0
   python alphagenome_score.py <pilot_dir>                     # everything, resumable
+  python alphagenome_score.py <pilot_dir> --variants data/siraj/variants_grch38.tsv --out predictions/siraj_all \
+      --versions ALL_FOLDS --outputs CAGE,DNASE,ATAC --all-biosamples   # second dataset (Siraj 2026)
 Output: <pilot_dir>/predictions/alphagenome/<element>__<version>.tsv.gz (tidy scores, filtered)
 """
 import os, sys, argparse, time
@@ -36,10 +38,16 @@ ap.add_argument("--chunk-bp", type=int, default=100, help="ISM positions per API
 ap.add_argument("--all-biosamples", action="store_true",
                 help="keep every biosample's tracks (proxy-selection pilot) instead of only the matched ones; "
                      "outputs go to predictions/alphagenome_all/ so they never mix with the filtered runs")
+ap.add_argument("--variants", default="data/variants_grch38.tsv", help="variant table, relative to pilot_dir")
+ap.add_argument("--out", default="", help="output directory relative to pilot_dir (default predictions/alphagenome[_all])")
 ap.add_argument("--dry-run", action="store_true")
 a = ap.parse_args()
 
-var = pd.read_csv(os.path.join(a.pilot_dir, "data", "variants_grch38.tsv"), sep="\t", low_memory=False)
+var = pd.read_csv(os.path.join(a.pilot_dir, a.variants), sep="\t", low_memory=False)
+if "variant_id" not in var:     # second-dataset tables: one row per substitution x cell type, all human cells
+    var = var.assign(variant_id=var.chrom + ":" + var.pos.astype(str) + ":" + var.ref + ">" + var.alt,
+                     human_cells=True, model_biosample_keywords="").drop_duplicates(["element", "variant_id"])
+    var["element"] = var.element.str.replace(":", "_")
 if not a.include_mouse_cell_elements:
     var = var[var.human_cells]
 if a.elements:
@@ -52,7 +60,7 @@ regions = (var.groupby("element").agg(chrom=("chrom", "first"), start=("pos", "m
            .reset_index())
 regions["region"] = regions.chrom + ":" + regions.start.astype(str) + "-" + regions.end.astype(str)
 versions = a.versions.split(",")
-out_dir = os.path.join(a.pilot_dir, "predictions", "alphagenome_all" if a.all_biosamples else "alphagenome")
+out_dir = os.path.join(a.pilot_dir, a.out or os.path.join("predictions", "alphagenome_all" if a.all_biosamples else "alphagenome"))
 os.makedirs(out_dir, exist_ok=True)
 
 print(f"elements {len(regions)}, unique regions {regions.region.nunique()}, SNVs {len(var)}, "

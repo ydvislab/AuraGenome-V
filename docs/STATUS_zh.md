@@ -14,7 +14,7 @@
 > **接下来按这个顺序做**（评审建议的顺序）：
 > 1. ~~修正评估：所有方法都在同一组池外变异上打分~~。**已完成（10/29 07:20），结论不变**，见第 5 节"统一评估集复核"；
 > 2. ~~方法 v2：最小的"元数据先验"版本，加上几个简单对照~~。**已完成（10/29）**，见第 5 节"方法 v2"和 [method_v2_zh.md](internal/method_v2_zh.md)。保住做到了（检验集 8 个标签时与匹配平均持平，16 个标签时没有区域受损）；救回需要约 16 个标签。在同一组选点上，v2 与以元数据为中心的岭回归打平；
-> 3. 冻结 v2，在 Siraj SatMut 上预注册检验（数据已确认公开，见 [second_dataset_zh.md](internal/second_dataset_zh.md)），同时做 C1 稳健性分析；
+> 3. 冻结 v2，在 Siraj SatMut 上预注册检验，同时做 C1 稳健性分析。**进行中**：数据已下载、映射到 125 个位点，预注册草稿见 [preregistration_v2_siraj_zh.md](internal/preregistration_v2_siraj_zh.md)。下一步是作者用自己的 API 密钥运行 AlphaGenome 打分；
 > 4. 根据结果决定是否写论文；
 > 5. 最后做可视分析界面。
 > 建议的阅读顺序：本文 → [`results/a1/`](../results/a1/) 中的图表 → [预注册](internal/preregistration_A1_zh.md)。
