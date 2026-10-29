@@ -35,6 +35,8 @@ if [ "$2" = "fold" ]; then
   echo "$(wc -l < "$LOG/loci_fold.txt" | tr -d ' ') loci with a held-out-fold prediction"
   xargs -P "${1:-8}" -n 1 sh "$0" --fold < "$LOG/loci_fold.txt"
   "$PY" pilot/scripts/siraj_report.py pilot/results/proxy_select_siraj_fold results/a1/c1_siraj
+  "$PY" pilot/scripts/c1_siraj_compare.py results/a1/siraj_by_locus.tsv results/a1/c1_siraj/siraj_by_locus.tsv \
+    results/a1/c1_siraj/c1_siraj_delta.tsv
   exit 0
 fi
 ls pilot/predictions/siraj_all/*__ALL_FOLDS.tsv.gz | xargs -n 1 basename | sed 's/__ALL_FOLDS.tsv.gz//' > "$LOG/loci.txt"

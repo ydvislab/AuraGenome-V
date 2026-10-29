@@ -27,6 +27,14 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 > - the advantage over the all-track mean weakens (+0.054, p = 0.062, 11 regions);
 > - v2 vs the matched mean moves from +0.001 to −0.006, with harmed regions unchanged at 1;
 > - absolute accuracy drops by about 0.035 throughout.
+>
+> The same check on the 125 Siraj loci (thresholds of the Siraj pre-registration, reading rule committed before
+> scoring) gives "safety net not dependent on training exposure": all four primary hypotheses still hold and every
+> contrast grows (P1 +0.024, lower bound +0.017, 1/125 loci harmed; P3 +0.052; P4 +0.054). Absolute accuracy drops by
+> 0.04–0.07, most for the matched-track mean (0.474 → 0.402). Results are in `results/a1/c1_siraj/`.
+>
+> **Manuscript draft** for *Bioinformatics* is in [paper/](paper/) (`main.tex`, `main.pdf`; plain-Chinese version
+> `plain_zh.md`). Red TODOs mark what is missing before submission.
 
 > **Method v2 (2026-10-29, docs/internal/method_v2_zh.md):** the matched-track mean enters as a hypothesis with
 > prior mass 0.95 and a positive slope prior (chosen on the development set by a rule declared before the runs, then
@@ -66,7 +74,8 @@ pilot/
     compute_signals.py      superseded "reliability profile" pilot (kept for reference)
     borzoi_score.py         Borzoi replicate scores (GPU; planned robustness analysis)
   data/, predictions/, results/   downloaded and derived data (not tracked)
-results/a1/                 tracked summary tables and figures
+results/a1/                 tracked summary tables and figures (c1/c1_siraj: held-out-fold checkpoint reruns)
+paper/                      Bioinformatics manuscript draft (OUP template; build: cd paper && tectonic main.tex)
 docs/STATUS_zh.md           project overview for collaborators (Chinese)
 docs/internal/              pre-registration, pilot notes, idea-selection report; older plans marked superseded
 ```
@@ -101,10 +110,16 @@ python pilot/scripts/a1_report.py pilot results/a1
 
 - **Ground truth:** Kircher M, *et al.* (2019) *Nat Commun* 10:3583, doi:10.1038/s41467-019-11526-w. The data are
   downloaded from the authors' portal repository and are not redistributed here; cite the publication for any use.
+- **Second dataset:** Siraj L, *et al.* (2026) *Nature*, doi:10.1038/s41586-026-10121-6; saturation mutagenesis data
+  on Zenodo, doi:10.5281/zenodo.15297965, CC-BY-NC-4.0. The data are not redistributed here.
 - **AlphaGenome:** API and weights are available for non-commercial use under Google DeepMind's terms of use.
+  Predictions are not redistributed here; the scoring scripts regenerate them.
 - **Borzoi:** Linder J, *et al.* (2025) *Nat Genet*; PyTorch weights via `borzoi-pytorch` (check the licence of
   the port you use).
 
 ## Licence
 
-To be decided before the first public release.
+- **Code** (`pilot/scripts/`, `paper/make_figures.py` and other scripts): MIT, see [LICENSE](LICENSE).
+- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`): CC-BY-NC-4.0, the
+  licence of the source data. Cite Siraj et al. (2026) and the Zenodo record when using them.
+- **Manuscript draft** (`paper/` text and figures): not licensed for reuse. The MIT licence does not apply to it.

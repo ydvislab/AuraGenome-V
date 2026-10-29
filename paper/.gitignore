@@ -1,0 +1,6 @@
+# LaTeX build by-products (tectonic main.tex)
+*.log
+*.blg
+*.aux
+*.bbl
+*.out

@@ -110,3 +110,47 @@ Kircher 只有 11 个检验区域，H2 在留出折下的 p = 0.062 很可能只
 - 另外报告每个 D_i 在两种检查点下的差值，以及按位点自助法得到的 95% 区间。
 
 **已知局限**：折分配只看元件本身与训练窗口的重叠。1 Mb 的上下文会延伸到其他折的区域，所以"留出"指的是元件所在的序列窗口，不是全部上下文。Kircher 部分也是同样的定义。
+
+## Siraj 结果（2026-10-29 19:40，判定原文）
+
+运行 `sh pilot/scripts/run_siraj.sh 8 fold`，125 个位点全部完成，没有失败。`results/a1/c1_siraj/siraj_decision.txt` 原文：
+
+```
+P1 k=8: mean D = +0.0243, one-sided 95% bootstrap lower bound +0.0167 (> -0.02?) -> HOLDS   [125 loci]
+P2 k=8: harmed (D < -0.05) 1/125 = 0.008, one-sided 95% Clopper-Pearson upper bound 0.037 (<= 0.15?) -> HOLDS
+P1 (S4, secondary) k=16: mean D = +0.0371, one-sided 95% bootstrap lower bound +0.0278 (> -0.02?) -> HOLDS   [125 loci]
+P2 (S4, secondary) k=16: harmed (D < -0.05) 1/125 = 0.008, one-sided 95% Clopper-Pearson upper bound 0.037 (<= 0.15?) -> HOLDS
+P3 C3 k=8: v2 - all_mean = +0.0515 (>= 0.03?), one-sided Wilcoxon p = 2.912e-13 -> HOLDS   [125 loci]
+P4 C2 k=16: v2 - related mean = +0.0543 (> 0?), one-sided Wilcoxon p = 6.854e-21 -> HOLDS   [125 loci]
+DECISION: SAFETY NET SUPPORTED: P1 and P2 hold, and P3 or P4 holds.
+```
+
+**按事先声明的规则：安全网主张不依赖训练暴露。**
+
+**每个 D_i 在两种检查点下的变化**（`pilot/scripts/c1_siraj_compare.py`，留出折 − ALL_FOLDS，按位点配对，自助法 95% 区间；`results/a1/c1_siraj/c1_siraj_delta.tsv`）：
+
+| 对比 | ALL_FOLDS | 留出折 | 变化 | 95% 区间 |
+|---|---|---|---|---|
+| P1：C1，k = 8，v2 − 匹配平均 | +0.010 | +0.024 | +0.015 | +0.008 到 +0.022 |
+| S4：C1，k = 16 | +0.020 | +0.037 | +0.017 | +0.009 到 +0.027 |
+| P3：C3，k = 8，v2 − 全轨道平均 | +0.048 | +0.052 | +0.003 | −0.006 到 +0.013 |
+| P4：C2，k = 16，v2 − 相关细胞平均 | +0.041 | +0.054 | +0.014 | +0.006 到 +0.021 |
+
+**绝对水平**（按位点平均，两种细胞先平均）：
+
+| | ALL_FOLDS | 留出折 |
+|---|---|---|
+| C1 匹配平均 | 0.474 | 0.402 |
+| C1 v2，k = 8 | 0.483 | 0.426 |
+| C1 最好的单条轨道 | 0.535 | 0.492 |
+| C2 相关细胞平均 | 0.412 | 0.355 |
+| C3 全轨道平均 | 0.391 | 0.347 |
+| C3 v2，k = 8 | 0.440 | 0.398 |
+| C3 随机选点，k = 8 | 0.346 | 0.301 |
+
+**次要结果**（`results/a1/c1_siraj/siraj_secondary.tsv`）：S1 C3 选点 − 随机 +0.097（123/125）；S2 v2 − 元数据岭回归 +0.010（89/125）；S3 少标签重校正 −0.083（3/125 为正）；S7 K562 C1 +0.011（区间 +0.004 到 +0.019，不再跨过 0），HepG2 C1 +0.038。
+
+**解读**：
+- 没有训练暴露时，匹配轨道掉得最多（−0.072），实测值补回了一部分，所以 P1 和 P4 的优势变大。
+- Kircher 上 H2（优于全轨道平均）在留出折下减弱，到了 125 个位点的 Siraj 上没有重现（P3 变化 +0.003，区间跨过 0）。Kircher 部分的判定"依赖训练暴露"按原样保留，论文中同时报告两者。
+- 上面"已知局限"中关于折定义的说明仍然适用。
