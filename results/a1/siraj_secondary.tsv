@@ -1,0 +1,10 @@
+comparison	loci	mean	ci_low	ci_high	positive	wilcoxon_p_two_sided
+S1 C1 k=8: v2 disc panel - v2 random panel	125	0.0178	0.0132	0.0224	113	
+S1 C3 k=8: v2 disc panel - v2 random panel	125	0.0931	0.0853	0.1006	122	
+S2 C1 k=8: v2 - meta_ridge on the same disc panel	125	0.0079	0.0037	0.0118	97	0.0
+S3 C1 k=8: matched_cal (random panel) - matched	125	-0.079	-0.0857	-0.0724	0	
+S5 C1 k=8: family prior - uniform prior	125	-0.0015	-0.0032	0.0	55	0.1135
+S7 HEPG2 C1 k=8: v2 - matched	125	0.0167	0.007	0.0265	89	
+S7 HEPG2 C3 k=8: v2 - all_mean	125	0.052	0.0313	0.0759	89	
+S7 K562 C1 k=8: v2 - matched	125	0.003	-0.0015	0.0073	74	
+S7 K562 C3 k=8: v2 - all_mean	125	0.0443	0.0306	0.0593	95	

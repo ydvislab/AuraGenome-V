@@ -10,6 +10,16 @@ discrimination), and returns a posterior-weighted prediction with a stopping rul
 will show how the posterior spreads over track clusters. Validation uses saturation-mutagenesis MPRA
 (Kircher et al. 2019) with labels masked.
 
+> **Pre-registered Siraj test (2026-10-29): all four primary hypotheses hold; the safety-net claim is supported.**
+> Frozen v2 on 125 new loci of the Siraj 2026 saturation MPRA (K562 and HepG2, pre-registered in commit 239d903):
+> - with matched tracks kept, 8 labels are non-inferior to the matched mean (+0.010, one-sided lower bound +0.005;
+>   3/125 loci worse by more than 0.05);
+> - with own and related cell tracks hidden, 8 labels beat the all-track mean (+0.048, p = 8e-13);
+> - with only own cell tracks hidden, 16 labels beat the related-cell mean (+0.041, p = 1e-19).
+>
+> The discrimination panel is essential: a random panel falls below the label-free mean. Results are in
+> `results/a1/siraj_*.tsv` and section 8 of docs/internal/preregistration_v2_siraj_zh.md.
+
 > **Method v2 (2026-10-29, docs/internal/method_v2_zh.md):** the matched-track mean enters as a hypothesis with
 > prior mass 0.95 and a positive slope prior (chosen on the development set by a rule declared before the runs, then
 > frozen and pushed before the test run). On the Kircher test regions, with matched tracks kept, v2 ties the matched

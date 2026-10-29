@@ -121,3 +121,55 @@ proxy_select.py --common-eval --anchor-prior 0.95 --family-prior --controls
    python pilot/scripts/siraj_report.py pilot/results/proxy_select_siraj results/a1
    ```
    判定写入 `results/a1/siraj_decision.txt`，逐位点的 D_i 写入 `siraj_by_locus.tsv`，次要结果写入 `siraj_secondary.tsv`。这些都是派生的汇总表，不含 Siraj 的原始数据。
+
+## 8. 结果（2026-10-29 15:30，冻结后运行一次，原样报告）
+
+- **运行**：
+  - 14:24 打分完成，125 个位点都有预测，每个位点两种细胞都有实测；
+  - 14:24–15:30 运行 `sh pilot/scripts/run_siraj.sh 8`，主配置和 S5 消融各 125 个位点，没有失败；
+  - 方法、参数和判定规则都没有改动，与冻结 commit 239d903 一致。
+- **`results/a1/siraj_decision.txt` 原文**：
+
+```
+P1 k=8: mean D = +0.0098, one-sided 95% bootstrap lower bound +0.0050 (> -0.02?) -> HOLDS   [125 loci]
+P2 k=8: harmed (D < -0.05) 3/125 = 0.024, one-sided 95% Clopper-Pearson upper bound 0.061 (<= 0.15?) -> HOLDS
+P1 (S4, secondary) k=16: mean D = +0.0197, one-sided 95% bootstrap lower bound +0.0135 (> -0.02?) -> HOLDS   [125 loci]
+P2 (S4, secondary) k=16: harmed (D < -0.05) 1/125 = 0.008, one-sided 95% Clopper-Pearson upper bound 0.037 (<= 0.15?) -> HOLDS
+P3 C3 k=8: v2 - all_mean = +0.0482 (>= 0.03?), one-sided Wilcoxon p = 8.156e-13 -> HOLDS   [125 loci]
+P4 C2 k=16: v2 - related mean = +0.0408 (> 0?), one-sided Wilcoxon p = 1.159e-19 -> HOLDS   [125 loci]
+DECISION: SAFETY NET SUPPORTED: P1 and P2 hold, and P3 or P4 holds.
+```
+
+- **按第 6 节判定：四个主要假设全部成立，"安全网"主张成立。**
+
+**次要结果**（`siraj_secondary.tsv`，只报告效应量和自助法 95% 区间）：
+
+| 编号 | 比较 | 平均差 | 95% 区间 | 为正的位点 |
+|---|---|---|---|---|
+| S1 | C1，k = 8：disc 选点 − 随机选点 | +0.018 | [0.013, 0.022] | 113/125 |
+| S1 | C3，k = 8：disc 选点 − 随机选点 | +0.093 | [0.085, 0.101] | 122/125 |
+| S2 | C1，k = 8：v2 − 同一选点上的 meta_ridge | +0.008 | [0.004, 0.012] | 97/125（双侧 Wilcoxon p < 0.001） |
+| S3 | C1，k = 8：matched_cal − 匹配平均 | −0.079 | [−0.086, −0.072] | 0/125 |
+| S5 | C1，k = 8：家族先验 − 均匀先验 | −0.002 | [−0.003, 0.000] | 55/125（p = 0.11） |
+| S7 | HepG2，C1：v2 − 匹配平均 | +0.017 | [0.007, 0.027] | 89/125 |
+| S7 | K562，C1：v2 − 匹配平均 | +0.003 | [−0.001, 0.007] | 74/125 |
+| S7 | HepG2，C3：v2 − 全轨道平均 | +0.052 | [0.031, 0.076] | 89/125 |
+| S7 | K562，C3：v2 − 全轨道平均 | +0.044 | [0.031, 0.059] | 95/125 |
+
+S6（替代等位基因背景）需要额外打分，不在本次运行中。
+
+**描述性的绝对水平**（池外 Spearman，125 个位点的平均，事后汇总，不属于预注册内容）：
+
+| 条件 | 参照 | v2 | 其他 |
+|---|---|---|---|
+| C1 | 匹配平均 0.474 | k = 8：0.483；k = 16：0.493 | 最佳单条轨道（参照，不是上界）0.535；matched_cal 0.395 |
+| C2 | 相关细胞平均 0.412 | k = 16：0.453 | |
+| C3 | 全轨道平均 0.391 | k = 8：0.440 | 随机选点 + v2：0.346 |
+
+**解读时要注意的几点**（运行后写）：
+- C1 的增益很小（k = 8 时 +0.010），只能主张"不损害"，不能主张"优于匹配平均"。K562 上的区间跨过 0。
+- C3 的救回依赖 disc 选点：随机选点时 v2（0.346）还不如不用标签的全轨道平均（0.391）。所以选点是方法的必要部分，不是可有可无的附加。
+- S2 与开发集不同：在 Siraj 上，v2 比同一选点上的 meta_ridge 高 0.008（125 个位点里 97 个为正）。效应很小，但方向一致。
+- S3 再次确认，少标签下对匹配平均做仿射校正有害，125 个位点全部变差。
+- 家族先验没有带来增益（S5）。论文中可以保留它，理由是"复制轨道不改变预测"，但不能声称它提高了精度。
+- 局限不变：K562 和 HepG2 都在 AlphaGenome 的训练数据里，C2、C3 只是通过藏起轨道来近似"模型没覆盖的细胞"。
