@@ -1,0 +1,5 @@
+coda@0: mean rho_pick k=8 over C1,C3 = 0.2906
+coda@3: mean rho_pick k=8 over C1,C3 = 0.3350
+coda@10: mean rho_pick k=8 over C1,C3 = 0.3536
+coda@30: mean rho_pick k=8 over C1,C3 = 0.3572
+chosen: coda@10 (best coda@30, ties within 0.005 -> smallest kappa)

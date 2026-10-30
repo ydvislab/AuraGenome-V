@@ -114,6 +114,11 @@ ap.add_argument("--eig-top", type=int, default=100, help="eig: hypotheses kept (
 ap.add_argument("--eig-grid", type=int, default=96, help="eig: quadrature points for the mixture entropy")
 ap.add_argument("--stop-bma-grid", default="0.95,0.98,0.99,0.995",
                 help="disc_stop_bma thresholds: stop once consecutive posterior-average predictions correlate >= r")
+ap.add_argument("--coda", action="store_true",
+                help="post hoc CODA / MODEL SELECTOR style baseline on the first --comparator-repeats repeats "
+                     "(docs/internal/coda_baseline_zh.md): consensus prior, no metadata, eig panel, single-track output")
+ap.add_argument("--coda-kappa", default="0,3,10,30", help="coda: prior weight on each track's correlation with the "
+                "all-track mean (0 = uniform prior, MODEL SELECTOR style)")
 ap.add_argument("--scenarios", default="all,hide_exact,hide_matched")
 ap.add_argument("--seed", type=int, default=0)
 a = ap.parse_args()
@@ -409,6 +414,11 @@ for element in elements:
             if ens:
                 slope = (np.concatenate([np.zeros(T), anchor_slope[0]]), np.concatenate([np.full(T, a.beta), anchor_slope[1]]))
         C = np.corrcoef(H.T)
+        if a.coda:
+            # consensus: each track's correlation with the all-track mean over every variant (no label, no metadata)
+            zs = (Z - Z.mean(0)) / Z.std(0)
+            cons = Z.mean(1)
+            r_cons = zs.T @ ((cons - cons.mean()) / cons.std()) / n
 
         def label_free(name, pred, m=None, rep=-1):
             m = np.ones(n, bool) if m is None else m
@@ -460,6 +470,20 @@ for element in elements:
                                  rho_pick=r["rho_pick"], rho_bma=r["rho_bma"], acc_pick=r["acc_pick"],
                                  acc_bma=r["acc_bma"], acc_bma0=r["acc_bma0"], pick_pct=r["pick_pct"], rho_oracle=rho_oracle,
                                  regret=rho_oracle - h_rho[t]))
+            if a.coda and rep < a.comparator_repeats:
+                for kap in [float(x) for x in a.coda_kappa.split(",")]:
+                    lp = kap * r_cons
+                    lp = lp - lp.max() - np.log(np.exp(lp - lp.max()).sum())
+                    corder = np.array(eig_sequence(Z, y, se, pool, lp))
+                    for k in budgets:
+                        r = evaluate(Z, y, se, cls, corder[:k], track_rho, lp, outside)
+                        t = r["pick"]
+                        runs.append(dict(base, strategy=f"coda@{kap:g}", k=k, repeat=rep, labels=k,
+                                         pick_track=meta.index[t], pick_biosample=meta.biosample_name.iloc[t],
+                                         pick_matched=bool(meta.matched.iloc[t]), pick_ensemble=False,
+                                         rho_pick=r["rho_pick"], rho_bma=r["rho_bma"], acc_pick=r["acc_pick"],
+                                         acc_bma=r["acc_bma"], acc_bma0=r["acc_bma0"], pick_pct=r["pick_pct"],
+                                         rho_oracle=rho_oracle, regret=rho_oracle - track_rho[t]))
             if a.regression and rep < a.regression_repeats:
                 for pname in ["random", "disc"]:
                     for k in [4, 8, 16]:
