@@ -354,6 +354,17 @@ labels lowered accuracy at 124/125 loci, both on random panels (mean $-0.082$) a
 keep it only because it stops families of near-duplicate tracks from dominating the prior. The C1 gain was larger in
 HepG2 ($+0.016$) than in K562 ($+0.003$, interval including 0).
 
+\emph{Direction of effects (post hoc).} Spearman correlation measures ranking, but laboratories often need the sign
+of significant effects ($P<10^{-5}$, $|\text{effect}|\ge0.1$). We therefore also scored the fraction of significant
+held-out variants whose predicted sign was correct (Supplementary Table~\todo{S}). On Siraj this agreed with the rank
+results: v2 was level with the matched mean in C1 ($+0.008$, 95\% interval $-0.010$ to $+0.024$) and ahead of the
+all-track mean in C3 ($+0.055$) and the related-cell mean in C2 ($+0.039$). On the 11 Kircher regions it did not. In
+C1, v2 called fewer signs correctly than the matched mean ($-0.133$ at $k=8$, interval $-0.264$ to $-0.026$), although
+its rank correlation was the same. The fitted offsets $a$ shift the zero point of the calibrated prediction. Without
+them (the posterior average of $b\,z$, a diagnostic added after this result), v2 was level with the matched mean in
+9 regions ($+0.008$) and lost only in the two with 5 and 11 significant variants. For calling directions we therefore
+use the offset-free average.
+
 \begin{table*}[t]
 \centering
 % results/a1/siraj_ref/siraj_decision.txt, siraj_secondary.tsv
@@ -462,7 +473,8 @@ panel at once.
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome. For Siraj, the situations without matched tracks are
 simulated by hiding tracks, not observed in truly unprofiled cells. The evaluation is retrospective, and a prospective
 panel may behave differently; it must also measure the unmutated reference construct, against which our Siraj effects
-are defined. Non-inferiority on average does not exclude losses at single loci. Absolute correlations are moderate (0.44--0.49 on Siraj), and gains are small where the
+are defined. Non-inferiority on average does not exclude losses at single loci. Signs of the calibrated prediction
+depend on poorly determined offsets and were less accurate than the matched tracks' on Kircher. Absolute correlations are moderate (0.44--0.49 on Siraj), and gains are small where the
 assay has few significant variants. On Kircher, v2's anchor did not beat the simpler metadata-centred ridge; on Siraj
 it was only slightly ahead. We have no stopping rule that matches sixteen labels; ours stopped too early. The checkpoint
 analysis shows that absolute accuracy was 0.04--0.07 lower with checkpoints that had not trained on the locus; these

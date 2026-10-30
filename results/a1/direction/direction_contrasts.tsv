@@ -1,0 +1,18 @@
+set	contrast	view	first	second	units	acc_first	acc_second	mean	ci_low	ci_high	positive	negative	worse_by_005
+siraj	P1	all	disc@8	matched@0	125	0.8742	0.8667	0.0075	-0.0098	0.0241	63	60	21
+siraj	P1 (S4)	all	disc@16	matched@0	125	0.8862	0.8667	0.0195	0.0008	0.0374	66	57	18
+siraj	P3	hide_matched	disc@8	all_mean@0	125	0.8636	0.809	0.0546	0.0315	0.0782	76	48	16
+siraj	P4	hide_exact	disc@16	related@0	125	0.8732	0.8344	0.0388	0.0197	0.0574	80	45	14
+siraj	S1	hide_matched	disc@8	random@8	125	0.8636	0.7891	0.0745	0.0612	0.0887	107	18	1
+siraj	S3	all	random+matched_cal@8	matched@0	125	0.8172	0.8667	-0.0495	-0.0683	-0.032	30	95	55
+siraj	S3b	all	disc+matched_cal@8	matched@0	125	0.8651	0.8667	-0.0016	-0.0209	0.017	57	66	31
+kircher_v1	H1	hide_matched	disc@8	random@8	11	0.6752	0.6936	-0.0185	-0.1051	0.0419	7	4	2
+kircher_v1	H2	hide_matched	disc@8	all_mean@0	11	0.6752	0.7737	-0.0985	-0.2667	0.0457	4	7	3
+kircher_v2	v2 C1 k=8	all	disc@8	matched@0	11	0.7055	0.8386	-0.1331	-0.2642	-0.0259	2	9	6
+kircher_v2	v2 C1 k=16	all	disc@16	matched@0	11	0.7301	0.8386	-0.1084	-0.2301	-0.0099	3	8	5
+kircher_v2_no_offset	v2 C1 k=8	all	disc@8	matched@0	11	0.7676	0.8386	-0.0709	-0.2066	0.0113	5	4	2
+kircher_v2_no_offset	v2 C1 k=16	all	disc@16	matched@0	11	0.7903	0.8386	-0.0483	-0.1584	0.0271	6	3	2
+kircher_v2_no_offset	v2 C3 k=8	hide_matched	disc@8	all_mean@0	11	0.7425	0.7737	-0.0312	-0.1881	0.1066	8	3	2
+kircher_v2_no_offset	v2 C3 k=8 vs random	hide_matched	disc@8	random@8	11	0.7425	0.7	0.0424	-0.0285	0.1007	9	2	2
+kircher_v2_with_offset_c3	v2 C3 k=8	hide_matched	disc@8	all_mean@0	11	0.6944	0.7737	-0.0793	-0.2319	0.0554	4	7	4
+kircher_v2_with_offset_c3	v2 C3 k=8 vs random	hide_matched	disc@8	random@8	11	0.6944	0.6926	0.0018	-0.0663	0.0518	8	3	2

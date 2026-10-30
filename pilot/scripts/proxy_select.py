@@ -227,6 +227,8 @@ def evaluate(Z, y, se, cls, panel, track_rho, logprior, test=None, slope=None):
     return dict(pick=t, w=w, rho_pick=rank_corr(pick, y[test])[0], rho_bma=rank_corr(bma, y[test])[0],
                 acc_pick=np.mean(np.sign(pick[sig]) == cls[test][sig]),
                 acc_bma=np.mean(np.sign(bma[sig]) == cls[test][sig]),
+                # diagnostic (docs/internal/direction_accuracy_zh.md): the same average without the fitted offsets
+                acc_bma0=np.mean(np.sign((Z[test] * B) @ w)[sig] == cls[test][sig]),
                 pick_pct=np.mean(track_rho <= track_rho[t]))
 
 
@@ -456,7 +458,7 @@ for element in elements:
                                  ensemble_mass=float(r["w"][T:].sum()), pick_cluster_mass=float(
                                      r["w"][h_clusters == h_clusters[t]].sum()), exp_loss=float(1 - r["w"] @ C[:, t]),
                                  rho_pick=r["rho_pick"], rho_bma=r["rho_bma"], acc_pick=r["acc_pick"],
-                                 acc_bma=r["acc_bma"], pick_pct=r["pick_pct"], rho_oracle=rho_oracle,
+                                 acc_bma=r["acc_bma"], acc_bma0=r["acc_bma0"], pick_pct=r["pick_pct"], rho_oracle=rho_oracle,
                                  regret=rho_oracle - h_rho[t]))
             if a.regression and rep < a.regression_repeats:
                 for pname in ["random", "disc"]:

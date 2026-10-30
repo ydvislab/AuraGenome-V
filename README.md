@@ -44,6 +44,12 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 > the stability of the averaged prediction stops after 4–8 labels but fails the declared non-inferiority to 16
 > labels. Tables in `results/a1/cmp/` and, for reference-relative Siraj labels, `results/a1/siraj_ref/cmp/`.
 >
+> **Directional accuracy (2026-10-30, post hoc, docs/internal/direction_accuracy_zh.md).** On Siraj the share of
+> significant held-out variants with the correct predicted sign agrees with the rank results. On the 11 Kircher
+> regions it does not: with matched tracks kept, v2's calibrated prediction calls fewer signs correctly than the
+> matched mean (−0.133 at k = 8) because the fitted offsets move its zero point; without the offsets it is level in
+> 9/11 regions. Tables in `results/a1/direction/`.
+>
 > **Manuscript draft** for *Bioinformatics* is in [paper/](paper/) (`main.tex`, `main.pdf`; plain-Chinese version
 > `plain_zh.md`). Red TODOs mark what is missing before submission.
 
@@ -131,6 +137,6 @@ python pilot/scripts/a1_report.py pilot results/a1
 ## Licence
 
 - **Code** (`pilot/scripts/`, `paper/make_figures.py` and other scripts): MIT, see [LICENSE](LICENSE).
-- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`, `results/a1/siraj_ref/`): CC-BY-NC-4.0, the
+- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`, `results/a1/siraj_ref/`, `results/a1/direction/`): CC-BY-NC-4.0, the
   licence of the source data. Cite Siraj et al. (2026) and the Zenodo record when using them.
 - **Manuscript draft** (`paper/` text and figures): not licensed for reuse. The MIT licence does not apply to it.
