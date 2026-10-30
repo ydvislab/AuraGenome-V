@@ -50,6 +50,13 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 > matched mean (−0.133 at k = 8) because the fitted offsets move its zero point; without the offsets it is level in
 > 9/11 regions. Tables in `results/a1/direction/`.
 >
+> **Active model selection baselines (2026-10-30, post hoc, docs/internal/coda_baseline_zh.md).** Regression
+> versions of MODEL SELECTOR and CODA (calibrated likelihood, no metadata, expected-information-gain panel, one
+> reported track; CODA's consensus weight fixed on the development set before the test runs). v2 beats the
+> CODA-style track by 0.075 on Siraj with matched tracks kept and by 0.029–0.034 without them, and by 0.051–0.082 on
+> the Kircher test regions. With the baseline's posterior average instead of one track and no metadata, it is level
+> with v2. Tables in `results/a1/coda/`.
+>
 > **Manuscript draft** for *Bioinformatics* is in [paper/](paper/) (`main.tex`, `main.pdf`; plain-Chinese version
 > `plain_zh.md`). Red TODOs mark what is missing before submission.
 
@@ -137,6 +144,6 @@ python pilot/scripts/a1_report.py pilot results/a1
 ## Licence
 
 - **Code** (`pilot/scripts/`, `paper/make_figures.py` and other scripts): MIT, see [LICENSE](LICENSE).
-- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`, `results/a1/siraj_ref/`, `results/a1/direction/`): CC-BY-NC-4.0, the
+- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`, `results/a1/siraj_ref/`, `results/a1/direction/`, `results/a1/coda/coda_siraj_*`): CC-BY-NC-4.0, the
   licence of the source data. Cite Siraj et al. (2026) and the Zenodo record when using them.
 - **Manuscript draft** (`paper/` text and figures): not licensed for reuse. The MIT licence does not apply to it.

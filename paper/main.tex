@@ -422,7 +422,7 @@ $+0.008$ to $+0.022$), $+0.013$ for P4 ($+0.006$ to $+0.021$) and $+0.003$ for P
 tracks lost the most accuracy without training exposure, and the measurements recovered part of that loss. On this
 larger set, the advantage over the all-track mean did not weaken as it did on the 11 Kircher regions.
 
-\subsection{One assay round is enough (post hoc)}
+\subsection{Simpler acquisition and existing model selection methods (post hoc)}
 \label{sec:cmp}
 
 After both tests we compared acquisition alternatives requested in review. All used the frozen v2 inference, the same
@@ -438,6 +438,19 @@ eight-label panels ($-0.008$ to $+0.002$ on Siraj). It lost 0.013--0.027 against
 our non-inferiority criterion in C2 and C3. On Siraj, disc beat largest-predicted-effect panels without an anchor (C3:
 $+0.028$, 95\% interval $+0.020$ to $+0.035$, 97/125 loci) and was within the equivalence margin of them with matched
 tracks kept ($+0.010$).
+
+We also adapted two active model selection methods for classifiers to this setting
+\citep{okanovic2025modelselector,kay2025coda}. Both keep a posterior over which candidate is best, measure the variant
+with the largest expected information gain about it, and report one candidate. MODEL SELECTOR starts from a uniform
+prior; CODA starts from the candidates' consensus, which we expressed as a prior weight $\kappa$ on each track's
+correlation with the all-track mean. We gave both our calibrated likelihood but no metadata, fixed $\kappa=10$ on the
+development elements by a rule written beforehand, and committed the specification before the test runs. At $k=8$,
+v2 beat the CODA-style track by 0.075 on Siraj with matched tracks kept (95\% interval 0.062 to 0.089, 111/125 loci),
+by 0.029--0.034 without them, and by 0.051--0.082 on the Kircher test regions; the uniform prior did no better
+(Supplementary Table~\todo{S}). Reporting the baseline's posterior average instead of its best track added
+0.016--0.026. With matched tracks hidden, that averaged baseline with a uniform prior was level with v2 (within 0.006
+on Siraj and 0.002 on Kircher). Without metadata, the gain over these methods therefore comes from averaging
+calibrated tracks, not from our prior or panel; with metadata, it comes from the anchor.
 
 %===============================================================================
 \section{Discussion}
@@ -463,7 +476,9 @@ The method is closely related to label-efficient model selection for pretrained 
 \citep{karimi2021modelpicker,okanovic2025modelselector,kay2025coda,durmazkeser2025selectllm}. It differs in three
 ways: candidates are regression outputs with an unknown per-candidate calibration, which we integrate out; the output
 is a model average rather than a single selected model; and the candidates are about a thousand strongly correlated
-heads of one network. Our acquisition rule is the classical discrimination criterion \citep{box1967discrimination}.
+heads of one network. Adapted to this setting, those methods lost to v2 mainly because they report one track and
+ignore metadata (Section~\ref{sec:cmp}). Our acquisition rule is the classical discrimination criterion
+\citep{box1967discrimination}.
 On Kircher its edge over simpler targeted panels was not significant (H3). On the larger Siraj set it beat
 largest-predicted-effect panels when no anchor existed, but tied them when matched tracks were kept
 (Section~\ref{sec:cmp}). Computing the information gain directly \citep{rainforth2024modern} did not help, and a panel

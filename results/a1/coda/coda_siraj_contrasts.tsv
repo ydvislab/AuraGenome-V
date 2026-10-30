@@ -1,0 +1,25 @@
+view	k	contrast	units	mean	ci_low	ci_high	positive	reading
+all	8	v2 - coda (single track)	125	0.075	0.0619	0.0886	111	first better
+all	8	v2 - model_selector (single track)	125	0.0739	0.0637	0.0842	118	first better
+all	8	coda: average - single track	125	0.0164	0.0124	0.0208	99	first better
+all	8	v2 - coda (average)	125	0.0587	0.0454	0.0722	105	first better
+all	16	v2 - coda (single track)	125	0.0455	0.0376	0.0536	111	first better
+all	16	v2 - model_selector (single track)	125	0.0416	0.0349	0.0485	112	first better
+all	16	coda: average - single track	125	0.0089	0.0055	0.0124	92	equivalent within 0.02
+all	16	v2 - coda (average)	125	0.0366	0.0284	0.0449	107	first better
+hide_exact	8	v2 - coda (single track)	125	0.0286	0.0191	0.039	88	first better
+hide_exact	8	v2 - model_selector (single track)	125	0.0365	0.0286	0.0447	99	first better
+hide_exact	8	coda: average - single track	125	0.0176	0.0136	0.0219	103	first better
+hide_exact	8	v2 - coda (average)	125	0.011	0.0022	0.0205	70	first better
+hide_exact	16	v2 - coda (single track)	125	0.0166	0.0104	0.0231	88	first better
+hide_exact	16	v2 - model_selector (single track)	125	0.018	0.0128	0.0233	90	first better
+hide_exact	16	coda: average - single track	125	0.0118	0.0088	0.0151	98	equivalent within 0.02
+hide_exact	16	v2 - coda (average)	125	0.0047	-0.0009	0.0107	70	equivalent within 0.02
+hide_matched	8	v2 - coda (single track)	125	0.0344	0.0267	0.0424	106	first better
+hide_matched	8	v2 - model_selector (single track)	125	0.0438	0.0386	0.0491	121	first better
+hide_matched	8	coda: average - single track	125	0.017	0.0131	0.0212	105	first better
+hide_matched	8	v2 - coda (average)	125	0.0175	0.0108	0.0243	83	first better
+hide_matched	16	v2 - coda (single track)	125	0.028	0.0228	0.0336	114	first better
+hide_matched	16	v2 - model_selector (single track)	125	0.0298	0.0262	0.0335	115	first better
+hide_matched	16	coda: average - single track	125	0.0118	0.0087	0.0151	98	equivalent within 0.02
+hide_matched	16	v2 - coda (average)	125	0.0163	0.0116	0.021	93	first better
