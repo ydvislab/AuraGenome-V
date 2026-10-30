@@ -42,14 +42,14 @@ We integrate out the calibration, form a posterior over tracks, keep metadata-ma
 measure next the variant on which the tracks disagree most. In two pre-registered tests on saturation mutagenesis
 reporter assays, eight chosen measurements beat eight random ones by 0.084 in Spearman correlation on 11 held-out
 Kircher et al. regions with the cell type hidden ($P = 0.0024$). On 125 new Siraj et al. loci, all four
-pre-registered hypotheses held. Where matched tracks existed, eight measurements did not harm them (mean $+0.010$;
-3/125 loci worse by more than 0.05). Without them, eight measurements improved on the all-track mean by 0.048
-($P = 8\times10^{-13}$). With only related-cell tracks, sixteen improved on those tracks' mean by 0.041. With random
-measurements, the same inference fell below the label-free mean. Re-fitting the matched tracks to the few labels
-lowered accuracy at all 125 loci. All four hypotheses still held when each locus was scored by a model checkpoint
-that had not been trained on its region.\\
-\textbf{Availability and implementation:} Code, pre-registrations and derived results are at
-\url{https://github.com/ydvislab/AuraGenome-V} under the MIT licence. \todo{Zenodo archive DOI of the submitted
+pre-registered hypotheses held. Where matched tracks existed, eight measurements were non-inferior to them (mean
+$+0.010$; 3/125 loci worse by more than 0.05). Without them, eight measurements improved on the all-track mean by
+0.047 ($P = 3\times10^{-12}$). With only related-cell tracks, sixteen improved on those tracks' mean by 0.040. With
+random measurements, the same inference fell below the label-free mean. Re-fitting the matched tracks to the few
+labels lowered accuracy at 124/125 loci. All four hypotheses still held when each locus was scored by a model
+checkpoint that had not been trained on its region.\\
+\textbf{Availability and implementation:} Code (MIT licence), pre-registrations and derived results are at
+\url{https://github.com/ydvislab/AuraGenome-V}; tables derived from the Siraj et al. data keep their CC-BY-NC 4.0 licence. \todo{Zenodo archive DOI of the submitted
 version, package name}\\
 \textbf{Contact:} \todo{email}\\
 \textbf{Supplementary information:} Supplementary data are available at \textit{Bioinformatics} online.}
@@ -91,13 +91,13 @@ a set of independently trained models.
 We make three contributions.
 (i) A Bayesian formulation in which each track is a hypothesis with an affine calibration that is integrated out in
 closed form. The result is a posterior over tracks and a posterior-weighted prediction for unmeasured variants. A
-metadata anchor prior makes the method safe when matched tracks exist.
+metadata anchor prior keeps the method close to the matched tracks when they exist.
 (ii) A sequential design that measures the variant on which the posterior-weighted tracks disagree most, in the
 tradition of model discrimination \citep{box1967discrimination}, applied here to about a thousand candidates.
 (iii) Two pre-registered evaluations on independent saturation mutagenesis data (Kircher et al., 11 held-out regions;
 Siraj et al., 125 new loci), plus a check of the dependence on the model's training exposure. These show when a few
 measurements help, when they do not, and that the obvious alternative, re-fitting the matched tracks to the same few
-labels, is harmful.
+labels, lowers accuracy.
 
 %===============================================================================
 \section{Methods}
@@ -160,7 +160,7 @@ it as one extra hypothesis, the \emph{anchor}, holding prior mass $\pi$. Its slo
 value, $b \sim N(\sqrt{\beta}\,s,\ (\beta/4)\,s^2)$, so that a negative slope has prior probability of about 2\%. Single
 tracks share the remaining $1-\pi$. To prevent near-duplicate tracks from dominating the prior, we cluster tracks by
 the correlation of their predictions (average linkage, $r \ge 0.9$; no labels used). The prior is split equally between
-clusters and then within them, so duplicating a track changes nothing. When no matched tracks exist, there is no
+clusters and then within them, so a family of near-duplicate tracks receives no more prior mass than one distinct track. When no matched tracks exist, there is no
 anchor, and the method reduces to the track posterior with the family prior. The case $\pi = 0$ with a uniform prior is
 the version we pre-registered first (v1). The anchor version (v2, $\pi = 0.95$) was chosen on development elements
 only, frozen, and then tested (Section~\ref{sec:eval}).
@@ -172,7 +172,9 @@ variant maximises the posterior-weighted variance of the hypotheses' predictive 
 y_S)}[m_{t,j}]$, divided by the expected residual variance of that variant. This is the classical criterion for
 discriminating between models \citep{box1967discrimination}, a member of the family of Bayesian experimental designs
 \citep{rainforth2024modern}. We call this panel \emph{disc}. All panels are scored with the same inference, so panels
-differ only in which variants are measured.
+differ only in which variants are measured. Before any label, all single-track predictive means are zero under the
+symmetric slope prior, so the first step uses each track's own standardised prediction instead (a positive-slope
+heuristic).
 
 \subsection{Baselines}
 
@@ -181,8 +183,8 @@ all-track mean, a common practical choice; and the variants with the largest unw
 \emph{Label-free references.} These are the mean of all tracks; the mean of the metadata-matched tracks; and, when
 those are hidden, the mean of related-cell tracks. The best single track, chosen with all labels, is reported as a
 reference, not an upper bound. \emph{Few-label regression.} Ridge regression and LASSO \citep{tibshirani1996lasso} over
-all tracks, with the penalty chosen by leave-one-out on the same $k$ labels. This is the protocol used for AlphaGenome
-on this benchmark, which there uses the full challenge training set. \emph{Same-budget metadata controls.} We include
+all tracks, with the penalty chosen by leave-one-out on the same $k$ labels. This is a budget-matched adaptation of the protocol used for
+AlphaGenome on this benchmark, which there uses the full challenge training set. \emph{Same-budget metadata controls.} We include
 \texttt{matched\_cal}, an affine re-fit of the matched mean with the $k$ labels, and \texttt{meta\_ridge}, which
 calibrates the matched mean with a positive-slope prior and then fits ridge regression on the residuals over all
 tracks.
@@ -198,8 +200,11 @@ SK-MEL-28 and glioblastoma lines).
 \textbf{Siraj et al.} \citep{siraj2026functional,siraj2025data} measured all substitutions in 200-bp oligonucleotides
 around fine-mapped trait variants, in K562 and HepG2 cells. Of the 128 published elements, we used the reference
 background of 125. One was excluded because its reference background contains a deletion, and two because the oligo
-had no unique exact match in GRCh38. This left 74,975 substitutions, each measured in both cell types; the effect is
-the reported log$_2$ allelic skew.
+had no unique exact match in GRCh38. This left 74,975 substitutions, each measured in both cell types. The effect is the log$_2$ fold change
+of each substituted oligo minus that of the unmutated reference oligo measured in the same experiment, with standard
+errors combined; a laboratory measuring eight variants would include that reference construct. (The published allelic
+skew is centred on the activity of all oligos of the element, which would give a few labels information about every
+other variant; Supplementary Table~\todo{S} reports the original analysis with it.)
 \textbf{Predictions.} We scored every variant by in-silico mutagenesis with AlphaGenome (API, 1-Mb context) on all
 CAGE, DNase and ATAC tracks for human biosamples \citep{avsec2026alphagenome}. These assays derive from ENCODE and
 FANTOM5 \citep{encode2020expanded,fantom2014atlas}. The main analyses use the default distilled checkpoint
@@ -208,7 +213,8 @@ FANTOM5 \citep{encode2020expanded,fantom2014atlas}. The main analyses use the de
 \textbf{Training data, test sets and homology.} The method trains no model. AlphaGenome is used frozen, and the only
 labels are the $k$ measured variants of the element being predicted. No measured effect from any other element, and no
 evaluation variant, enters the inference. Performance is reported on two independent test sets defined before analysis:
-11 Kircher regions not used during development, and 125 Siraj loci not used at any stage of method design. No test
+11 Kircher regions not used while developing v1, and 125 Siraj loci not used at any stage of method design. v2 was
+designed after the Kircher test, so its Kircher results are descriptive. No test
 region overlaps a development region; the nearest pair, one Siraj locus within 500 kb of the \textit{IRF6} development
 element, shares only long-range model context. Two kinds of exposure remain. MPRA labels were never part of
 AlphaGenome's training, but its training tracks cover these genomic regions. We test the dependence on this exposure
@@ -230,7 +236,7 @@ hidden, and related-cell tracks remain. In C3 both are hidden, which approximate
 profile. Related cell types were listed from track metadata before any result was seen.
 Two pre-registrations were committed together with frozen code before the test data were analysed.
 \emph{Kircher test (v1):} H1, disc beats random panels (one-sided Wilcoxon, $P<0.05$); H2, disc beats the
-all-track mean by at least 0.03 in at least 7/11 regions; H3 (secondary), disc beats high-predicted-effect panels.
+all-track mean by at least 0.03 on average, with a positive difference in at least 7/11 regions; H3 (secondary), disc beats high-predicted-effect panels.
 \emph{Siraj test (frozen v2):} P1, non-inferiority to the matched mean in C1 at $k=8$ (one-sided 95\% bootstrap lower
 bound above $-0.02$); P2, at most 15\% of loci worse by more than 0.05 (one-sided 95\% Clopper--Pearson upper bound);
 P3, improvement over the all-track mean in C3 at $k=8$ of at least 0.03 with $P<0.05$; P4, improvement over the
@@ -300,8 +306,8 @@ matched mean at $k=8$, and 7/11 regions were worse by more than 0.05 (post hoc; 
 where the matched tracks were poor (\textit{LDLR}: matched mean 0.24, v1 0.51). It lost where they were good
 (\textit{SORT1}: 0.65 against 0.48).
 
-The metadata anchor removed most of this harm. With $\pi = 0.95$, chosen on the development set by a rule fixed in
-advance (and re-chosen in 4/5 leave-one-element-out runs), v2 was level with the matched mean at $k=8$ ($+0.001$,
+The metadata anchor removed most of this harm. With $\pi = 0.95$, chosen on the development set by a selection rule (written
+before those runs but committed together with their results; re-chosen in 4/5 leave-one-element-out runs), v2 was level with the matched mean at $k=8$ ($+0.001$,
 1/11 harmed) and ahead at $k=16$ ($+0.018$, none harmed). Rescue was slower: at \textit{LDLR}, v2 reached 0.29 at
 $k=8$ and 0.41 at $k=16$. On the same disc panel, v2 and the simpler \texttt{meta\_ridge} control were tied on
 Kircher. Re-fitting the matched mean with eight labels (\texttt{matched\_cal}) was harmful, because the fitted slope
@@ -330,26 +336,29 @@ random panel + \texttt{matched\_cal} & $-0.079$ & -- & $-0.043$ & -- \\
 \subsection{Pre-registered validation on 125 new loci}
 
 We then ran the frozen v2 once on the Siraj et al. data (Table~\ref{tab:siraj}, Fig.~\ref{fig:siraj}). All four
-primary hypotheses held. In C1, eight measurements did not harm the matched tracks. The mean difference was $+0.010$
-with a one-sided lower bound of $+0.005$, against a margin of $-0.02$. Only 3/125 loci were worse by more than 0.05
-(upper bound 6.1\%, against 15\%). At $k=16$ the difference was $+0.020$, and one locus was harmed. In C3, eight
-measurements improved on the all-track mean by 0.048 (0.391 to 0.440; $P = 8\times10^{-13}$). In C2, sixteen
-measurements improved on the related-cell mean by 0.041 (0.412 to 0.453; $P = 1\times10^{-19}$). The pre-registered
-decision was therefore that the safety-net claim is supported.
+primary hypotheses held. In C1, eight measurements were non-inferior to the matched tracks. The mean difference was
+$+0.010$ with a one-sided lower bound of $+0.005$, against a margin of $-0.02$. Only 3/125 loci were worse by more than
+0.05 (upper bound 6.1\%, against 15\%); the worst lost 0.13 (in single cell types, 0.26 in HepG2 and 0.15 in K562).
+At $k=16$ the difference was $+0.019$, and one locus was harmed. In C3, eight measurements improved on the all-track
+mean by 0.047 (0.391 to 0.438; $P = 3\times10^{-12}$). In C2, sixteen measurements improved on the related-cell mean by
+0.040 (0.412 to 0.452; $P = 3\times10^{-19}$). The pre-registered decision was therefore that the safety-net claim is
+supported. With the published centring of the effects (Methods), each of the
+four contrasts differed by at most 0.002 (paired over loci) and the decision was the same.
 
-The secondary analyses, which report effect sizes only, sharpen this picture. The panel matters most when there is no
-anchor. In C3, disc beat random panels by 0.093 at 122/125 loci, and with random panels the same inference (0.346) fell
-below the label-free mean (0.391). In C1, the advantage was 0.018. Unlike on Kircher, v2 was slightly ahead of
-\texttt{meta\_ridge} on the same panel ($+0.008$, 97/125, two-sided $P<0.001$). Re-fitting the matched mean with eight
-labels lowered accuracy at every one of the 125 loci (mean $-0.079$). The family prior had no effect ($-0.002$,
-$P = 0.11$); we keep it only because it makes the method invariant to duplicated tracks. The C1 gain was larger in
-HepG2 ($+0.017$) than in K562 ($+0.003$, interval including 0).
+The secondary analyses, which were not pre-registered as hypotheses, sharpen this picture. The panel matters most when there is no
+anchor. In C3, disc beat random panels by 0.096 at 122/125 loci, and with random panels the same inference (0.342) fell
+below the label-free mean (0.391). In C1, the advantage was 0.016. Unlike on Kircher, v2 was slightly ahead of
+\texttt{meta\_ridge} on the same panel ($+0.007$, 97/125, two-sided $P<0.001$). Re-fitting the matched mean with eight
+labels lowered accuracy at 124/125 loci, both on random panels (mean $-0.082$) and, less, on the disc panel ($-0.010$,
+95\% interval $-0.015$ to $-0.006$). The family prior made a negligible difference ($-0.002$, two-sided $P = 0.03$); we
+keep it only because it stops families of near-duplicate tracks from dominating the prior. The C1 gain was larger in
+HepG2 ($+0.016$) than in K562 ($+0.003$, interval including 0).
 
 \begin{table*}[t]
 \centering
-% results/a1/siraj_decision.txt, siraj_secondary.tsv
-\caption{Pre-registered Siraj test, frozen v2, 125 loci (two cell types averaged per locus). $D$ is the mean paired
-difference in Spearman correlation.}
+% results/a1/siraj_ref/siraj_decision.txt, siraj_secondary.tsv
+\caption{Pre-registered Siraj test, frozen v2, 125 loci (two cell types averaged per locus), effects relative to the
+measured reference oligo. $D$ is the mean paired difference in Spearman correlation. S3b was added after review.}
 \label{tab:siraj}
 \begin{tabular}{llcc}
 \toprule
@@ -357,13 +366,14 @@ Hyp. & Comparison & $D$ & Criterion, result \\
 \midrule
 P1 & C1, $k=8$: v2 $-$ matched mean & $+0.010$ & LB $+0.005 > -0.02$, holds \\
 P2 & C1, $k=8$: loci with $D<-0.05$ & 3/125 & UB $0.061 \le 0.15$, holds \\
-P3 & C3, $k=8$: v2 $-$ all-track mean & $+0.048$ & $\ge 0.03$, $P=8\!\times\!10^{-13}$, holds \\
-P4 & C2, $k=16$: v2 $-$ related mean & $+0.041$ & $>0$, $P=1\!\times\!10^{-19}$, holds \\
+P3 & C3, $k=8$: v2 $-$ all-track mean & $+0.047$ & $\ge 0.03$, $P=3\!\times\!10^{-12}$, holds \\
+P4 & C2, $k=16$: v2 $-$ related mean & $+0.040$ & $>0$, $P=3\!\times\!10^{-19}$, holds \\
 \midrule
-S1 & C3, $k=8$: disc $-$ random panel & $+0.093$ & 122/125 $>0$ \\
-S2 & C1, $k=8$: v2 $-$ \texttt{meta\_ridge} & $+0.008$ & 97/125 $>0$ \\
-S3 & C1, $k=8$: \texttt{matched\_cal} $-$ matched & $-0.079$ & 0/125 $>0$ \\
-S5 & C1, $k=8$: family $-$ uniform prior & $-0.002$ & $P=0.11$ \\
+S1 & C3, $k=8$: disc $-$ random panel & $+0.096$ & 122/125 $>0$ \\
+S2 & C1, $k=8$: v2 $-$ \texttt{meta\_ridge} & $+0.007$ & 97/125 $>0$ \\
+S3 & C1, $k=8$: \texttt{matched\_cal} (random panel) $-$ matched & $-0.082$ & 1/125 $>0$ \\
+S3b & C1, $k=8$: \texttt{matched\_cal} (disc panel) $-$ matched & $-0.010$ & 1/125 $>0$ \\
+S5 & C1, $k=8$: family $-$ uniform prior & $-0.002$ & $P=0.03$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -392,12 +402,12 @@ training exposure. In hindsight, a sign rule is too strict for a non-inferiority
 Eleven regions give little power, so we repeated the check on the 125 Siraj loci. We used the thresholds of the
 Siraj pre-registration and a reading rule committed before scoring. Each locus overlaps the training intervals of
 exactly one fold, so each has a unique held-out checkpoint. Absolute accuracies fell again, by 0.04--0.07. The
-matched-track mean fell from 0.474 to 0.402, v2 with eight labels from 0.483 to 0.426, and the best single track from
-0.535 to 0.492. With matched and related tracks hidden, the all-track mean fell from 0.391 to 0.347 and v2 from 0.440 to
-0.398. All four pre-registered hypotheses still held, with larger effects (Supplementary Table~\todo{S}). P1:
-$+0.024$, one-sided lower bound $+0.017$, 1/125 loci harmed. P3: $+0.052$, $P = 3\times10^{-13}$. P4: $+0.054$,
-$P = 7\times10^{-21}$. Paired over loci, the change from ALL\_FOLDS was $+0.015$ for P1 (95\% bootstrap interval
-$+0.008$ to $+0.022$), $+0.014$ for P4 ($+0.006$ to $+0.021$) and $+0.003$ for P3 ($-0.006$ to $+0.013$). The matched
+matched-track mean fell from 0.474 to 0.402, v2 with eight labels from 0.483 to 0.425, and the best single track from
+0.535 to 0.492. With matched and related tracks hidden, the all-track mean fell from 0.391 to 0.347 and v2 from 0.438 to
+0.397. All four pre-registered hypotheses still held, with larger effects (Supplementary Table~\todo{S}). P1:
+$+0.024$, one-sided lower bound $+0.016$, 1/125 loci harmed. P3: $+0.050$, $P = 2\times10^{-12}$. P4: $+0.053$,
+$P = 1\times10^{-20}$. Paired over loci, the change from ALL\_FOLDS was $+0.014$ for P1 (95\% bootstrap interval
+$+0.008$ to $+0.022$), $+0.013$ for P4 ($+0.006$ to $+0.021$) and $+0.003$ for P3 ($-0.006$ to $+0.013$). The matched
 tracks lost the most accuracy without training exposure, and the measurements recovered part of that loss. On this
 larger set, the advantage over the all-track mean did not weaken as it did on the 11 Kircher regions.
 
@@ -409,13 +419,14 @@ pools and 50 repeats per unit; the specification, and the rule that fixed the st
 elements, were committed before the test runs. A one-round panel (\emph{batch}) runs disc's sequence without
 measurements: each chosen variant's label is replaced by the current posterior-average prediction. At $k=8$, disc was
 ahead of batch by only 0.002--0.005 on Siraj and 0.003--0.004 on Kircher; every 95\% interval lay within $\pm0.02$, our
-pre-declared equivalence margin. Ranking variants once by prior disagreement was worse without an anchor (C3: disc
-ahead by 0.021). Choosing by the expected information gain about which track is correct, with each track's calibration
-uncertainty in its predictive variance, matched disc (differences $\le 0.003$). A stopping rule that halts once the
+pre-declared equivalence margin. Ranking variants once by prior disagreement was worse without an anchor (Siraj C3:
+disc ahead by 0.023). Choosing by the expected information gain about which track is correct, with each track's calibration
+uncertainty in its predictive variance and computed over the 100 most probable hypotheses, matched disc (differences $\le 0.003$). A stopping rule that halts once the
 averaged prediction stops changing used about four labels with matched tracks and eight without, and matched fixed
-eight-label panels ($-0.008$ to $+0.001$ on Siraj). It lost 0.014--0.027 against sixteen labels, however, and failed
+eight-label panels ($-0.008$ to $+0.002$ on Siraj). It lost 0.013--0.027 against sixteen labels, however, and failed
 our non-inferiority criterion in C2 and C3. On Siraj, disc beat largest-predicted-effect panels without an anchor (C3:
-$+0.024$, 95\% interval $+0.018$ to $+0.031$, 97/125 loci) and tied them with matched tracks kept ($+0.007$).
+$+0.028$, 95\% interval $+0.020$ to $+0.035$, 97/125 loci) and was within the equivalence margin of them with matched
+tracks kept ($+0.010$).
 
 %===============================================================================
 \section{Discussion}
@@ -423,14 +434,15 @@ $+0.024$, 95\% interval $+0.018$ to $+0.031$, 97/125 loci) and tied them with ma
 Foundation models now give laboratories a thousand candidate predictions for every variant. Our results suggest a
 simple protocol for choosing among them. Start from the tracks whose metadata match the cell type. Measure about eight
 variants chosen to split the competing tracks. Let the measurements move the prediction away from the default only
-when they contradict it. On 125 new loci, this cost nothing on average when the default was available: the mean
-difference was slightly positive, and 3/125 loci lost more than 0.05. It recovered 0.04--0.05 when the default was
-missing or only approximate.
+when they contradict it. On 125 new loci, this was non-inferior to the default on average when the default was
+available: the mean difference was slightly positive, but 3/125 loci lost more than 0.05. It recovered 0.04--0.05 when
+the default was missing or only approximate.
 
 Three findings are, in our view, more general than the method. First, \emph{which} variants are measured matters as
 much as how they are modelled. With random measurements, the same Bayesian inference was worse than not measuring at
-all. Second, the obvious shortcut of re-fitting the matched track to the new measurements is harmful with eight
-labels, because the slope is poorly determined and can flip. A prior centred on the metadata default avoids this.
+all. Second, the obvious shortcut of re-fitting the matched track to the new measurements lowers accuracy with eight
+labels, because the slope is poorly determined and can flip; well-chosen variants reduce, but do not remove, the loss.
+A prior centred on the metadata default avoids this.
 Third, the output should be an \emph{average}. With matched tracks kept on Kircher at $k=8$, the posterior-weighted
 prediction was ahead of the single most probable track by 0.045 for v1 and 0.007 for v2. At
 \textit{HBG1} it even exceeded the best single track chosen with all labels. Reporting one proxy track therefore
@@ -449,10 +461,12 @@ panel at once.
 
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome. For Siraj, the situations without matched tracks are
 simulated by hiding tracks, not observed in truly unprofiled cells. The evaluation is retrospective, and a prospective
-panel may behave differently. Absolute correlations are moderate (0.44--0.49 on Siraj), and gains are small where the
+panel may behave differently; it must also measure the unmutated reference construct, against which our Siraj effects
+are defined. Non-inferiority on average does not exclude losses at single loci. Absolute correlations are moderate (0.44--0.49 on Siraj), and gains are small where the
 assay has few significant variants. On Kircher, v2's anchor did not beat the simpler metadata-centred ridge; on Siraj
 it was only slightly ahead. We have no stopping rule that matches sixteen labels; ours stopped too early. The checkpoint
-analysis shows that training exposure inflates absolute accuracy by 0.04--0.07. On the 11 Kircher regions the
+analysis shows that absolute accuracy was 0.04--0.07 lower with checkpoints that had not trained on the locus; these
+checkpoints also differ from ALL\_FOLDS in distillation, so this is not a pure effect of exposure. On the 11 Kircher regions the
 advantage over the label-free mean weakened on held-out folds; on the 125 Siraj loci it did not. Our held-out folds
 are defined by the element's own window; the model's 1~Mb context still reaches sequence from other folds.
 
@@ -460,9 +474,9 @@ are defined by the element's own window; the model's 1~Mb context still reaches 
 \section{Conclusion}
 
 A handful of well-chosen measurements is enough to decide, among about a thousand foundation-model tracks, which to
-trust for a cell type. This holds as long as the decision starts from the metadata default and the measurements are
-chosen to discriminate. In two pre-registered tests, the approach was safe when matched tracks exist and improved
-predictions when they do not, with eight to sixteen measured variants that can be chosen in a single round.
+use for a cell type. This holds as long as the decision starts from the metadata default and the measurements are
+chosen to discriminate. In two pre-registered tests, the approach was non-inferior to matched tracks on average when
+they exist and improved predictions when they do not, with eight to sixteen measured variants that can be chosen in a single round.
 
 \section*{Acknowledgements}
 \todo{acknowledgements}

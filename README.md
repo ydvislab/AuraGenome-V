@@ -14,8 +14,12 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 > Frozen v2 on 125 new loci of the Siraj 2026 saturation MPRA (K562 and HepG2, pre-registered in commit 239d903):
 > - with matched tracks kept, 8 labels are non-inferior to the matched mean (+0.010, one-sided lower bound +0.005;
 >   3/125 loci worse by more than 0.05);
-> - with own and related cell tracks hidden, 8 labels beat the all-track mean (+0.048, p = 8e-13);
-> - with only own cell tracks hidden, 16 labels beat the related-cell mean (+0.041, p = 1e-19).
+> - with own and related cell tracks hidden, 8 labels beat the all-track mean (+0.047, p = 3e-12);
+> - with only own cell tracks hidden, 16 labels beat the related-cell mean (+0.040, p = 3e-19).
+>
+> These numbers use effects relative to the measured reference oligo (2026-10-30, after review;
+> docs/internal/siraj_refnorm_zh.md, `results/a1/siraj_ref/`). The original run on the published, element-centred
+> skew (`results/a1/siraj_*.tsv`) is kept as historical; every contrast differs by at most 0.002 per locus.
 >
 > The discrimination panel is essential: a random panel falls below the label-free mean. Results are in
 > `results/a1/siraj_*.tsv` and section 8 of docs/internal/preregistration_v2_siraj_zh.md.
@@ -30,15 +34,15 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 >
 > The same check on the 125 Siraj loci (thresholds of the Siraj pre-registration, reading rule committed before
 > scoring) gives "safety net not dependent on training exposure": all four primary hypotheses still hold and every
-> contrast grows (P1 +0.024, lower bound +0.017, 1/125 loci harmed; P3 +0.052; P4 +0.054). Absolute accuracy drops by
-> 0.04–0.07, most for the matched-track mean (0.474 → 0.402). Results are in `results/a1/c1_siraj/`.
+> contrast grows (P1 +0.024, lower bound +0.016, 1/125 loci harmed; P3 +0.050; P4 +0.053; reference-relative labels). Absolute accuracy drops by
+> 0.04–0.07, most for the matched-track mean (0.474 → 0.402). Results are in `results/a1/siraj_ref/c1/` (historical: `results/a1/c1_siraj/`).
 >
 > **Acquisition comparators (2026-10-30, post hoc, spec committed before the runs;
 > docs/internal/acquisition_comparators_zh.md).** A one-round panel fixed before any measurement is equivalent to
 > the sequential one (Siraj: within 0.002–0.005, every 95% interval inside ±0.02), so the panel can be assayed in a
 > single round. Direct expected information gain does not improve on the Box–Hill score. A stopping rule based on
 > the stability of the averaged prediction stops after 4–8 labels but fails the declared non-inferiority to 16
-> labels. Tables in `results/a1/cmp/`.
+> labels. Tables in `results/a1/cmp/` and, for reference-relative Siraj labels, `results/a1/siraj_ref/cmp/`.
 >
 > **Manuscript draft** for *Bioinformatics* is in [paper/](paper/) (`main.tex`, `main.pdf`; plain-Chinese version
 > `plain_zh.md`). Red TODOs mark what is missing before submission.
@@ -127,6 +131,6 @@ python pilot/scripts/a1_report.py pilot results/a1
 ## Licence
 
 - **Code** (`pilot/scripts/`, `paper/make_figures.py` and other scripts): MIT, see [LICENSE](LICENSE).
-- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`): CC-BY-NC-4.0, the
+- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`, `results/a1/siraj_ref/`): CC-BY-NC-4.0, the
   licence of the source data. Cite Siraj et al. (2026) and the Zenodo record when using them.
 - **Manuscript draft** (`paper/` text and figures): not licensed for reuse. The MIT licence does not apply to it.
