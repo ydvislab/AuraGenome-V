@@ -45,6 +45,14 @@ Method v2 (docs/internal/method_v2_zh.md): --anchor-prior adds the mean of the m
 that prior mass, with its slope prior centred on +sqrt(beta)*s; --family-prior splits the tracks' prior equally between
 prediction clusters (no labels used; duplicating a track changes nothing); --controls adds same-budget metadata
 controls (+matched_cal, +meta_ridge) on the random and disc panels.
+With --comparators (post hoc, docs/internal/acquisition_comparators_zh.md), on the first --comparator-repeats repeats:
+  disc_static   one round: the k variants with the largest prior-weighted disagreement (disc's first score)
+  batch_kb      one round: disc with each chosen variant's label replaced by the current posterior-average
+                prediction (kriging believer), so the panel is fixed before any measurement
+  eig           sequential: expected information gain about the hypothesis index, with each hypothesis'
+                calibration uncertainty in its predictive variance
+  disc_stop_bma@r  disc, stopping once the posterior-average predictions of all variants correlate >= r with
+                those of the previous --stop-patience panels
 Scenarios: all tracks, and hide_matched (tracks of the element's own cell type removed, which mimics
 a cell type the model does not profile).
 
@@ -98,12 +106,21 @@ ap.add_argument("--family-prior", action="store_true",
                 help="method v2: equal prior mass per prediction cluster (--cluster-r), split within the cluster")
 ap.add_argument("--controls", action="store_true",
                 help="same-budget metadata controls where matched tracks exist: +matched_cal and +meta_ridge")
+ap.add_argument("--comparators", action="store_true",
+                help="post hoc acquisition comparators on the first --comparator-repeats repeats "
+                     "(docs/internal/acquisition_comparators_zh.md): disc_static, batch_kb, eig and disc_stop_bma@r")
+ap.add_argument("--comparator-repeats", type=int, default=50)
+ap.add_argument("--eig-top", type=int, default=100, help="eig: hypotheses kept (largest posterior weight)")
+ap.add_argument("--eig-grid", type=int, default=96, help="eig: quadrature points for the mixture entropy")
+ap.add_argument("--stop-bma-grid", default="0.95,0.98,0.99,0.995",
+                help="disc_stop_bma thresholds: stop once consecutive posterior-average predictions correlate >= r")
 ap.add_argument("--scenarios", default="all,hide_exact,hide_matched")
 ap.add_argument("--seed", type=int, default=0)
 a = ap.parse_args()
 assert not (a.ensemble and a.anchor_prior > 0), "--ensemble and --anchor-prior are alternatives"
 
 budgets = [int(k) for k in a.budgets.split(",")]
+stop_bma_grid = [float(r) for r in a.stop_bma_grid.split(",")] if a.comparators else []
 kmax = max(budgets)
 outputs = a.outputs.split(",")
 pred_dir = os.path.join(a.pilot_dir, a.pred_dir)
@@ -240,15 +257,21 @@ def ridge(Z, y, panel):
     return ym + (Z - xm) @ w
 
 
-def disc_sequence(Z, y, se, pool, C, logprior, slope=None):
-    """Sequential discriminating panel. Returns the panel order and the first panel size at which the
+def disc_sequence(Z, y, se, pool, C, logprior, slope=None, fantasy=False):
+    """Sequential discriminating panel. Returns the panel order, the first panel size at which the
     MAP track correlates >= --stop-r with the MAP tracks of the previous --stop-patience panels (kmax if
-    never). C is the track x track correlation of predictions."""
+    never), and for each --stop-bma-grid threshold r the first panel size at which the posterior-average
+    predictions of all variants correlate >= r with those of each of the previous --stop-patience panels.
+    C is the track x track correlation of predictions. fantasy=True (batch_kb) never reads y: each chosen
+    variant gets the current posterior-average prediction as its label ("kriging believer"), so the
+    whole panel is fixed before any measurement."""
     w = softmax(logprior)
     mu = Z[pool]                       # before any label: each hypothesis' own prediction, positive slope
     noise = np.median(se[pool] ** 2) + se[pool] ** 2   # before any label, misfit assumed ~ typical noise
     left = np.ones(len(pool), bool)
-    order, k_stop, maps = [], kmax, []
+    yy = np.zeros_like(y) if fantasy else y
+    order, k_stop, maps, bmas = [], kmax, [], []
+    k_bma = {r: kmax for r in stop_bma_grid}
     for step in range(kmax):
         mbar = mu @ w
         score = ((mu - mbar[:, None]) ** 2) @ w / np.maximum(noise, 1e-12)
@@ -256,16 +279,74 @@ def disc_sequence(Z, y, se, pool, C, logprior, slope=None):
         j = int(np.argmax(score))
         left[j] = False
         order.append(pool[j])
-        ll, A, B, s2 = posterior(Z[order], y[order], se[order], logprior, slope)
+        if fantasy:
+            yy[pool[j]] = mbar[j]
+        ll, A, B, s2 = posterior(Z[order], yy[order], se[order], logprior, slope)
         w = softmax(ll)
         mu = A + Z[pool] * B
         noise = s2 * (1 - a.beta) + se[pool] ** 2
+        if fantasy:
+            continue
         maps.append(int(np.argmax(ll)))
         prev = maps[-1 - a.stop_patience:-1]
         if (k_stop == kmax and len(order) >= a.min_labels and len(prev) == a.stop_patience
                 and all(C[maps[-1], t] >= a.stop_r for t in prev)):
             k_stop = len(order)
-    return order, k_stop
+        if not k_bma:
+            continue
+        bmas.append(A @ w + Z @ (B * w))
+        prev = bmas[-1 - a.stop_patience:-1]
+        if len(order) >= a.min_labels and len(prev) == a.stop_patience:
+            r_min = min(np.corrcoef(bmas[-1], p)[0, 1] for p in prev)
+            for r in k_bma:
+                if k_bma[r] == kmax and r_min >= r:
+                    k_bma[r] = len(order)
+    return order, k_stop, k_bma
+
+
+def eig_sequence(Z, y, se, pool, logprior, slope=None):
+    """Sequential panel by expected information gain about the hypothesis index (the quantity Box-Hill's
+    disagreement approximates). Under hypothesis t the next label at x is Gaussian with the posterior-mean
+    line A_t + B_t z_t(x) and variance noise + [1, z_t(x)] Cov_t(a, b) [1, z_t(x)]'; the information gain
+    is the entropy of the weighted mixture minus the mean entropy of its components, by quadrature on
+    --eig-grid points, over the --eig-top hypotheses with the largest weight. Before any label s = 1
+    (the gain does not depend on the unit when every line passes through 0)."""
+    T = Z.shape[1]
+    mb, vb = (np.zeros(T), np.full(T, a.beta)) if slope is None else slope
+    w, A, B, s2 = softmax(logprior), np.zeros(T), mb.copy(), 1.0
+    left = np.ones(len(pool), bool)
+    order = []
+    for step in range(kmax):
+        sig2 = s2 * (1 - a.beta)
+        p11, p22 = np.full(T, 1 / (a.alpha * s2)), 1 / (vb * s2)        # posterior precision of (a, b)
+        p12 = np.zeros(T)
+        if order:
+            d = 1 / (sig2 + se[order] ** 2)
+            zo = Z[order]
+            p11, p12, p22 = p11 + d.sum(), d @ zo, p22 + d @ zo ** 2
+        det = p11 * p22 - p12 ** 2
+        top = np.argsort(-w)[:a.eig_top]
+        wt = w[top] / w[top].sum()
+        zc = Z[pool][:, top]
+        m = A[top] + zc * B[top]
+        v = sig2 + se[pool, None] ** 2 + (p22[top] - 2 * p12[top] * zc + p11[top] * zc ** 2) / det[top]
+        sd = np.sqrt(v)
+        gain = np.full(len(pool), -np.inf)
+        for c in range(0, len(pool), 64):
+            mc, sc, vc = m[c:c + 64], sd[c:c + 64], v[c:c + 64]
+            lo, hi = (mc - 6 * sc).min(1), (mc + 6 * sc).max(1)
+            g = lo[:, None] + (hi - lo)[:, None] * np.linspace(0, 1, a.eig_grid)[None, :]
+            dens = (np.exp(-0.5 * (g[:, :, None] - mc[:, None, :]) ** 2 / vc[:, None, :]) / sc[:, None, :]) @ wt
+            dens /= np.sqrt(2 * np.pi)
+            h_mix = -(dens * np.log(np.maximum(dens, 1e-300))).sum(1) * (hi - lo) / (a.eig_grid - 1)
+            gain[c:c + 64] = h_mix - 0.5 * np.log(2 * np.pi * np.e * vc) @ wt
+        gain[~left] = -np.inf
+        j = int(np.argmax(gain))
+        left[j] = False
+        order.append(pool[j])
+        ll, A, B, s2 = posterior(Z[order], y[order], se[order], logprior, slope)
+        w = softmax(ll)
+    return order
 
 
 runs, t0 = [], time.time()
@@ -349,13 +430,23 @@ for element in elements:
                 outside[pool] = False
                 for name, pred in refs.items():
                     label_free(name, pred, outside, rep)
-            order, k_stop = disc_sequence(H, y, se, pool, C, logprior, slope)
+            order, k_stop, k_bma = disc_sequence(H, y, se, pool, C, logprior, slope)
             panels = {"random": rng.permutation(pool),
                       "high_effect": pool[np.argsort(-mean_pred[pool], kind="stable")],
                       "disagree": pool[np.argsort(-spread[pool], kind="stable")],
                       "disc": np.array(order)}
             todo = [(s, k, p[:k]) for s, p in panels.items() for k in budgets]
             todo.append(("disc_stop", kmax, np.array(order[:k_stop])))
+            if a.comparators and rep < a.comparator_repeats:
+                # one-round panels (no label seen while choosing) and the information-gain panel; the same
+                # inference scores all of them (no random draws here, so every other row is unchanged)
+                w0, mu0 = softmax(logprior), H[pool]
+                static = ((mu0 - (mu0 @ w0)[:, None]) ** 2) @ w0
+                extra = {"disc_static": pool[np.argsort(-static, kind="stable")],
+                         "batch_kb": np.array(disc_sequence(H, y, se, pool, C, logprior, slope, fantasy=True)[0]),
+                         "eig": np.array(eig_sequence(H, y, se, pool, logprior, slope))}
+                todo += [(s, k, p[:k]) for s, p in extra.items() for k in budgets]
+                todo += [(f"disc_stop_bma@{r:g}", kmax, np.array(order[:k])) for r, k in k_bma.items()]
             for strategy, k, panel in todo:
                 r = evaluate(H, y, se, cls, panel, h_rho, logprior, outside, slope)
                 t = r["pick"]
