@@ -57,3 +57,18 @@ Siraj 位点多，作为主要依据；Kircher 检验集作为补充。
 - 只有 50 次重复（原运行 200 次），是为了控制 EIG 的计算量；配对比较用的是同一批重复。
 - EIG 只保留后验权重最大的 100 个假设，并用数值积分，是近似。
 - 这里的"一轮"不考虑实验批次之间的技术差异。
+
+## 开发集结果与冻结的停止阈值（2026-10-30，检验集和 Siraj 运行之前）
+
+`sh pilot/scripts/run_comparators.sh dev 5`，5 个元件，约 2 分钟。已有策略在这 50 次重复上与原运行（`proxy_select_c1/v2_all`）的全部数值一致，只有两列文字字段的缺失值写法不同。
+
+`results/a1/cmp/cmp_dev_stop_choice.txt` 原文：
+
+```
+FROZEN STOPPING RULE: disc_stop_bma@0.99 (mean labels 7.30)
+```
+
+- deploy：平均 4.0 个标签，比 disc（16 个标签）低 0.005；
+- no_anchor：平均 10.6 个标签，比 disc（16 个标签）低 0.006。
+
+开发集只有 5 个区域，其余对比（Q1、Q2）不在这里下结论，完整表见 `results/a1/cmp/cmp_dev_*.tsv`。

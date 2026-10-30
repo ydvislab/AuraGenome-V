@@ -1,0 +1,25 @@
+view	k	contrast	units	mean	ci_low	ci_high	positive	wilcoxon_p	reading
+deploy	8	disc - batch_kb	5	-0.0000	-0.0207	0.0203	2		undetermined
+no_anchor	8	disc - batch_kb	5	-0.0014	-0.0101	0.0055	3		equivalent within 0.02
+deploy	8	disc - disc_static	5	0.0068	-0.0123	0.0274	2		undetermined
+no_anchor	8	disc - disc_static	5	0.0738	0.0322	0.1279	5		first better
+deploy	8	eig - disc	5	0.0036	0.0001	0.0077	3		equivalent within 0.02
+no_anchor	8	eig - disc	5	-0.0095	-0.0202	0.0011	2		undetermined
+deploy	8	batch_kb - disc_static	5	0.0068	-0.0030	0.0158	4		equivalent within 0.02
+no_anchor	8	batch_kb - disc_static	5	0.0751	0.0304	0.1296	5		first better
+deploy	8	disc - high_effect	5	-0.0116	-0.0260	-0.0006	2		second better
+no_anchor	8	disc - high_effect	5	-0.0068	-0.0308	0.0169	2		undetermined
+deploy	8	disc - disagree	5	-0.0123	-0.0266	0.0011	2		undetermined
+no_anchor	8	disc - disagree	5	-0.0027	-0.0363	0.0310	2		undetermined
+deploy	16	disc - batch_kb	5	0.0078	0.0005	0.0160	4		equivalent within 0.02
+no_anchor	16	disc - batch_kb	5	0.0114	0.0076	0.0151	5		equivalent within 0.02
+deploy	16	disc - disc_static	5	0.0204	0.0040	0.0369	4		first better
+no_anchor	16	disc - disc_static	5	0.0274	0.0132	0.0386	5		first better
+deploy	16	eig - disc	5	0.0004	-0.0004	0.0015	3		equivalent within 0.02
+no_anchor	16	eig - disc	5	-0.0035	-0.0113	0.0012	3		equivalent within 0.02
+deploy	16	batch_kb - disc_static	5	0.0126	0.0034	0.0217	4		first better
+no_anchor	16	batch_kb - disc_static	5	0.0161	0.0000	0.0298	4		first better
+deploy	16	disc - high_effect	5	0.0080	-0.0076	0.0313	2		undetermined
+no_anchor	16	disc - high_effect	5	0.0152	-0.0104	0.0409	3		undetermined
+deploy	16	disc - disagree	5	0.0189	0.0025	0.0401	4		first better
+no_anchor	16	disc - disagree	5	0.0292	0.0131	0.0457	5		first better

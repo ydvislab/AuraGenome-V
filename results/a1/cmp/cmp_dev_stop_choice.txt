@@ -1,0 +1,1 @@
+FROZEN STOPPING RULE: disc_stop_bma@0.99 (mean labels 7.30)
