@@ -33,6 +33,13 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 > contrast grows (P1 +0.024, lower bound +0.017, 1/125 loci harmed; P3 +0.052; P4 +0.054). Absolute accuracy drops by
 > 0.04–0.07, most for the matched-track mean (0.474 → 0.402). Results are in `results/a1/c1_siraj/`.
 >
+> **Acquisition comparators (2026-10-30, post hoc, spec committed before the runs;
+> docs/internal/acquisition_comparators_zh.md).** A one-round panel fixed before any measurement is equivalent to
+> the sequential one (Siraj: within 0.002–0.005, every 95% interval inside ±0.02), so the panel can be assayed in a
+> single round. Direct expected information gain does not improve on the Box–Hill score. A stopping rule based on
+> the stability of the averaged prediction stops after 4–8 labels but fails the declared non-inferiority to 16
+> labels. Tables in `results/a1/cmp/`.
+>
 > **Manuscript draft** for *Bioinformatics* is in [paper/](paper/) (`main.tex`, `main.pdf`; plain-Chinese version
 > `plain_zh.md`). Red TODOs mark what is missing before submission.
 

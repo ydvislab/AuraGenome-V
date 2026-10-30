@@ -401,6 +401,22 @@ $+0.008$ to $+0.022$), $+0.014$ for P4 ($+0.006$ to $+0.021$) and $+0.003$ for P
 tracks lost the most accuracy without training exposure, and the measurements recovered part of that loss. On this
 larger set, the advantage over the all-track mean did not weaken as it did on the 11 Kircher regions.
 
+\subsection{One assay round is enough (post hoc)}
+\label{sec:cmp}
+
+After both tests we compared acquisition alternatives requested in review. All used the frozen v2 inference, the same
+pools and 50 repeats per unit; the specification, and the rule that fixed the stopping threshold on the development
+elements, were committed before the test runs. A one-round panel (\emph{batch}) runs disc's sequence without
+measurements: each chosen variant's label is replaced by the current posterior-average prediction. At $k=8$, disc was
+ahead of batch by only 0.002--0.005 on Siraj and 0.003--0.004 on Kircher; every 95\% interval lay within $\pm0.02$, our
+pre-declared equivalence margin. Ranking variants once by prior disagreement was worse without an anchor (C3: disc
+ahead by 0.021). Choosing by the expected information gain about which track is correct, with each track's calibration
+uncertainty in its predictive variance, matched disc (differences $\le 0.003$). A stopping rule that halts once the
+averaged prediction stops changing used about four labels with matched tracks and eight without, and matched fixed
+eight-label panels ($-0.008$ to $+0.001$ on Siraj). It lost 0.014--0.027 against sixteen labels, however, and failed
+our non-inferiority criterion in C2 and C3. On Siraj, disc beat largest-predicted-effect panels without an anchor (C3:
+$+0.024$, 95\% interval $+0.018$ to $+0.031$, 97/125 loci) and tied them with matched tracks kept ($+0.007$).
+
 %===============================================================================
 \section{Discussion}
 
@@ -425,15 +441,17 @@ The method is closely related to label-efficient model selection for pretrained 
 ways: candidates are regression outputs with an unknown per-candidate calibration, which we integrate out; the output
 is a model average rather than a single selected model; and the candidates are about a thousand strongly correlated
 heads of one network. Our acquisition rule is the classical discrimination criterion \citep{box1967discrimination}.
-Its value relative to simpler targeted panels is modest: H3 was not significant, and static disagreement was close
-behind on Kircher. Batch designs that choose all variants at once, and information-based criteria
-\citep{rainforth2024modern}, are natural next steps. \todo{batch panel and stopping-rule results, if added}
+On Kircher its edge over simpler targeted panels was not significant (H3). On the larger Siraj set it beat
+largest-predicted-effect panels when no anchor existed, but tied them when matched tracks were kept
+(Section~\ref{sec:cmp}). Computing the information gain directly \citep{rainforth2024modern} did not help, and a panel
+fixed before any measurement was nearly as good as sequential choice. A laboratory can therefore order the whole
+panel at once.
 
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome. For Siraj, the situations without matched tracks are
 simulated by hiding tracks, not observed in truly unprofiled cells. The evaluation is retrospective, and a prospective
 panel may behave differently. Absolute correlations are moderate (0.44--0.49 on Siraj), and gains are small where the
 assay has few significant variants. On Kircher, v2's anchor did not beat the simpler metadata-centred ridge; on Siraj
-it was only slightly ahead. The stopping rule stalls under the anchor prior and needs redesign. The checkpoint
+it was only slightly ahead. We have no stopping rule that matches sixteen labels; ours stopped too early. The checkpoint
 analysis shows that training exposure inflates absolute accuracy by 0.04--0.07. On the 11 Kircher regions the
 advantage over the label-free mean weakened on held-out folds; on the 125 Siraj loci it did not. Our held-out folds
 are defined by the element's own window; the model's 1~Mb context still reaches sequence from other folds.
@@ -444,7 +462,7 @@ are defined by the element's own window; the model's 1~Mb context still reaches 
 A handful of well-chosen measurements is enough to decide, among about a thousand foundation-model tracks, which to
 trust for a cell type. This holds as long as the decision starts from the metadata default and the measurements are
 chosen to discriminate. In two pre-registered tests, the approach was safe when matched tracks exist and improved
-predictions when they do not, with eight to sixteen measured variants.
+predictions when they do not, with eight to sixteen measured variants that can be chosen in a single round.
 
 \section*{Acknowledgements}
 \todo{acknowledgements}

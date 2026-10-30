@@ -1,0 +1,37 @@
+view	k	contrast	units	mean	ci_low	ci_high	positive	wilcoxon_p	reading
+C1	8	disc - batch_kb	125	0.0020	-0.0003	0.0042	75	0.0046	equivalent within 0.02
+C2	8	disc - batch_kb	125	0.0047	0.0029	0.0066	87	0.0000	equivalent within 0.02
+C3	8	disc - batch_kb	125	0.0034	0.0016	0.0051	90	0.0000	equivalent within 0.02
+C1	8	disc - disc_static	125	0.0060	0.0027	0.0098	87	0.0000	equivalent within 0.02
+C2	8	disc - disc_static	125	0.0116	0.0069	0.0170	84	0.0000	equivalent within 0.02
+C3	8	disc - disc_static	125	0.0209	0.0160	0.0263	103	0.0000	first better
+C1	8	eig - disc	125	0.0008	-0.0003	0.0020	73	0.0469	equivalent within 0.02
+C2	8	eig - disc	125	0.0010	-0.0001	0.0021	84	0.0000	equivalent within 0.02
+C3	8	eig - disc	125	0.0001	-0.0010	0.0011	73	0.2249	equivalent within 0.02
+C1	8	batch_kb - disc_static	125	0.0041	0.0010	0.0078	74	0.0094	equivalent within 0.02
+C2	8	batch_kb - disc_static	125	0.0069	0.0031	0.0114	72	0.0018	equivalent within 0.02
+C3	8	batch_kb - disc_static	125	0.0175	0.0129	0.0228	99	0.0000	first better
+C1	8	disc - high_effect	125	0.0074	0.0031	0.0122	79	0.0003	equivalent within 0.02
+C2	8	disc - high_effect	125	0.0135	0.0086	0.0191	94	0.0000	equivalent within 0.02
+C3	8	disc - high_effect	125	0.0244	0.0184	0.0306	97	0.0000	first better
+C1	8	disc - disagree	125	0.0117	0.0069	0.0168	92	0.0000	equivalent within 0.02
+C2	8	disc - disagree	125	0.0159	0.0105	0.0220	99	0.0000	first better
+C3	8	disc - disagree	125	0.0309	0.0230	0.0396	106	0.0000	first better
+C1	16	disc - batch_kb	125	0.0046	0.0021	0.0075	82	0.0000	equivalent within 0.02
+C2	16	disc - batch_kb	125	0.0082	0.0060	0.0105	95	0.0000	equivalent within 0.02
+C3	16	disc - batch_kb	125	0.0059	0.0038	0.0080	87	0.0000	equivalent within 0.02
+C1	16	disc - disc_static	125	0.0088	0.0056	0.0127	93	0.0000	equivalent within 0.02
+C2	16	disc - disc_static	125	0.0160	0.0125	0.0200	111	0.0000	equivalent within 0.02
+C3	16	disc - disc_static	125	0.0157	0.0116	0.0199	99	0.0000	equivalent within 0.02
+C1	16	eig - disc	125	0.0010	0.0001	0.0019	58	0.9088	equivalent within 0.02
+C2	16	eig - disc	125	0.0010	0.0004	0.0016	86	0.0000	equivalent within 0.02
+C3	16	eig - disc	125	0.0004	-0.0004	0.0012	67	0.2586	equivalent within 0.02
+C1	16	batch_kb - disc_static	125	0.0042	0.0013	0.0080	72	0.0107	equivalent within 0.02
+C2	16	batch_kb - disc_static	125	0.0078	0.0047	0.0111	92	0.0000	equivalent within 0.02
+C3	16	batch_kb - disc_static	125	0.0098	0.0062	0.0137	90	0.0000	equivalent within 0.02
+C1	16	disc - high_effect	125	0.0116	0.0069	0.0171	87	0.0000	equivalent within 0.02
+C2	16	disc - high_effect	125	0.0224	0.0178	0.0274	107	0.0000	first better
+C3	16	disc - high_effect	125	0.0257	0.0199	0.0317	100	0.0000	first better
+C1	16	disc - disagree	125	0.0113	0.0068	0.0166	86	0.0000	equivalent within 0.02
+C2	16	disc - disagree	125	0.0163	0.0123	0.0208	109	0.0000	first better
+C3	16	disc - disagree	125	0.0193	0.0150	0.0239	111	0.0000	first better

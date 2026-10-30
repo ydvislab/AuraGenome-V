@@ -1,0 +1,11 @@
+view	rule	units	labels	rho_bma	minus_disc16	ci_low	ci_high	minus_disc8
+deploy	disc_stop	11	3.0000	0.3984	-0.0214	-0.0485	0.0005	-0.0049
+no_anchor	disc_stop	11	8.2439	0.3656	-0.0182	-0.0295	-0.0064	-0.0044
+deploy	disc_stop_bma@0.95	11	3.4144	0.3999	-0.0200	-0.0469	0.0016	-0.0035
+no_anchor	disc_stop_bma@0.95	11	5.4611	0.3547	-0.0291	-0.0520	-0.0076	-0.0153
+deploy	disc_stop_bma@0.98	11	3.8608	0.4004	-0.0194	-0.0464	0.0017	-0.0029
+no_anchor	disc_stop_bma@0.98	11	7.2944	0.3658	-0.0180	-0.0334	-0.0037	-0.0042
+deploy	disc_stop_bma@0.99	11	4.2580	0.4008	-0.0190	-0.0461	0.0020	-0.0025
+no_anchor	disc_stop_bma@0.99	11	8.9236	0.3717	-0.0120	-0.0226	-0.0017	0.0018
+deploy	disc_stop_bma@0.995	11	4.9000	0.4011	-0.0187	-0.0460	0.0021	-0.0022
+no_anchor	disc_stop_bma@0.995	11	10.7968	0.3763	-0.0074	-0.0143	-0.0014	0.0064

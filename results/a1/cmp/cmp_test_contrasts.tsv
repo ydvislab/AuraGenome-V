@@ -1,0 +1,25 @@
+view	k	contrast	units	mean	ci_low	ci_high	positive	wilcoxon_p	reading
+deploy	8	disc - batch_kb	11	0.0041	-0.0005	0.0087	7	0.1748	equivalent within 0.02
+no_anchor	8	disc - batch_kb	11	0.0031	-0.0039	0.0101	7	0.5195	equivalent within 0.02
+deploy	8	disc - disc_static	11	0.0056	0.0002	0.0112	6	0.2061	equivalent within 0.02
+no_anchor	8	disc - disc_static	11	0.0152	-0.0006	0.0345	8	0.2061	undetermined
+deploy	8	eig - disc	11	0.0031	0.0014	0.0049	9	0.0049	equivalent within 0.02
+no_anchor	8	eig - disc	11	0.0023	-0.0007	0.0052	8	0.2061	equivalent within 0.02
+deploy	8	batch_kb - disc_static	11	0.0015	-0.0032	0.0064	5	0.8311	equivalent within 0.02
+no_anchor	8	batch_kb - disc_static	11	0.0121	0.0007	0.0286	7	0.2783	first better
+deploy	8	disc - high_effect	11	0.0044	-0.0073	0.0165	6	0.5195	equivalent within 0.02
+no_anchor	8	disc - high_effect	11	0.0286	0.0013	0.0591	7	0.1475	first better
+deploy	8	disc - disagree	11	0.0048	-0.0094	0.0230	6	0.8311	undetermined
+no_anchor	8	disc - disagree	11	0.0189	-0.0027	0.0410	8	0.1230	undetermined
+deploy	16	disc - batch_kb	11	0.0047	0.0001	0.0116	6	0.3203	equivalent within 0.02
+no_anchor	16	disc - batch_kb	11	0.0081	0.0023	0.0134	9	0.0244	equivalent within 0.02
+deploy	16	disc - disc_static	11	0.0196	0.0002	0.0481	8	0.0674	first better
+no_anchor	16	disc - disc_static	11	0.0128	-0.0018	0.0275	8	0.0830	undetermined
+deploy	16	eig - disc	11	0.0038	0.0010	0.0069	8	0.0830	equivalent within 0.02
+no_anchor	16	eig - disc	11	0.0023	-0.0010	0.0065	6	0.4131	equivalent within 0.02
+deploy	16	batch_kb - disc_static	11	0.0150	-0.0031	0.0431	7	0.4131	undetermined
+no_anchor	16	batch_kb - disc_static	11	0.0047	-0.0108	0.0184	8	0.3652	equivalent within 0.02
+deploy	16	disc - high_effect	11	0.0219	-0.0045	0.0546	5	0.7002	undetermined
+no_anchor	16	disc - high_effect	11	0.0013	-0.0213	0.0231	6	1.0000	undetermined
+deploy	16	disc - disagree	11	0.0196	0.0017	0.0407	8	0.0830	first better
+no_anchor	16	disc - disagree	11	0.0079	-0.0039	0.0191	9	0.1230	equivalent within 0.02

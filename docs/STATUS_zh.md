@@ -27,6 +27,11 @@
 >    - **扩展到 Siraj 的 125 个位点（10/29 19:40）：判定为"安全网主张不依赖训练暴露"。** 留出折下 P1–P4 全部成立，而且优势变大：P1 +0.024（下界 +0.017，受损 1/125），P3 +0.052，P4 +0.054。绝对精度下降 0.04–0.07，其中匹配平均掉得最多（0.474 → 0.402）。Kircher 上 H2 的减弱在大样本上没有重现；
 >    - 见 [c1_robustness_zh.md](internal/c1_robustness_zh.md)；
 > 4. 根据 Siraj 结果确定论文主张，写 *Bioinformatics* 论文。**论文初稿已完成（10/29），在 [`paper/`](../paper/)**：`main.tex`（OUP 模板）、`main.pdf`、大白话中文版 `plain_zh.md`、规划 `PAPER_PLAN.md`。投稿前作者必须亲自重写正文（期刊禁止用 LLM 起草论文），并补 Zenodo 存档、作者信息等红色 TODO。方法上再补一个算法改进：批量选点或停止规则重设计，评审也要求批量选点作为基线；
+> 4b. **选点方法补充对照（10/30，事后分析，规格先提交）**：见 [acquisition_comparators_zh.md](internal/acquisition_comparators_zh.md)。
+>    - 一轮批量选点（batch_kb）与顺序选点等价（Siraj 上差 0.002–0.005，区间都在 ±0.02 内）：实验可以一轮做完；
+>    - 直接算期望信息增益（EIG）没有改进（差 ≤ 0.003）；
+>    - 新停止规则（后验平均预测稳定即停，阈值在开发集上冻结为 0.99）约 4–8 个标签就停，相对测满 16 个损失 0.014–0.027，按事先规则判为失败；
+>    - 附带：Siraj 上没有锚点时，disc 比"挑预测效应最大的"高 0.024（97/125）。
 > 5. **论文拆分（10/29 作者决定）**：先投 *Bioinformatics*，以方法为主，配结果图和软件包。可视分析的研究问题另写一篇投可视化领域，问题清单见 [vis_paper_questions_zh.md](internal/vis_paper_questions_zh.md)。
 > 建议的阅读顺序：本文 → [`results/a1/`](../results/a1/) 中的图表 → [预注册](internal/preregistration_A1_zh.md)。
 
