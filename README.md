@@ -127,6 +127,6 @@ python pilot/scripts/a1_report.py pilot results/a1
 ## Licence
 
 - **Code** (`pilot/scripts/`, `paper/make_figures.py` and other scripts): MIT, see [LICENSE](LICENSE).
-- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`): CC-BY-NC-4.0, the
+- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`): CC-BY-NC-4.0, the
   licence of the source data. Cite Siraj et al. (2026) and the Zenodo record when using them.
 - **Manuscript draft** (`paper/` text and figures): not licensed for reuse. The MIT licence does not apply to it.
