@@ -11,7 +11,8 @@ standard errors are only copied into the variant table.
 Data: Zenodo 10.5281/zenodo.15297965, data_satmut.zip (CC-BY-NC-4.0). Inputs and outputs stay under the gitignored
 pilot/data/; never commit them to the public repository.
 
-usage: python siraj_prepare.py <pilot_dir> [--skip-mapping]
+usage: python siraj_prepare.py <pilot_dir> [--skip-mapping | --ref-norm]
+  --ref-norm  effects relative to the measured reference oligo, written to <pilot_dir>/data/siraj_ref/ (after review)
 Inputs:  <pilot_dir>/data/raw/siraj2026/data/satmut/{satmut.txt.gz, satmut_sequences.txt.gz, satmut_final_128elements.txt}
 Outputs: <pilot_dir>/data/siraj/variants_grch38.tsv   one row per substitution x cell type
          <pilot_dir>/data/siraj/elements.tsv           one row per element: window, strand, mapping status
@@ -21,7 +22,9 @@ Outputs: <pilot_dir>/data/siraj/variants_grch38.tsv   one row per substitution x
                                                        pre-registration, chosen from track metadata only)
 """
 import os, sys, json, time, urllib.request
+import numpy as np
 import pandas as pd
+from scipy.stats import norm
 
 pilot_dir = sys.argv[1]
 skip_mapping = "--skip-mapping" in sys.argv[2:]
@@ -52,6 +55,29 @@ def to_proxy_format(v):
 if skip_mapping:
     v = pd.read_csv(os.path.join(out, "variants_grch38.tsv"), sep="\t")
     to_proxy_format(v).to_csv(os.path.join(out, "proxy_variants.tsv"), sep="\t", index=False)
+    sys.exit(0)
+
+if "--ref-norm" in sys.argv[2:]:
+    # review round 2 (docs/internal/siraj_refnorm_zh.md): the published log2Skew subtracts the central mean of every
+    # oligo of the background, so a few labels carry information about the whole locus. Here each effect is the
+    # substitution's log2FC minus that of the measured unmutated oligo (m0) of the same background and cell type,
+    # which an eight-variant experiment would measure too; the standard errors are combined.
+    v = pd.read_csv(os.path.join(out, "variants_grch38.tsv"), sep="\t")
+    d = pd.read_csv(os.path.join(src, "satmut.txt.gz"), sep="\t", low_memory=False,
+                    usecols=["ID", "cell_type", "sat_ref", "oligomut", "log2FC", "log2FC_SE"])
+    ref = d[d.oligomut == "m0"].set_index(["sat_ref", "cell_type"])[["log2FC", "log2FC_SE"]]
+    m = v.merge(d, left_on=["oligo_id", "cell_type"], right_on=["ID", "cell_type"], how="left", validate="1:1")
+    r = ref.loc[list(zip(m.sat_ref, m.cell_type))].to_numpy()
+    m["effect"] = m.log2FC - r[:, 0]
+    m["se"] = np.sqrt(m.log2FC_SE ** 2 + r[:, 1] ** 2)
+    m["pvalue"] = 2 * norm.sf(np.abs(m.effect / m.se))
+    assert m.effect.notna().all() and len(m) == len(v)
+    out_ref = os.path.join(pilot_dir, "data", "siraj_ref")
+    os.makedirs(out_ref, exist_ok=True)
+    m = m[v.columns]
+    m.to_csv(os.path.join(out_ref, "variants_grch38.tsv"), sep="\t", index=False)
+    to_proxy_format(m).to_csv(os.path.join(out_ref, "proxy_variants.tsv"), sep="\t", index=False)
+    print(f"{len(m)} rows written to {out_ref}")
     sys.exit(0)
 
 final = [l.strip() for l in open(os.path.join(src, "satmut_final_128elements.txt"))][1:]

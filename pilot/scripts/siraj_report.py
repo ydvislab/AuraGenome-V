@@ -103,6 +103,9 @@ add("S2 C1 k=8: v2 - meta_ridge on the same disc panel", val("all", "disc", 8) -
     "two-sided")
 add("S3 C1 k=8: matched_cal (random panel) - matched", val("all", "random+matched_cal", 8)
     - val("all", "matched", 0, "rho_pick"))
+# added after review round 2: the same re-fit on the method's own panel
+add("S3b C1 k=8: matched_cal (disc panel) - matched", val("all", "disc+matched_cal", 8)
+    - val("all", "matched", 0, "rho_pick"))
 uni = os.path.normpath(root) + "_uni"
 if glob.glob(os.path.join(uni, "*", "summary.tsv")):
     su = read(uni)

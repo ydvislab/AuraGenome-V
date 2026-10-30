@@ -5,25 +5,30 @@
 # C1 on Siraj (docs/internal/c1_robustness_zh.md): sh pilot/scripts/run_siraj.sh [jobs] fold
 #   reruns the main configuration with each locus's held-out-fold checkpoint (pilot/data/siraj/element_folds.tsv)
 #   and writes the same decision tables to results/a1/c1_siraj/.
+# SET=siraj_ref (docs/internal/siraj_refnorm_zh.md): the same runs on labels relative to the measured reference oligo
+#   (pilot/data/siraj_ref/), written to results/a1/siraj_ref/ and results/a1/siraj_ref/c1/.
 PY=${PY:-.venv/bin/python}
-LOG=pilot/results/siraj_logs
+SET=${SET:-siraj}
+LOG=pilot/results/${SET}_logs
 MAP=pilot/data/siraj/element_folds.tsv
+VAR=data/$SET/proxy_variants.tsv
+if [ "$SET" = siraj ]; then OUT=results/a1; OUTF=results/a1/c1_siraj; else OUT=results/a1/$SET; OUTF=results/a1/$SET/c1; fi
 if [ "$1" = "--one" ]; then
   l=$2
-  "$PY" pilot/scripts/proxy_select.py pilot --variants data/siraj/proxy_variants.tsv --pred-dir predictions/siraj_all \
-    --common-eval --anchor-prior 0.95 --family-prior --controls --elements "$l.K562,$l.HEPG2" --tag "siraj/$l" \
+  "$PY" pilot/scripts/proxy_select.py pilot --variants "$VAR" --pred-dir predictions/siraj_all \
+    --common-eval --anchor-prior 0.95 --family-prior --controls --elements "$l.K562,$l.HEPG2" --tag "$SET/$l" \
     > "$LOG/$l.log" 2>&1 || echo "FAIL main $l"
-  "$PY" pilot/scripts/proxy_select.py pilot --variants data/siraj/proxy_variants.tsv --pred-dir predictions/siraj_all \
-    --common-eval --anchor-prior 0.95 --scenarios all --elements "$l.K562,$l.HEPG2" --tag "siraj_uni/$l" \
+  "$PY" pilot/scripts/proxy_select.py pilot --variants "$VAR" --pred-dir predictions/siraj_all \
+    --common-eval --anchor-prior 0.95 --scenarios all --elements "$l.K562,$l.HEPG2" --tag "${SET}_uni/$l" \
     > "$LOG/$l.uni.log" 2>&1 || echo "FAIL uni $l"
   exit 0
 fi
 if [ "$1" = "--fold" ]; then
   l=$2
   ck=$(awk -F'\t' -v l="$l" 'NR > 1 && $1 == l {print $4}' "$MAP")
-  "$PY" pilot/scripts/proxy_select.py pilot --variants data/siraj/proxy_variants.tsv --pred-dir predictions/siraj_all \
+  "$PY" pilot/scripts/proxy_select.py pilot --variants "$VAR" --pred-dir predictions/siraj_all \
     --version "$ck" --common-eval --anchor-prior 0.95 --family-prior --controls --elements "$l.K562,$l.HEPG2" \
-    --tag "siraj_fold/$l" > "$LOG/$l.fold.log" 2>&1 || echo "FAIL fold $l"
+    --tag "${SET}_fold/$l" > "$LOG/$l.fold.log" 2>&1 || echo "FAIL fold $l"
   exit 0
 fi
 set -e
@@ -34,12 +39,12 @@ if [ "$2" = "fold" ]; then
   done > "$LOG/loci_fold.txt"
   echo "$(wc -l < "$LOG/loci_fold.txt" | tr -d ' ') loci with a held-out-fold prediction"
   xargs -P "${1:-8}" -n 1 sh "$0" --fold < "$LOG/loci_fold.txt"
-  "$PY" pilot/scripts/siraj_report.py pilot/results/proxy_select_siraj_fold results/a1/c1_siraj
-  "$PY" pilot/scripts/c1_siraj_compare.py results/a1/siraj_by_locus.tsv results/a1/c1_siraj/siraj_by_locus.tsv \
-    results/a1/c1_siraj/c1_siraj_delta.tsv
+  "$PY" pilot/scripts/siraj_report.py "pilot/results/proxy_select_${SET}_fold" "$OUTF"
+  "$PY" pilot/scripts/c1_siraj_compare.py "$OUT/siraj_by_locus.tsv" "$OUTF/siraj_by_locus.tsv" \
+    "$OUTF/c1_siraj_delta.tsv"
   exit 0
 fi
 ls pilot/predictions/siraj_all/*__ALL_FOLDS.tsv.gz | xargs -n 1 basename | sed 's/__ALL_FOLDS.tsv.gz//' > "$LOG/loci.txt"
 echo "$(wc -l < "$LOG/loci.txt" | tr -d ' ') scored loci"
 xargs -P "${1:-8}" -n 1 sh "$0" --one < "$LOG/loci.txt"
-"$PY" pilot/scripts/siraj_report.py pilot/results/proxy_select_siraj results/a1
+"$PY" pilot/scripts/siraj_report.py "pilot/results/proxy_select_$SET" "$OUT"
