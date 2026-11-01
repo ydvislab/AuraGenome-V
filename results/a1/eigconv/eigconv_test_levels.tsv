@@ -1,0 +1,17 @@
+view	k	strategy	units	rho_bma
+deploy	8	disc	11	0.4033
+no_anchor	8	disc	11	0.3700
+deploy	8	E0	11	0.4064
+no_anchor	8	E0	11	0.3722
+deploy	8	E1	11	0.4077
+no_anchor	8	E1	11	0.3719
+deploy	8	E2	11	0.4071
+no_anchor	8	E2	11	0.3721
+deploy	16	disc	11	0.4198
+no_anchor	16	disc	11	0.3837
+deploy	16	E0	11	0.4237
+no_anchor	16	E0	11	0.3861
+deploy	16	E1	11	0.4237
+no_anchor	16	E1	11	0.3848
+deploy	16	E2	11	0.4227
+no_anchor	16	E2	11	0.3859

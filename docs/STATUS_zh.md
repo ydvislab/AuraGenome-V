@@ -34,9 +34,10 @@
 >    - 新停止规则（后验平均预测稳定即停，阈值在开发集上冻结为 0.99）约 4–8 个标签就停，相对测满 16 个损失 0.014–0.027，按事先规则判为失败；
 >    - 附带：Siraj 上没有锚点时，disc 比"挑预测效应最大的"高 0.028（97/125，新标签）。
 >    - 新标签下重跑，以上结论全部不变（`results/a1/siraj_ref/cmp/`）。
-> 4c. **第二轮评审（10/30，GPT，5/10，MAJOR REVISION）的阻断项已解决**：Siraj 标签改为相对实测参照 oligo，规格先提交（[siraj_refnorm_zh.md](internal/siraj_refnorm_zh.md)），主检验、留出折和选点对照全部重跑，判定不变。论文已换成新数字，并按评审收窄了"安全/不损害"的说法、补了同条件对照 S3b（在我们的选点上重新拟合只差 −0.010）。剩余评审项：EIG 收敛检查、投稿材料。
+> 4c. **第二轮评审（10/30，GPT，5/10，MAJOR REVISION）的阻断项已解决**：Siraj 标签改为相对实测参照 oligo，规格先提交（[siraj_refnorm_zh.md](internal/siraj_refnorm_zh.md)），主检验、留出折和选点对照全部重跑，判定不变。论文已换成新数字，并按评审收窄了"安全/不损害"的说法、补了同条件对照 S3b（在我们的选点上重新拟合只差 −0.010）。剩余评审项：投稿材料（EIG 收敛检查已于 11/01 完成，见 4f）。
 > 4e. **CODA / MODEL SELECTOR 式基线（10/30，事后，规格和 κ 都在检验前提交）**：见 [coda_baseline_zh.md](internal/coda_baseline_zh.md)。v2 比只报告一条轨道的基线好：Siraj C1 k=8 +0.075，没有匹配轨道时 +0.029–0.034，Kircher +0.051–0.082；没有一个对比是基线更好。但基线改为输出加权平均后，在没有元数据时与 v2 基本持平。论文 §3.5 写明：没有元数据时增益来自加权平均，有元数据时来自锚点。
 > 4d. **方向准确率补充（10/30，事后、描述性，规格先提交）**：见 [direction_accuracy_zh.md](internal/direction_accuracy_zh.md)。Siraj 上与 Spearman 结论一致；**Kircher 上相反**：有匹配轨道时 v2 判断方向比匹配轨道差 0.133（k=8），原因是校准截距移动了零点。去掉截距后 9/11 个区域持平，只有显著变异极少的 FOXE1、MYCrs11986220 仍差。论文 §3.3 末段和局限已如实写出，建议判断方向用去掉截距的加权预测。
+> 4f. **EIG 收敛检查（11/01，事后，规格先提交）**：见 [eig_convergence_zh.md](internal/eig_convergence_zh.md)。原 EIG 只保留 100 个假设，没有锚点时第一步只覆盖后验质量的中位数 61%（Siraj C3，最低 23%）；改为每步覆盖 99%、积分点加倍后，精度变化 ≤ 0.001，与 disc 仍等价。"EIG 与 disc 持平"的说法保留，论文 §3.5 补了覆盖率和收敛结果。补充表 S1–S6 已生成（`paper/supplement.pdf`，由 `paper/make_supplement.py` 从结果表生成），正文的 `\todo{S}` 已全部替换。
 > 5. **论文拆分（10/29 作者决定）**：先投 *Bioinformatics*，以方法为主，配结果图和软件包。可视分析的研究问题另写一篇投可视化领域，问题清单见 [vis_paper_questions_zh.md](internal/vis_paper_questions_zh.md)。
 > 建议的阅读顺序：本文 → [`results/a1/`](../results/a1/) 中的图表 → [预注册](internal/preregistration_A1_zh.md)。
 

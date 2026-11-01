@@ -56,6 +56,11 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 > CODA-style track by 0.075 on Siraj with matched tracks kept and by 0.029–0.034 without them, and by 0.051–0.082 on
 > the Kircher test regions. With the baseline's posterior average instead of one track and no metadata, it is level
 > with v2. Tables in `results/a1/coda/`.
+
+> **EIG convergence check (2026-11-01, post hoc, docs/internal/eig_convergence_zh.md).** The information-gain panel
+> kept the 100 most probable hypotheses, which without an anchor held as little as 23% of the posterior mass. Keeping
+> 99% of the mass at every step with twice the quadrature points changed accuracy by at most 0.001 and stayed level
+> with disc. Tables in `results/a1/eigconv/`; supplementary tables S1–S6 are built by `paper/make_supplement.py`.
 >
 > **Manuscript draft** for *Bioinformatics* is in [paper/](paper/) (`main.tex`, `main.pdf`; plain-Chinese version
 > `plain_zh.md`). Red TODOs mark what is missing before submission.
@@ -144,6 +149,6 @@ python pilot/scripts/a1_report.py pilot results/a1
 ## Licence
 
 - **Code** (`pilot/scripts/`, `paper/make_figures.py` and other scripts): MIT, see [LICENSE](LICENSE).
-- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`, `results/a1/siraj_ref/`, `results/a1/direction/`, `results/a1/coda/coda_siraj_*`): CC-BY-NC-4.0, the
+- **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`, `results/a1/siraj_ref/`, `results/a1/direction/`, `results/a1/coda/coda_siraj_*`, `results/a1/eigconv/eigconv_siraj_*`, `paper/supplement.pdf`): CC-BY-NC-4.0, the
   licence of the source data. Cite Siraj et al. (2026) and the Zenodo record when using them.
 - **Manuscript draft** (`paper/` text and figures): not licensed for reuse. The MIT licence does not apply to it.

@@ -1,0 +1,25 @@
+view	k	contrast	units	mean	ci_low	ci_high	positive	negative	reading
+C1	8	E2 - E0	125	-0.0002	-0.0011	0.0006	55	69	equivalent within 0.02
+C2	8	E2 - E0	125	-0.0002	-0.0010	0.0006	79	46	equivalent within 0.02
+C3	8	E2 - E0	125	0.0004	-0.0005	0.0014	60	65	equivalent within 0.02
+C1	8	E2 - disc	125	-0.0000	-0.0011	0.0010	62	63	equivalent within 0.02
+C2	8	E2 - disc	125	0.0006	-0.0007	0.0016	82	43	equivalent within 0.02
+C3	8	E2 - disc	125	0.0007	-0.0005	0.0017	83	42	equivalent within 0.02
+C1	8	E0 - disc	125	0.0002	-0.0013	0.0017	68	57	equivalent within 0.02
+C2	8	E0 - disc	125	0.0008	-0.0004	0.0017	83	42	equivalent within 0.02
+C3	8	E0 - disc	125	0.0003	-0.0012	0.0015	74	51	equivalent within 0.02
+C1	8	E1 - E0	125	-0.0001	-0.0008	0.0005	64	61	equivalent within 0.02
+C2	8	E1 - E0	125	-0.0002	-0.0008	0.0005	65	60	equivalent within 0.02
+C3	8	E1 - E0	125	0.0003	-0.0006	0.0012	67	58	equivalent within 0.02
+C1	16	E2 - E0	125	-0.0005	-0.0012	0.0001	63	62	equivalent within 0.02
+C2	16	E2 - E0	125	-0.0002	-0.0008	0.0005	59	66	equivalent within 0.02
+C3	16	E2 - E0	125	-0.0001	-0.0008	0.0006	62	63	equivalent within 0.02
+C1	16	E2 - disc	125	0.0007	0.0001	0.0013	61	64	equivalent within 0.02
+C2	16	E2 - disc	125	0.0009	0.0004	0.0015	82	43	equivalent within 0.02
+C3	16	E2 - disc	125	0.0001	-0.0004	0.0005	72	53	equivalent within 0.02
+C1	16	E0 - disc	125	0.0012	0.0003	0.0022	66	59	equivalent within 0.02
+C2	16	E0 - disc	125	0.0011	0.0003	0.0019	80	45	equivalent within 0.02
+C3	16	E0 - disc	125	0.0001	-0.0006	0.0008	68	57	equivalent within 0.02
+C1	16	E1 - E0	125	-0.0005	-0.0012	0.0000	54	71	equivalent within 0.02
+C2	16	E1 - E0	125	-0.0002	-0.0007	0.0004	59	66	equivalent within 0.02
+C3	16	E1 - E0	125	0.0000	-0.0006	0.0006	59	66	equivalent within 0.02

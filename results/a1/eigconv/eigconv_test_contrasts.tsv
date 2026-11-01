@@ -1,0 +1,17 @@
+view	k	contrast	units	mean	ci_low	ci_high	positive	negative	reading
+deploy	8	E2 - E0	11	0.0007	-0.0006	0.0019	5	6	equivalent within 0.02
+no_anchor	8	E2 - E0	11	-0.0001	-0.0024	0.0023	5	6	equivalent within 0.02
+deploy	8	E2 - disc	11	0.0038	0.0016	0.0062	9	2	equivalent within 0.02
+no_anchor	8	E2 - disc	11	0.0022	-0.0001	0.0045	7	4	equivalent within 0.02
+deploy	8	E0 - disc	11	0.0031	0.0014	0.0049	9	2	equivalent within 0.02
+no_anchor	8	E0 - disc	11	0.0023	-0.0007	0.0052	8	3	equivalent within 0.02
+deploy	8	E1 - E0	11	0.0012	-0.0002	0.0028	9	2	equivalent within 0.02
+no_anchor	8	E1 - E0	11	-0.0003	-0.0030	0.0024	5	6	equivalent within 0.02
+deploy	16	E2 - E0	11	-0.0010	-0.0036	0.0016	4	7	equivalent within 0.02
+no_anchor	16	E2 - E0	11	-0.0001	-0.0045	0.0033	7	4	equivalent within 0.02
+deploy	16	E2 - disc	11	0.0029	0.0001	0.0061	8	3	equivalent within 0.02
+no_anchor	16	E2 - disc	11	0.0022	0.0009	0.0036	9	2	equivalent within 0.02
+deploy	16	E0 - disc	11	0.0038	0.0010	0.0069	8	3	equivalent within 0.02
+no_anchor	16	E0 - disc	11	0.0023	-0.0010	0.0065	6	5	equivalent within 0.02
+deploy	16	E1 - E0	11	0.0000	-0.0030	0.0038	3	8	equivalent within 0.02
+no_anchor	16	E1 - E0	11	-0.0013	-0.0056	0.0019	7	4	equivalent within 0.02

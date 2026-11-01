@@ -1,0 +1,270 @@
+\begin{table}[!ht]
+\caption{Siraj test (125 loci): effects relative to the measured reference oligo (primary) and centred on all oligos of the element as published (original analysis). P1--P4 are the pre-registered hypotheses; all held under both definitions. Secondary rows give the mean difference over loci and its 95\% bootstrap interval. S3b was added with the reference-relative labels.}\label{tab:s1}
+\centering\small
+\begin{tabular}{llll}
+\toprule
+ & Quantity & Reference-relative & Published centring \\
+\midrule
+P1 $k=8$ & mean D (lower bound) & +0.009 (+0.005) & +0.010 (+0.005) \\
+P2 $k=8$ & harmed (upper bound) & 3/125 (0.150) & 3/125 (0.150) \\
+P1 $k=16$ & mean D (lower bound) & +0.019 (+0.013) & +0.020 (+0.013) \\
+P2 $k=16$ & harmed (upper bound) & 1/125 (0.150) & 1/125 (0.150) \\
+P3 $k=8$ & v2 $-$ all-track mean ($P$) & +0.047 ($P$=3e-12) & +0.048 ($P$=8e-13) \\
+P4 $k=16$ & v2 $-$ related mean ($P$) & +0.040 ($P$=3e-19) & +0.041 ($P$=1e-19) \\
+S1 C1 k=8 & v2 disc panel $-$ v2 random panel & +0.016 [+0.012 to +0.021] & +0.018 [+0.013 to +0.022] \\
+S1 C3 k=8 & v2 disc panel $-$ v2 random panel & +0.096 [+0.087 to +0.104] & +0.093 [+0.085 to +0.101] \\
+S2 C1 k=8 & v2 $-$ meta\_ridge on the same disc panel & +0.007 [+0.003 to +0.011] & +0.008 [+0.004 to +0.012] \\
+S3 C1 k=8 & matched\_cal (random panel) $-$ matched & $-$0.082 [$-$0.090 to $-$0.075] & $-$0.079 [$-$0.086 to $-$0.072] \\
+S3b C1 k=8 & matched\_cal (disc panel) $-$ matched & $-$0.010 [$-$0.015 to $-$0.006] & -- \\
+S5 C1 k=8 & family prior $-$ uniform prior & $-$0.002 [$-$0.004 to $-$0.000] & $-$0.002 [$-$0.003 to +0.000] \\
+S7 HEPG2 C1 k=8 & v2 $-$ matched & +0.016 [+0.007 to +0.026] & +0.017 [+0.007 to +0.026] \\
+S7 HEPG2 C3 k=8 & v2 $-$ all\_mean & +0.050 [+0.029 to +0.074] & +0.052 [+0.031 to +0.076] \\
+S7 K562 C1 k=8 & v2 $-$ matched & +0.003 [$-$0.001 to +0.007] & +0.003 [$-$0.002 to +0.007] \\
+S7 K562 C3 k=8 & v2 $-$ all\_mean & +0.043 [+0.029 to +0.058] & +0.044 [+0.031 to +0.059] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\caption{Directional accuracy (post hoc): fraction of significant held-out variants ($P<10^{-5}$, $|\text{effect}|\ge0.1$) whose predicted sign is correct. Labelled methods use the posterior-average prediction; \emph{no offset} drops the fitted offsets (diagnostic). Interval: 95\% bootstrap over units; last column, units better/worse.}\label{tab:s2}
+\centering\small
+\begin{tabular}{llllrrrrll}
+\toprule
+Set & Contrast & First & Second & $n$ & Acc.\,1 & Acc.\,2 & Diff. & 95\% CI & +/$-$ \\
+\midrule
+Siraj & P1 & disc@8 & matched@0 & 125 & 0.874 & 0.867 & +0.007 & $-$0.010 to +0.024 & 63/60 \\
+Siraj & P1 (S4) & disc@16 & matched@0 & 125 & 0.886 & 0.867 & +0.019 & +0.001 to +0.037 & 66/57 \\
+Siraj & P3 & disc@8 & all\_mean@0 & 125 & 0.864 & 0.809 & +0.055 & +0.032 to +0.078 & 76/48 \\
+Siraj & P4 & disc@16 & related@0 & 125 & 0.873 & 0.834 & +0.039 & +0.020 to +0.057 & 80/45 \\
+Siraj & S1 & disc@8 & random@8 & 125 & 0.864 & 0.789 & +0.074 & +0.061 to +0.089 & 107/18 \\
+Siraj & S3 & random+matched\_cal@8 & matched@0 & 125 & 0.817 & 0.867 & $-$0.050 & $-$0.068 to $-$0.032 & 30/95 \\
+Siraj & S3b & disc+matched\_cal@8 & matched@0 & 125 & 0.865 & 0.867 & $-$0.002 & $-$0.021 to +0.017 & 57/66 \\
+Kircher (v1) & H1 & disc@8 & random@8 & 11 & 0.675 & 0.694 & $-$0.018 & $-$0.105 to +0.042 & 7/4 \\
+Kircher (v1) & H2 & disc@8 & all\_mean@0 & 11 & 0.675 & 0.774 & $-$0.099 & $-$0.267 to +0.046 & 4/7 \\
+Kircher (v2) & v2 C1 k=8 & disc@8 & matched@0 & 11 & 0.706 & 0.839 & $-$0.133 & $-$0.264 to $-$0.026 & 2/9 \\
+Kircher (v2) & v2 C1 k=16 & disc@16 & matched@0 & 11 & 0.730 & 0.839 & $-$0.108 & $-$0.230 to $-$0.010 & 3/8 \\
+Kircher (v2, no offset) & v2 C1 k=8 & disc@8 & matched@0 & 11 & 0.768 & 0.839 & $-$0.071 & $-$0.207 to +0.011 & 5/4 \\
+Kircher (v2, no offset) & v2 C1 k=16 & disc@16 & matched@0 & 11 & 0.790 & 0.839 & $-$0.048 & $-$0.158 to +0.027 & 6/3 \\
+Kircher (v2, no offset) & v2 C3 k=8 & disc@8 & all\_mean@0 & 11 & 0.743 & 0.774 & $-$0.031 & $-$0.188 to +0.107 & 8/3 \\
+Kircher (v2, no offset) & v2 C3 k=8 vs random & disc@8 & random@8 & 11 & 0.743 & 0.700 & +0.042 & $-$0.029 to +0.101 & 9/2 \\
+Kircher (v2) & v2 C3 k=8 & disc@8 & all\_mean@0 & 11 & 0.694 & 0.774 & $-$0.079 & $-$0.232 to +0.055 & 4/7 \\
+Kircher (v2) & v2 C3 k=8 vs random & disc@8 & random@8 & 11 & 0.694 & 0.693 & +0.002 & $-$0.066 to +0.052 & 8/3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\caption{Siraj test repeated with, for each locus, the AlphaGenome checkpoint that held out its genomic fold (labels relative to the reference oligo). Columns give the pre-registered contrast with the distilled checkpoint (ALL\_FOLDS) and with the held-out checkpoint, and the paired change with its 95\% bootstrap interval over loci.}\label{tab:s3}
+\centering\small
+\begin{tabular}{lrrll}
+\toprule
+Hypothesis & ALL\_FOLDS & Held-out fold & Change [95\% CI] & Verdict \\
+\midrule
+P1 $k=8$ & +0.009 & +0.024 & +0.014 [+0.008 to +0.022] & holds \\
+P1 $k=16$ & +0.019 & +0.037 & +0.018 [+0.009 to +0.027] & holds \\
+P3 $k=8$ & +0.047 & +0.050 & +0.003 [$-$0.006 to +0.013] & holds \\
+P4 $k=16$ & +0.040 & +0.053 & +0.013 [+0.006 to +0.021] & holds \\
+P2 $k=8$ & 3/125 harmed & 1/125 harmed & -- & holds \\
+P2 $k=16$ & 1/125 harmed & 1/125 harmed & -- & holds \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+{\small\begin{longtable}{llrlrrll}
+\caption{Acquisition comparators (post hoc; frozen v2 inference, 50 repeats). Siraj views C1--C3; Kircher test regions with matched tracks kept (deploy) or without an anchor (no\_anchor). Reading: 95\% interval within $\pm0.02$ = equivalent; above or below 0 = first or second better.}\label{tab:s4}\\
+\toprule
+Data & View & $k$ & Contrast & $n$ & Mean & 95\% CI & Reading \\
+\midrule
+\endfirsthead
+\toprule
+Data & View & $k$ & Contrast & $n$ & Mean & 95\% CI & Reading \\
+\midrule
+\endhead
+Siraj & C1 & 8 & disc $-$ batch\_kb & 125 & +0.002 & $-$0.000 to +0.004 & equivalent  \\
+Siraj & C2 & 8 & disc $-$ batch\_kb & 125 & +0.005 & +0.003 to +0.007 & equivalent  \\
+Siraj & C3 & 8 & disc $-$ batch\_kb & 125 & +0.004 & +0.002 to +0.006 & equivalent  \\
+Siraj & C1 & 8 & disc $-$ disc\_static & 125 & +0.007 & +0.004 to +0.012 & equivalent  \\
+Siraj & C2 & 8 & disc $-$ disc\_static & 125 & +0.014 & +0.008 to +0.020 & first better \\
+Siraj & C3 & 8 & disc $-$ disc\_static & 125 & +0.023 & +0.017 to +0.029 & first better \\
+Siraj & C1 & 8 & eig $-$ disc & 125 & +0.000 & $-$0.001 to +0.002 & equivalent  \\
+Siraj & C2 & 8 & eig $-$ disc & 125 & +0.001 & $-$0.000 to +0.002 & equivalent  \\
+Siraj & C3 & 8 & eig $-$ disc & 125 & +0.000 & $-$0.001 to +0.002 & equivalent  \\
+Siraj & C1 & 8 & batch\_kb $-$ disc\_static & 125 & +0.005 & +0.002 to +0.010 & equivalent  \\
+Siraj & C2 & 8 & batch\_kb $-$ disc\_static & 125 & +0.009 & +0.004 to +0.014 & equivalent  \\
+Siraj & C3 & 8 & batch\_kb $-$ disc\_static & 125 & +0.019 & +0.014 to +0.025 & first better \\
+Siraj & C1 & 8 & disc $-$ high\_effect & 125 & +0.010 & +0.005 to +0.016 & equivalent  \\
+Siraj & C2 & 8 & disc $-$ high\_effect & 125 & +0.017 & +0.011 to +0.024 & first better \\
+Siraj & C3 & 8 & disc $-$ high\_effect & 125 & +0.028 & +0.020 to +0.035 & first better \\
+Siraj & C1 & 8 & disc $-$ disagree & 125 & +0.013 & +0.008 to +0.018 & equivalent  \\
+Siraj & C2 & 8 & disc $-$ disagree & 125 & +0.017 & +0.011 to +0.023 & first better \\
+Siraj & C3 & 8 & disc $-$ disagree & 125 & +0.032 & +0.024 to +0.041 & first better \\
+Siraj & C1 & 16 & disc $-$ batch\_kb & 125 & +0.004 & +0.002 to +0.007 & equivalent  \\
+Siraj & C2 & 16 & disc $-$ batch\_kb & 125 & +0.008 & +0.006 to +0.010 & equivalent  \\
+Siraj & C3 & 16 & disc $-$ batch\_kb & 125 & +0.006 & +0.004 to +0.009 & equivalent  \\
+Siraj & C1 & 16 & disc $-$ disc\_static & 125 & +0.009 & +0.005 to +0.013 & equivalent  \\
+Siraj & C2 & 16 & disc $-$ disc\_static & 125 & +0.016 & +0.013 to +0.021 & first better \\
+Siraj & C3 & 16 & disc $-$ disc\_static & 125 & +0.016 & +0.012 to +0.021 & first better \\
+Siraj & C1 & 16 & eig $-$ disc & 125 & +0.001 & +0.000 to +0.002 & equivalent  \\
+Siraj & C2 & 16 & eig $-$ disc & 125 & +0.001 & +0.000 to +0.002 & equivalent  \\
+Siraj & C3 & 16 & eig $-$ disc & 125 & +0.000 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C1 & 16 & batch\_kb $-$ disc\_static & 125 & +0.005 & +0.002 to +0.009 & equivalent  \\
+Siraj & C2 & 16 & batch\_kb $-$ disc\_static & 125 & +0.008 & +0.005 to +0.012 & equivalent  \\
+Siraj & C3 & 16 & batch\_kb $-$ disc\_static & 125 & +0.010 & +0.006 to +0.014 & equivalent  \\
+Siraj & C1 & 16 & disc $-$ high\_effect & 125 & +0.012 & +0.007 to +0.018 & equivalent  \\
+Siraj & C2 & 16 & disc $-$ high\_effect & 125 & +0.023 & +0.018 to +0.029 & first better \\
+Siraj & C3 & 16 & disc $-$ high\_effect & 125 & +0.027 & +0.021 to +0.033 & first better \\
+Siraj & C1 & 16 & disc $-$ disagree & 125 & +0.011 & +0.006 to +0.016 & equivalent  \\
+Siraj & C2 & 16 & disc $-$ disagree & 125 & +0.015 & +0.011 to +0.020 & first better \\
+Siraj & C3 & 16 & disc $-$ disagree & 125 & +0.020 & +0.016 to +0.025 & first better \\
+Kircher & deploy & 8 & disc $-$ batch\_kb & 11 & +0.004 & $-$0.001 to +0.009 & equivalent  \\
+Kircher & no\_anchor & 8 & disc $-$ batch\_kb & 11 & +0.003 & $-$0.004 to +0.010 & equivalent  \\
+Kircher & deploy & 8 & disc $-$ disc\_static & 11 & +0.006 & +0.000 to +0.011 & equivalent  \\
+Kircher & no\_anchor & 8 & disc $-$ disc\_static & 11 & +0.015 & $-$0.001 to +0.035 & undetermined \\
+Kircher & deploy & 8 & eig $-$ disc & 11 & +0.003 & +0.001 to +0.005 & equivalent  \\
+Kircher & no\_anchor & 8 & eig $-$ disc & 11 & +0.002 & $-$0.001 to +0.005 & equivalent  \\
+Kircher & deploy & 8 & batch\_kb $-$ disc\_static & 11 & +0.002 & $-$0.003 to +0.006 & equivalent  \\
+Kircher & no\_anchor & 8 & batch\_kb $-$ disc\_static & 11 & +0.012 & +0.001 to +0.029 & first better \\
+Kircher & deploy & 8 & disc $-$ high\_effect & 11 & +0.004 & $-$0.007 to +0.017 & equivalent  \\
+Kircher & no\_anchor & 8 & disc $-$ high\_effect & 11 & +0.029 & +0.001 to +0.059 & first better \\
+Kircher & deploy & 8 & disc $-$ disagree & 11 & +0.005 & $-$0.009 to +0.023 & undetermined \\
+Kircher & no\_anchor & 8 & disc $-$ disagree & 11 & +0.019 & $-$0.003 to +0.041 & undetermined \\
+Kircher & deploy & 16 & disc $-$ batch\_kb & 11 & +0.005 & +0.000 to +0.012 & equivalent  \\
+Kircher & no\_anchor & 16 & disc $-$ batch\_kb & 11 & +0.008 & +0.002 to +0.013 & equivalent  \\
+Kircher & deploy & 16 & disc $-$ disc\_static & 11 & +0.020 & +0.000 to +0.048 & first better \\
+Kircher & no\_anchor & 16 & disc $-$ disc\_static & 11 & +0.013 & $-$0.002 to +0.028 & undetermined \\
+Kircher & deploy & 16 & eig $-$ disc & 11 & +0.004 & +0.001 to +0.007 & equivalent  \\
+Kircher & no\_anchor & 16 & eig $-$ disc & 11 & +0.002 & $-$0.001 to +0.006 & equivalent  \\
+Kircher & deploy & 16 & batch\_kb $-$ disc\_static & 11 & +0.015 & $-$0.003 to +0.043 & undetermined \\
+Kircher & no\_anchor & 16 & batch\_kb $-$ disc\_static & 11 & +0.005 & $-$0.011 to +0.018 & equivalent  \\
+Kircher & deploy & 16 & disc $-$ high\_effect & 11 & +0.022 & $-$0.004 to +0.055 & undetermined \\
+Kircher & no\_anchor & 16 & disc $-$ high\_effect & 11 & +0.001 & $-$0.021 to +0.023 & undetermined \\
+Kircher & deploy & 16 & disc $-$ disagree & 11 & +0.020 & +0.002 to +0.041 & first better \\
+Kircher & no\_anchor & 16 & disc $-$ disagree & 11 & +0.008 & $-$0.004 to +0.019 & equivalent  \\
+\bottomrule
+\end{longtable}}
+
+{\small\begin{longtable}{llrlrrlrl}
+\caption{CODA- and MODEL SELECTOR-style baselines (post hoc; 50 repeats). Both use the calibrated likelihood, no metadata and the information-gain panel; CODA uses a consensus prior ($\kappa=10$, fixed on development elements), MODEL SELECTOR a uniform prior ($\kappa=0$). \emph{Single track}: the most probable track, the methods' own output; \emph{average}: their posterior average. Positive: units where the first is better.}\label{tab:s5}\\
+\toprule
+Data & View & $k$ & Contrast & $n$ & Mean & 95\% CI & + & Reading \\
+\midrule
+\endfirsthead
+\toprule
+Data & View & $k$ & Contrast & $n$ & Mean & 95\% CI & + & Reading \\
+\midrule
+\endhead
+Siraj & C1 & 8 & v2 $-$ coda (single track) & 125 & +0.075 & +0.062 to +0.089 & 111 & first better \\
+Siraj & C1 & 8 & v2 $-$ model\_selector (single track) & 125 & +0.074 & +0.064 to +0.084 & 118 & first better \\
+Siraj & C1 & 8 & coda: average $-$ single track & 125 & +0.016 & +0.012 to +0.021 & 99 & first better \\
+Siraj & C1 & 8 & v2 $-$ coda (average) & 125 & +0.059 & +0.045 to +0.072 & 105 & first better \\
+Siraj & C1 & 16 & v2 $-$ coda (single track) & 125 & +0.045 & +0.038 to +0.054 & 111 & first better \\
+Siraj & C1 & 16 & v2 $-$ model\_selector (single track) & 125 & +0.042 & +0.035 to +0.049 & 112 & first better \\
+Siraj & C1 & 16 & coda: average $-$ single track & 125 & +0.009 & +0.005 to +0.012 & 92 & equivalent  \\
+Siraj & C1 & 16 & v2 $-$ coda (average) & 125 & +0.037 & +0.028 to +0.045 & 107 & first better \\
+Siraj & C2 & 8 & v2 $-$ coda (single track) & 125 & +0.029 & +0.019 to +0.039 & 88 & first better \\
+Siraj & C2 & 8 & v2 $-$ model\_selector (single track) & 125 & +0.036 & +0.029 to +0.045 & 99 & first better \\
+Siraj & C2 & 8 & coda: average $-$ single track & 125 & +0.018 & +0.014 to +0.022 & 103 & first better \\
+Siraj & C2 & 8 & v2 $-$ coda (average) & 125 & +0.011 & +0.002 to +0.021 & 70 & first better \\
+Siraj & C2 & 16 & v2 $-$ coda (single track) & 125 & +0.017 & +0.010 to +0.023 & 88 & first better \\
+Siraj & C2 & 16 & v2 $-$ model\_selector (single track) & 125 & +0.018 & +0.013 to +0.023 & 90 & first better \\
+Siraj & C2 & 16 & coda: average $-$ single track & 125 & +0.012 & +0.009 to +0.015 & 98 & equivalent  \\
+Siraj & C2 & 16 & v2 $-$ coda (average) & 125 & +0.005 & $-$0.001 to +0.011 & 70 & equivalent  \\
+Siraj & C3 & 8 & v2 $-$ coda (single track) & 125 & +0.034 & +0.027 to +0.042 & 106 & first better \\
+Siraj & C3 & 8 & v2 $-$ model\_selector (single track) & 125 & +0.044 & +0.039 to +0.049 & 121 & first better \\
+Siraj & C3 & 8 & coda: average $-$ single track & 125 & +0.017 & +0.013 to +0.021 & 105 & first better \\
+Siraj & C3 & 8 & v2 $-$ coda (average) & 125 & +0.018 & +0.011 to +0.024 & 83 & first better \\
+Siraj & C3 & 16 & v2 $-$ coda (single track) & 125 & +0.028 & +0.023 to +0.034 & 114 & first better \\
+Siraj & C3 & 16 & v2 $-$ model\_selector (single track) & 125 & +0.030 & +0.026 to +0.034 & 115 & first better \\
+Siraj & C3 & 16 & coda: average $-$ single track & 125 & +0.012 & +0.009 to +0.015 & 98 & equivalent  \\
+Siraj & C3 & 16 & v2 $-$ coda (average) & 125 & +0.016 & +0.012 to +0.021 & 93 & first better \\
+Kircher & C1 & 8 & v2 $-$ coda (single track) & 11 & +0.082 & +0.006 to +0.149 & 8 & first better \\
+Kircher & C1 & 8 & v2 $-$ model\_selector (single track) & 11 & +0.070 & $-$0.003 to +0.138 & 8 & undetermined \\
+Kircher & C1 & 8 & coda: average $-$ single track & 11 & +0.026 & +0.015 to +0.037 & 9 & first better \\
+Kircher & C1 & 8 & v2 $-$ coda (average) & 11 & +0.056 & $-$0.019 to +0.120 & 8 & undetermined \\
+Kircher & C1 & 16 & v2 $-$ coda (single track) & 11 & +0.056 & +0.013 to +0.099 & 9 & first better \\
+Kircher & C1 & 16 & v2 $-$ model\_selector (single track) & 11 & +0.061 & +0.013 to +0.108 & 7 & first better \\
+Kircher & C1 & 16 & coda: average $-$ single track & 11 & +0.017 & +0.005 to +0.029 & 7 & first better \\
+Kircher & C1 & 16 & v2 $-$ coda (average) & 11 & +0.039 & $-$0.007 to +0.081 & 8 & undetermined \\
+Kircher & C3 & 8 & v2 $-$ coda (single track) & 11 & +0.051 & +0.018 to +0.087 & 8 & first better \\
+Kircher & C3 & 8 & v2 $-$ model\_selector (single track) & 11 & +0.042 & +0.005 to +0.075 & 8 & first better \\
+Kircher & C3 & 8 & coda: average $-$ single track & 11 & +0.025 & +0.015 to +0.034 & 9 & first better \\
+Kircher & C3 & 8 & v2 $-$ coda (average) & 11 & +0.026 & $-$0.005 to +0.059 & 7 & undetermined \\
+Kircher & C3 & 16 & v2 $-$ coda (single track) & 11 & +0.030 & +0.015 to +0.045 & 9 & first better \\
+Kircher & C3 & 16 & v2 $-$ model\_selector (single track) & 11 & +0.028 & +0.002 to +0.051 & 8 & first better \\
+Kircher & C3 & 16 & coda: average $-$ single track & 11 & +0.019 & +0.007 to +0.032 & 8 & first better \\
+Kircher & C3 & 16 & v2 $-$ coda (average) & 11 & +0.011 & $-$0.008 to +0.028 & 6 & undetermined \\
+\bottomrule
+\end{longtable}}
+
+\renewcommand{\thetable}{S6a}
+
+\begin{table}[!ht]
+\caption{EIG convergence check (post hoc), coverage: posterior mass held by the hypotheses kept, median over units (minimum), at the first step and the lowest over the eight steps of a $k=8$ panel. E0: the 100 most probable hypotheses, 96 quadrature points (as in the main text); E1: 300 hypotheses; E2 (not shown) keeps $\ge$99\% of the mass at every step with 192 points.}\label{tab:s6a}
+\centering\small
+\begin{tabular}{llrrrr}
+\toprule
+Data & View & E0 first & E0 lowest & E1 first & E1 lowest \\
+\midrule
+Siraj & C1 & 0.98 (0.96) & 0.93 (0.79) & 0.99 (0.98) & 0.98 (0.91) \\
+Siraj & C2 & 0.98 (0.96) & 0.94 (0.76) & 0.99 (0.98) & 0.98 (0.91) \\
+Siraj & C3 & 0.61 (0.23) & 0.60 (0.23) & 0.87 (0.66) & 0.86 (0.66) \\
+Kircher & deploy & 0.97 (0.97) & 0.95 (0.79) & 0.99 (0.99) & 0.98 (0.92) \\
+Kircher & no\_anchor & 0.49 (0.32) & 0.49 (0.32) & 0.84 (0.76) & 0.84 (0.76) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\addtocounter{table}{-1}\renewcommand{\thetable}{S6b}
+
+{\small\begin{longtable}{llrlrrll}
+\caption{EIG convergence check, accuracy: differences in Spearman correlation of the posterior-average prediction (same pools and 50 repeats; 95\% bootstrap interval over units).}\label{tab:s6b}\\
+\toprule
+Data & View & $k$ & Contrast & $n$ & Mean & 95\% CI & Reading \\
+\midrule
+\endfirsthead
+\toprule
+Data & View & $k$ & Contrast & $n$ & Mean & 95\% CI & Reading \\
+\midrule
+\endhead
+Siraj & C1 & 8 & E2 $-$ E0 & 125 & $-$0.0002 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C2 & 8 & E2 $-$ E0 & 125 & $-$0.0002 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C3 & 8 & E2 $-$ E0 & 125 & +0.0004 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C1 & 8 & E2 $-$ disc & 125 & $-$0.0000 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C2 & 8 & E2 $-$ disc & 125 & +0.0006 & $-$0.001 to +0.002 & equivalent  \\
+Siraj & C3 & 8 & E2 $-$ disc & 125 & +0.0007 & $-$0.001 to +0.002 & equivalent  \\
+Siraj & C1 & 8 & E0 $-$ disc & 125 & +0.0002 & $-$0.001 to +0.002 & equivalent  \\
+Siraj & C2 & 8 & E0 $-$ disc & 125 & +0.0008 & $-$0.000 to +0.002 & equivalent  \\
+Siraj & C3 & 8 & E0 $-$ disc & 125 & +0.0003 & $-$0.001 to +0.002 & equivalent  \\
+Siraj & C1 & 8 & E1 $-$ E0 & 125 & $-$0.0001 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C2 & 8 & E1 $-$ E0 & 125 & $-$0.0002 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C3 & 8 & E1 $-$ E0 & 125 & +0.0003 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C1 & 16 & E2 $-$ E0 & 125 & $-$0.0005 & $-$0.001 to +0.000 & equivalent  \\
+Siraj & C2 & 16 & E2 $-$ E0 & 125 & $-$0.0002 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C3 & 16 & E2 $-$ E0 & 125 & $-$0.0001 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C1 & 16 & E2 $-$ disc & 125 & +0.0007 & +0.000 to +0.001 & equivalent  \\
+Siraj & C2 & 16 & E2 $-$ disc & 125 & +0.0009 & +0.000 to +0.002 & equivalent  \\
+Siraj & C3 & 16 & E2 $-$ disc & 125 & +0.0001 & $-$0.000 to +0.001 & equivalent  \\
+Siraj & C1 & 16 & E0 $-$ disc & 125 & +0.0012 & +0.000 to +0.002 & equivalent  \\
+Siraj & C2 & 16 & E0 $-$ disc & 125 & +0.0011 & +0.000 to +0.002 & equivalent  \\
+Siraj & C3 & 16 & E0 $-$ disc & 125 & +0.0001 & $-$0.001 to +0.001 & equivalent  \\
+Siraj & C1 & 16 & E1 $-$ E0 & 125 & $-$0.0005 & $-$0.001 to +0.000 & equivalent  \\
+Siraj & C2 & 16 & E1 $-$ E0 & 125 & $-$0.0002 & $-$0.001 to +0.000 & equivalent  \\
+Siraj & C3 & 16 & E1 $-$ E0 & 125 & +0.0000 & $-$0.001 to +0.001 & equivalent  \\
+Kircher & deploy & 8 & E2 $-$ E0 & 11 & +0.0007 & $-$0.001 to +0.002 & equivalent  \\
+Kircher & no\_anchor & 8 & E2 $-$ E0 & 11 & $-$0.0001 & $-$0.002 to +0.002 & equivalent  \\
+Kircher & deploy & 8 & E2 $-$ disc & 11 & +0.0038 & +0.002 to +0.006 & equivalent  \\
+Kircher & no\_anchor & 8 & E2 $-$ disc & 11 & +0.0022 & $-$0.000 to +0.004 & equivalent  \\
+Kircher & deploy & 8 & E0 $-$ disc & 11 & +0.0031 & +0.001 to +0.005 & equivalent  \\
+Kircher & no\_anchor & 8 & E0 $-$ disc & 11 & +0.0023 & $-$0.001 to +0.005 & equivalent  \\
+Kircher & deploy & 8 & E1 $-$ E0 & 11 & +0.0012 & $-$0.000 to +0.003 & equivalent  \\
+Kircher & no\_anchor & 8 & E1 $-$ E0 & 11 & $-$0.0003 & $-$0.003 to +0.002 & equivalent  \\
+Kircher & deploy & 16 & E2 $-$ E0 & 11 & $-$0.0010 & $-$0.004 to +0.002 & equivalent  \\
+Kircher & no\_anchor & 16 & E2 $-$ E0 & 11 & $-$0.0001 & $-$0.004 to +0.003 & equivalent  \\
+Kircher & deploy & 16 & E2 $-$ disc & 11 & +0.0029 & +0.000 to +0.006 & equivalent  \\
+Kircher & no\_anchor & 16 & E2 $-$ disc & 11 & +0.0022 & +0.001 to +0.004 & equivalent  \\
+Kircher & deploy & 16 & E0 $-$ disc & 11 & +0.0038 & +0.001 to +0.007 & equivalent  \\
+Kircher & no\_anchor & 16 & E0 $-$ disc & 11 & +0.0023 & $-$0.001 to +0.006 & equivalent  \\
+Kircher & deploy & 16 & E1 $-$ E0 & 11 & +0.0000 & $-$0.003 to +0.004 & equivalent  \\
+Kircher & no\_anchor & 16 & E1 $-$ E0 & 11 & $-$0.0013 & $-$0.006 to +0.002 & equivalent  \\
+\bottomrule
+\end{longtable}}
