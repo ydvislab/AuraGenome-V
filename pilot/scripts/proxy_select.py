@@ -112,6 +112,10 @@ ap.add_argument("--comparators", action="store_true",
 ap.add_argument("--comparator-repeats", type=int, default=50)
 ap.add_argument("--eig-top", type=int, default=100, help="eig: hypotheses kept (largest posterior weight)")
 ap.add_argument("--eig-grid", type=int, default=96, help="eig: quadrature points for the mixture entropy")
+ap.add_argument("--eig-check", default="",
+                help="post hoc EIG convergence check (docs/internal/eig_convergence_zh.md) on the first "
+                     "--comparator-repeats repeats: comma-separated top:grid settings, each adding rows eig@top/grid; "
+                     "top < 1 keeps the fewest hypotheses covering that posterior mass (at least --eig-top)")
 ap.add_argument("--stop-bma-grid", default="0.95,0.98,0.99,0.995",
                 help="disc_stop_bma thresholds: stop once consecutive posterior-average predictions correlate >= r")
 ap.add_argument("--coda", action="store_true",
@@ -311,13 +315,15 @@ def disc_sequence(Z, y, se, pool, C, logprior, slope=None, fantasy=False):
     return order, k_stop, k_bma
 
 
-def eig_sequence(Z, y, se, pool, logprior, slope=None):
+def eig_sequence(Z, y, se, pool, logprior, slope=None, top_n=None, grid=None, cover=None):
     """Sequential panel by expected information gain about the hypothesis index (the quantity Box-Hill's
     disagreement approximates). Under hypothesis t the next label at x is Gaussian with the posterior-mean
     line A_t + B_t z_t(x) and variance noise + [1, z_t(x)] Cov_t(a, b) [1, z_t(x)]'; the information gain
     is the entropy of the weighted mixture minus the mean entropy of its components, by quadrature on
     --eig-grid points, over the --eig-top hypotheses with the largest weight. Before any label s = 1
-    (the gain does not depend on the unit when every line passes through 0)."""
+    (the gain does not depend on the unit when every line passes through 0). top_n and grid override the two
+    defaults (top_n < 1: the fewest hypotheses covering that mass); cover, if given, collects the mass kept."""
+    top_n, grid = (a.eig_top if top_n is None else top_n), (a.eig_grid if grid is None else grid)
     T = Z.shape[1]
     mb, vb = (np.zeros(T), np.full(T, a.beta)) if slope is None else slope
     w, A, B, s2 = softmax(logprior), np.zeros(T), mb.copy(), 1.0
@@ -332,21 +338,28 @@ def eig_sequence(Z, y, se, pool, logprior, slope=None):
             zo = Z[order]
             p11, p12, p22 = p11 + d.sum(), d @ zo, p22 + d @ zo ** 2
         det = p11 * p22 - p12 ** 2
-        top = np.argsort(-w)[:a.eig_top]
+        top = np.argsort(-w)
+        if top_n < 1:
+            top = top[:max(a.eig_top, int(np.searchsorted(np.cumsum(w[top]), top_n)) + 1)]
+        else:
+            top = top[:int(top_n)]
+        if cover is not None:
+            cover.append(w[top].sum())
         wt = w[top] / w[top].sum()
         zc = Z[pool][:, top]
         m = A[top] + zc * B[top]
         v = sig2 + se[pool, None] ** 2 + (p22[top] - 2 * p12[top] * zc + p11[top] * zc ** 2) / det[top]
         sd = np.sqrt(v)
         gain = np.full(len(pool), -np.inf)
-        for c in range(0, len(pool), 64):
-            mc, sc, vc = m[c:c + 64], sd[c:c + 64], v[c:c + 64]
+        ch = max(8, 6400 // len(top))   # rows per chunk (64 at 100 hypotheses); the result does not depend on it
+        for c in range(0, len(pool), ch):
+            mc, sc, vc = m[c:c + ch], sd[c:c + ch], v[c:c + ch]
             lo, hi = (mc - 6 * sc).min(1), (mc + 6 * sc).max(1)
-            g = lo[:, None] + (hi - lo)[:, None] * np.linspace(0, 1, a.eig_grid)[None, :]
+            g = lo[:, None] + (hi - lo)[:, None] * np.linspace(0, 1, grid)[None, :]
             dens = (np.exp(-0.5 * (g[:, :, None] - mc[:, None, :]) ** 2 / vc[:, None, :]) / sc[:, None, :]) @ wt
             dens /= np.sqrt(2 * np.pi)
-            h_mix = -(dens * np.log(np.maximum(dens, 1e-300))).sum(1) * (hi - lo) / (a.eig_grid - 1)
-            gain[c:c + 64] = h_mix - 0.5 * np.log(2 * np.pi * np.e * vc) @ wt
+            h_mix = -(dens * np.log(np.maximum(dens, 1e-300))).sum(1) * (hi - lo) / (grid - 1)
+            gain[c:c + ch] = h_mix - 0.5 * np.log(2 * np.pi * np.e * vc) @ wt
         gain[~left] = -np.inf
         j = int(np.argmax(gain))
         left[j] = False
@@ -470,6 +483,22 @@ for element in elements:
                                  rho_pick=r["rho_pick"], rho_bma=r["rho_bma"], acc_pick=r["acc_pick"],
                                  acc_bma=r["acc_bma"], acc_bma0=r["acc_bma0"], pick_pct=r["pick_pct"], rho_oracle=rho_oracle,
                                  regret=rho_oracle - h_rho[t]))
+            if a.eig_check and rep < a.comparator_repeats:
+                for spec in a.eig_check.split(","):
+                    tn, gr = spec.split(":")
+                    cover = []
+                    eorder = np.array(eig_sequence(H, y, se, pool, logprior, slope, float(tn), int(gr), cover))
+                    for k in budgets:
+                        r = evaluate(H, y, se, cls, eorder[:k], h_rho, logprior, outside, slope)
+                        t = r["pick"]
+                        runs.append(dict(base, strategy=f"eig@{tn}/{gr}", k=k, repeat=rep, labels=k,
+                                         pick_track=hmeta.index[t], pick_biosample=hmeta.biosample_name.iloc[t],
+                                         pick_matched=bool(hmeta.matched.iloc[t]), pick_ensemble=t >= T,
+                                         rho_pick=r["rho_pick"], rho_bma=r["rho_bma"], acc_pick=r["acc_pick"],
+                                         acc_bma=r["acc_bma"], acc_bma0=r["acc_bma0"], pick_pct=r["pick_pct"],
+                                         rho_oracle=rho_oracle, regret=rho_oracle - h_rho[t],
+                                         eig_cover_first=cover[0], eig_cover_min=min(cover[:k]),
+                                         eig_cover_mean=float(np.mean(cover[:k]))))
             if a.coda and rep < a.comparator_repeats:
                 for kap in [float(x) for x in a.coda_kappa.split(",")]:
                     lp = kap * r_cons
