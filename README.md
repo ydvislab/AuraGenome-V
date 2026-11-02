@@ -89,9 +89,53 @@ will show how the posterior spreads over track clusters. Validation uses saturat
 
 ![Held-out test learning curve](results/a1/fig3_test_learning_curve.png)
 
+## TrackPilot: the tool
+
+TrackPilot is the method of this repository as a Python package and command-line tool. Give it the predicted effects
+of the variants in a region on every track of a foundation model, and the names of your cell type in the track
+metadata if the model profiles it. It then
+
+1. **`trackpilot suggest`** picks a pilot panel: the few variants (8 in the paper) whose measurement best tells the
+   tracks apart. The whole panel is fixed in one round, so it can be ordered at once.
+2. **`trackpilot predict`** takes your measurements of the panel and returns the posterior over tracks, a calibrated
+   prediction for every unmeasured variant (the posterior average), and an HTML report.
+
+```bash
+pip install -e .                       # from a clone; PyPI release planned
+cd examples
+trackpilot suggest example_predictions.tsv.gz -k 8 -o panel.tsv            # no matched tracks: unprofiled cell type
+# ... measure the 8 variants in panel.tsv; here we take them from example_measurements.tsv:
+python -c "import pandas as pd; p = pd.read_csv('panel.tsv', sep='\t'); m = pd.read_csv('example_measurements.tsv', sep='\t'); m[m.variant_id.isin(p.variant_id)].to_csv('measured.tsv', sep='\t', index=False)"
+trackpilot predict example_predictions.tsv.gz measured.tsv -o predictions.tsv --posterior tracks.tsv --report report.html
+```
+
+- **Predictions** (`PREDICTIONS`): a TSV with one row per variant and track and columns `variant_id`, `track_name`,
+  `raw_score`, and optionally `output_type`, `track_strand` and `biosample_name`. This is the tidy format of
+  AlphaGenome's `tidy_scores`, so any model works once its scores are in this shape (we also used Enformer). A wide
+  table (variants × tracks) works too. `trackpilot score-alphagenome --region chr:start-end -o predictions.tsv.gz`
+  scores every substitution of a region with AlphaGenome (needs `pip install -e ".[alphagenome]"` and your own key in
+  `ALPHAGENOME_API_KEY`).
+- **`--anchor`**: keywords naming your cell type in the track metadata (e.g. `K562`, or `liver;hepatocyte`). The mean
+  of the matching tracks becomes the anchor hypothesis with prior 0.95; measurements can overrule it. Without a
+  match, TrackPilot starts from equal weight on each family of near-identical tracks.
+- **Labels** (`predict`): a TSV/CSV with `variant_id` and `effect` (e.g. log2 fold change, alt vs ref).
+- **Python**: `TrackPilot(X, anchor_mask).suggest(8)`, `.fit(labels).predict()`; see `src/trackpilot/core.py`.
+
+The method's parameters are those frozen before the paper's tests (α = 0.1, β = 0.5, anchor prior 0.95, track
+families at correlation 0.9). On a laptop (Apple M2 Pro), a region of 1,353 variants × 1,018 tracks takes about 1 s
+to set up, 0.1 s per panel and 0.01 s per prediction.
+
+**Tests.** `pytest` runs unit tests on the synthetic example. With the paper's local data present it also checks that
+the package reproduces the frozen runs: `pilot/scripts/trackpilot_reproduce.py kircher|siraj` recomputes the pilot
+panel and held-out accuracy for every element and scenario and compares them with the pre-registered runs (maximum
+difference 0 on all 22 Kircher experiments and 125 Siraj loci).
+
 ## Repository layout
 
 ```
+src/trackpilot/             the TrackPilot package (core.py method, io.py input, cli.py commands, report.py)
+tests/                      unit tests; test_reproduce.py checks the package against the paper's frozen runs
+examples/                   synthetic example (make_example.py regenerates it)
 pilot/
   scripts/
     download_data.py        ground truth: Kircher et al. 2019 saturation-mutagenesis MPRA (pinned, checksummed)
@@ -148,7 +192,7 @@ python pilot/scripts/a1_report.py pilot results/a1
 
 ## Licence
 
-- **Code** (`pilot/scripts/`, `paper/make_figures.py` and other scripts): MIT, see [LICENSE](LICENSE).
+- **Code** (`src/trackpilot/`, `tests/`, `examples/`, `pilot/scripts/`, `paper/make_figures.py` and other scripts): MIT, see [LICENSE](LICENSE).
 - **Tables derived from the Siraj et al. data** (`results/a1/siraj_*`, `results/a1/c1_siraj/`, `results/a1/cmp/cmp_siraj_*`, `results/a1/siraj_ref/`, `results/a1/direction/`, `results/a1/coda/coda_siraj_*`, `results/a1/eigconv/eigconv_siraj_*`, `paper/supplement.pdf`): CC-BY-NC-4.0, the
   licence of the source data. Cite Siraj et al. (2026) and the Zenodo record when using them.
 - **Manuscript draft** (`paper/` text and figures): not licensed for reuse. The MIT licence does not apply to it.

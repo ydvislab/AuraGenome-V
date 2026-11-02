@@ -180,7 +180,8 @@ with the README}. Its input is a table of predicted effects (variants $\times$ t
 not tied to one model; an optional module scores the variants of a region with AlphaGenome using the user's own API
 key. \texttt{trackpilot suggest} returns a pilot panel of $k$ variants from a pool; \texttt{trackpilot predict} takes
 the measured effects and returns the posterior over tracks, the predictions for all variants, and a report.
-Computing a panel and the predictions for a 1,000-variant element with 1,018 tracks takes \todo{runtime} on a laptop.
+For a 1,353-variant element with 1,018 tracks, reading the predictions, choosing a panel and computing the
+predictions take under five seconds on a laptop (Apple M2 Pro).
 The package includes tests that reproduce the pre-registered results in this paper.
 
 \subsection{Data and predictions}
