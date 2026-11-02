@@ -49,8 +49,8 @@ test on 125 loci from a saturation mutagenesis reporter assay, eight pilot measu
 matched tracks when these existed (mean $+0.010$ in Spearman correlation) and improved on the all-track mean by 0.047
 when they were hidden ($P = 3\times10^{-12}$). With eight random measurements, the same inference was worse than not
 measuring. On a second dataset with the cell type hidden, eight pilot measurements beat eight random ones by 0.084.
-The conclusions held with model checkpoints that had not been trained on the tested loci \todo{and with a second
-foundation model / dataset, Section 3.6}. The whole panel can be chosen in a single round.\\
+The conclusions held with model checkpoints that had not been trained on the tested loci, and with a second
+foundation model, Enformer, without changing any parameter. The whole panel can be chosen in a single round.\\
 \textbf{Availability and implementation:} \tp{} is a Python package and command-line tool (MIT licence) at
 \url{https://github.com/ydvislab/AuraGenome-V} \todo{final repository, PyPI name, Zenodo DOI of the submitted version}.
 Pre-registrations and all derived results are in the same repository.\\
@@ -198,7 +198,10 @@ types. The effect is the log$_2$ fold change of the substituted oligo minus that
 the same experiment, which a laboratory measuring a pilot panel would also build.
 \textbf{Predictions.} We scored every variant by in-silico mutagenesis with AlphaGenome (1-Mb context, default
 distilled checkpoint) on all CAGE, DNase and ATAC tracks for human biosamples \citep{avsec2026alphagenome}, which derive
-from ENCODE and FANTOM5 \citep{encode2020expanded,fantom2014atlas}. \todo{second model or dataset, Section 3.6.}
+from ENCODE and FANTOM5 \citep{encode2020expanded,fantom2014atlas}. For Section~\ref{sec:general} we also scored
+the 11 Kircher test regions and 40 randomly drawn Siraj loci with Enformer \citep{avsec2021enformer} on its 1,322
+human CAGE, DNase and ATAC tracks (196-kb context, one forward pass), using the same score: the change in log$_2$ of
+the summed signal over a 501-bp window centred on the variant.
 
 \subsection{Evaluation design}
 \label{sec:eval}
@@ -370,13 +373,46 @@ agreed with the rank results (Supplementary Table~S2). On Kircher, the fitted of
 \tp{} called fewer signs correctly than the matched mean ($-0.133$); without the offsets it was level in 9/11 regions.
 \tp{} therefore reports offset-free predictions for calling directions.
 
-\subsection{Generalisation \todo{pending}}
+\subsection{A second foundation model}
 \label{sec:general}
 
-\todo{Frozen \tp{}, no parameter changed, on (a) a second foundation model (Enformer or Borzoi) for the Siraj and
-Kircher loci, and/or (b) a dataset of a different design in a cell type without matched tracks, e.g. an allelic MPRA of
-GWAS variants across many loci. Specification and hypotheses to be committed before the runs. One short paragraph and
-one small table.}
+\tp{} uses only the matrix of predictions and the track metadata, so it should carry over to other models. We
+re-ran the frozen method, with no parameter changed, on Enformer predictions. The hypotheses and thresholds, the same as
+in the AlphaGenome tests, were committed before scoring; Siraj was restricted to 40 randomly drawn loci for compute.
+All six hypotheses held (Table~\ref{tab:enformer}). With matched tracks, eight measurements were non-inferior to them
+($+0.022$, one-sided lower bound $+0.007$; 1/40 loci worse by more than 0.05). Without them, eight measurements
+improved on the all-track mean by 0.052 on Siraj ($P = 4\times10^{-4}$) and by 0.109 on Kircher (8/11 regions), and
+beat eight random measurements by 0.097 (10/11 regions, $P = 0.001$). Enformer's tracks were less accurate than
+AlphaGenome's (matched mean 0.404 against 0.473 on the same loci), and \tp{}'s gains were at least as
+large. Both models' training data cover these regions and include K562 and HepG2, so this test addresses a change of
+model, not of cell type.
+
+\begin{table}[t]
+\centering
+% results/a1/enformer_siraj/siraj_decision.txt, results/a1/enformer_kircher/kircher_decision.txt;
+% AlphaGenome columns: results/a1/siraj_ref (same 40 loci) and proxy_select_v2/p0.95_fam (Kircher test)
+\caption{Frozen \tp{} on two models. Siraj: 40 random loci, both cell types averaged; Kircher: 11 test regions,
+unprofiled scenario. Differences in Spearman correlation on held-out variants; regions or loci $>0$ and one-sided $P$
+in brackets. Both columns use the frozen method with the family prior; Table~\ref{tab:kircher} shows the
+pre-registered version.}
+\label{tab:enformer}
+\begin{tabular}{lcc}
+\toprule
+Contrast & AlphaGenome & Enformer \\
+\midrule
+\multicolumn{3}{l}{\textit{Siraj, 40 loci}} \\
+profiled, $k=8$: $-$ matched mean & $+0.006$ & $+0.022$ \\
+\quad loci worse by $>0.05$ & 1/40 & 1/40 \\
+unprofiled, $k=8$: $-$ all-track mean & $+0.032$ ($3\times10^{-4}$) & $+0.052$ ($4\times10^{-4}$) \\
+related only, $k=16$: $-$ related mean & $+0.036$ ($4\times10^{-10}$) & $+0.047$ ($5\times10^{-7}$) \\
+matched mean (absolute) & 0.473 & 0.404 \\
+\multicolumn{3}{l}{\textit{Kircher, 11 regions, $k=8$}} \\
+$-$ random panel & $+0.090$ (9/11, 0.002) & $+0.097$ (10/11, 0.001) \\
+$-$ all-track mean & $+0.077$ (8/11) & $+0.109$ (8/11) \\
+\tp{} (absolute) & 0.373 & 0.324 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Worked example \todo{pending}}
 
@@ -397,9 +433,9 @@ Three lessons appear to hold beyond this setting. First, which variants are meas
 modelled; random measurements made the same inference worse than not measuring. Second, re-fitting a default
 predictor to a handful of labels is harmful, and a prior centred on the default avoids this. Third, the output should
 be an average: among a thousand correlated heads, the posterior-weighted prediction beat the single most probable
-track, and at \textit{HBG1} even the best single track chosen with all labels. These lessons apply to any model with
-many output heads, such as Enformer, Borzoi or single-cell extensions, because \tp{} uses only the matrix of
-predictions and the track metadata.
+track, and at \textit{HBG1} even the best single track chosen with all labels. These lessons should apply to any model with
+many output heads, because \tp{} uses only the matrix of predictions and the track metadata; on Enformer all
+pre-registered hypotheses held without changing a parameter.
 
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome, so on Siraj the unprofiled scenarios are simulated by
 hiding tracks; truly unprofiled cell lines appear only in a few Kircher elements \todo{update after Section 3.6}. The

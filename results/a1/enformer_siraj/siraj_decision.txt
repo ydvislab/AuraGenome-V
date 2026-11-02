@@ -1,0 +1,7 @@
+P1 k=8: mean D = +0.0215, one-sided 95% bootstrap lower bound +0.0066 (> -0.02?) -> HOLDS   [40 loci]
+P2 k=8: harmed (D < -0.05) 1/40 = 0.025, one-sided 95% Clopper-Pearson upper bound 0.113 (<= 0.15?) -> HOLDS
+P1 (S4, secondary) k=16: mean D = +0.0334, one-sided 95% bootstrap lower bound +0.0147 (> -0.02?) -> HOLDS   [40 loci]
+P2 (S4, secondary) k=16: harmed (D < -0.05) 1/40 = 0.025, one-sided 95% Clopper-Pearson upper bound 0.113 (<= 0.15?) -> HOLDS
+P3 C3 k=8: v2 - all_mean = +0.0520 (>= 0.03?), one-sided Wilcoxon p = 0.0003572 -> HOLDS   [40 loci]
+P4 C2 k=16: v2 - related mean = +0.0466 (> 0?), one-sided Wilcoxon p = 5.279e-07 -> HOLDS   [40 loci]
+DECISION: SAFETY NET SUPPORTED: P1 and P2 hold, and P3 or P4 holds.

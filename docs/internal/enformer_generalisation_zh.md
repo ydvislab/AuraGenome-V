@@ -107,4 +107,29 @@ proxy_select.py pilot --pred-dir predictions/enformer_kircher --version ENFORMER
 
 - 判别面板低于全轨道均值的 3 个区域：LDLR（−0.011）、TERT（−0.031），以及 FOXE1（−0.013）。FOXE1 在 Enformer 下几乎无信号：事后最佳单轨也只有 0.085。
 - 增益最大的是 HBG1（+0.463）和 SORT1（+0.315），这两个区域的全轨道均值很低。
-- Siraj（G1–G4）还在打分，结果出来后补在下面。
+- 判定表：`results/a1/enformer_kircher/kircher_decision.txt`。
+
+## 8. 结果：Siraj（2026-11-03）
+
+40 个位点打分完成，无报错。每个位点按第 4 节的冻结命令运行（`--tag enformer_siraj/<locus>`），再用 `siraj_report.py` 汇总，结果在 `results/a1/enformer_siraj/`。
+
+| 检验 | Enformer | 同 40 个位点上的 AlphaGenome | 判定 |
+|---|---|---|---|
+| G1 有匹配轨道，k=8，减匹配均值 | +0.022，单侧下界 +0.007 | +0.006 | 成立 |
+| G2 变差超过 0.05 的位点 | 1/40，上界 11.3% | 1/40 | 成立 |
+| G3 无匹配轨道，k=8，减全轨道均值 | +0.052，P = 3.6e-4 | +0.032 | 成立 |
+| G4 只有相关轨道，k=16，减相关均值 | +0.047，P = 5.3e-7 | +0.036 | 成立 |
+
+**判定：G1–G4 全部成立，K1、K2 也成立。按第 5 节，结论"在第二个模型上成立"。**
+
+描述性结果（40 个位点）：
+- 匹配均值：Enformer 0.404，AlphaGenome 0.473；
+- 无匹配轨道时的全轨道均值：0.344 对 0.395；
+- 事后最佳单轨：0.497 对 0.528。
+
+Enformer 的轨道整体弱一些，TrackPilot 的增益反而都不小于 AlphaGenome。
+Kircher 上 AlphaGenome 的对照数取自冻结 v2 运行（`proxy_select_v2/p0.95_fam`）：
+- 判别面板减随机面板：+0.090（9/11）；
+- 判别面板减全轨道均值：+0.077（8/11）。
+
+论文 §3.6 已写入（表 3），摘要和讨论相应更新。
