@@ -2,6 +2,7 @@
     python paper/make_supplement.py && cd paper && tectonic supplement.tex
 Writes paper/supp_tables.tex, which paper/supplement.tex inputs. No number is typed by hand."""
 import re
+import numpy as np
 import pandas as pd
 
 R = "results/a1"
@@ -155,6 +156,45 @@ parts.append("\\addtocounter{table}{-1}\\renewcommand{\\thetable}{S6b}\n")
 parts.append(table("tab:s6b", "EIG convergence check, accuracy: differences in Spearman correlation of the "
                    "posterior-average prediction (same pools and 50 repeats; 95\\% bootstrap interval over units).",
                    ["Data", "View", "$k$", "Contrast", "$n$", "Mean", "95\\% CI", "Reading"], rows, "llrlrrll"))
+
+# S7: label efficiency and where the gain is (post hoc, descriptive; pilot/scripts/reframe_report.py)
+parts.append("\\renewcommand{\\thetable}{S\\arabic{table}}\n")
+view = {"all": "C1 profiled", "hide_exact": "C2 related only", "hide_matched": "C3 unprofiled"}
+eff, gap = tsv("reframe/label_efficiency.tsv"), tsv("reframe/gain_by_gap.tsv")
+rows = [[view[r.scenario], int(r.k), f(r.pilot, sign=False), f(r.random, sign=False), f(r.default, sign=False),
+         f(r.oracle, sign=False), f"{100 * r.gap_closed:.0f}\\%"] for _, r in eff.iterrows()]
+parts.append(table("tab:s7", "Label efficiency on Siraj (post hoc, descriptive; 125 loci, 200 repeats). Mean Spearman "
+                   "correlation of the posterior-average prediction after $k$ pilot or random measurements, the "
+                   "label-free default and the best single track chosen with all labels (oracle). Gap closed: share "
+                   "of the default-to-oracle gap recovered by the pilot panel.",
+                   ["View", "$k$", "Pilot", "Random", "Default", "Oracle", "Gap closed"], rows, "lrrrrrr"))
+rows = [[view[r.scenario], int(r.quartile), int(r.loci), f(r.gap, sign=False), f(r.gain_k8),
+         f"{100 * r.share_closed:.0f}\\%", int(r.worse_by_005)] for _, r in gap.iterrows()]
+parts.append(table("tab:s8", "Where the gain is (post hoc, descriptive): Siraj loci split into quartiles of the gap "
+                   "between the label-free default and the oracle track (which needs all labels), gain of the pilot "
+                   "panel over the default at $k=8$, and loci worse than the default by more than 0.05.",
+                   ["View", "Quartile", "Loci", "Gap", "Gain", "Share closed", "Worse $>0.05$"], rows, "lrrrrrr"))
+# S9: cross-locus prior (pre-registered extension; pilot/scripts/cross_locus.py)
+dec = open(f"{R}/cross_locus/decision.txt").read().splitlines()
+nums = [re.findall(r"[-+]?\d+\.\d+(?:e-?\d+)?|\d+/\d+", l) for l in dec[1:3]]
+pfmt = lambda p: "{:.0f}\\times10^{{{:d}}}".format(p / 10 ** int(np.floor(np.log10(p))), int(np.floor(np.log10(p))))
+x1x2 = (f"X1 (C3, $k=8$, cross-locus minus single locus at least 0.02): {nums[0][0]}, {nums[0][2]} loci positive, "
+        f"one-sided Wilcoxon $P={pfmt(float(nums[0][3]))}$; not met. X2 (C1, $k=8$, non-inferior to the matched mean): "
+        f"{nums[1][0]}, lower bound {nums[1][1]}, {nums[1][3]} loci worse by more than 0.05 (upper bound "
+        f"{nums[1][4]}); met.")
+sec = tsv("cross_locus/secondary.tsv")
+rows = []
+for _, r in sec.iterrows():
+    m = "10" if pd.isna(r.m) else str(int(r.m))
+    if pd.isna(r.m) or r.m != 10:
+        rows.append([view[r.scenario], int(r.k), m, "--" if pd.isna(r.single) else f(r.single, sign=False),
+                     f(r.cross, sign=False), f(r.cross_minus_single, 4),
+                     "--" if pd.isna(r.positive) else f"{int(r.positive)}/{int(r.loci)}"])
+parts.append(table("tab:s9", "Cross-locus prior (pre-registered extension; 85 test loci, 20 repeats, $\\lambda=0.75$ "
+                   "chosen on 40 development loci). The prior of a new locus mixes the frozen prior with the mean "
+                   "posterior of $m$ other loci in the same cell type after their own 8-variant pilot panels. "
+                   + x1x2 + " ",
+                   ["View", "$k$", "$m$", "Single locus", "Cross-locus", "Difference", "Loci $>0$"], rows, "lrrrrrr"))
 
 open("paper/supp_tables.tex", "w").write("\n".join(parts))
 print("wrote paper/supp_tables.tex")

@@ -1,0 +1,19 @@
+scenario	k	default	single	cross	cross_minus_single	positive	loci	m
+hide_matched	4	0.3824	0.3963	0.4181	0.0217	66.0	85.0	
+hide_matched	8	0.3824	0.436	0.4476	0.0116	65.0	85.0	
+hide_matched	8			0.4421	0.0061			1.0
+hide_matched	8			0.4455	0.0095			3.0
+hide_matched	8			0.4476	0.0116			10.0
+hide_matched	8			0.4488	0.0127			30.0
+hide_exact	4	0.4073	0.4096	0.4218	0.0122	62.0	85.0	
+hide_exact	8	0.4073	0.4305	0.4427	0.0121	70.0	85.0	
+hide_exact	8			0.4358	0.0053			1.0
+hide_exact	8			0.4393	0.0088			3.0
+hide_exact	8			0.4427	0.0121			10.0
+hide_exact	8			0.4449	0.0144			30.0
+all	4	0.4756	0.4661	0.4767	0.0106	59.0	85.0	
+all	8	0.4756	0.4841	0.4896	0.0056	62.0	85.0	
+all	8			0.4856	0.0015			1.0
+all	8			0.4879	0.0038			3.0
+all	8			0.4896	0.0056			10.0
+all	8			0.4909	0.0068			30.0

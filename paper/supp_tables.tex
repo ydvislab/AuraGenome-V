@@ -268,3 +268,80 @@ Kircher & deploy & 16 & E1 $-$ E0 & 11 & +0.0000 & $-$0.003 to +0.004 & equivale
 Kircher & no\_anchor & 16 & E1 $-$ E0 & 11 & $-$0.0013 & $-$0.006 to +0.002 & equivalent  \\
 \bottomrule
 \end{longtable}}
+
+\renewcommand{\thetable}{S\arabic{table}}
+
+\begin{table}[!ht]
+\caption{Label efficiency on Siraj (post hoc, descriptive; 125 loci, 200 repeats). Mean Spearman correlation of the posterior-average prediction after $k$ pilot or random measurements, the label-free default and the best single track chosen with all labels (oracle). Gap closed: share of the default-to-oracle gap recovered by the pilot panel.}\label{tab:s7}
+\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+View & $k$ & Pilot & Random & Default & Oracle & Gap closed \\
+\midrule
+C1 profiled & 2 & 0.451 & 0.469 & 0.474 & 0.535 & -37\% \\
+C1 profiled & 4 & 0.469 & 0.466 & 0.474 & 0.535 & -8\% \\
+C1 profiled & 8 & 0.483 & 0.467 & 0.474 & 0.535 & 15\% \\
+C1 profiled & 12 & 0.489 & 0.470 & 0.474 & 0.535 & 25\% \\
+C1 profiled & 16 & 0.493 & 0.474 & 0.474 & 0.535 & 31\% \\
+C2 related only & 2 & 0.395 & 0.406 & 0.412 & 0.520 & -16\% \\
+C2 related only & 4 & 0.415 & 0.403 & 0.412 & 0.520 & 3\% \\
+C2 related only & 8 & 0.433 & 0.406 & 0.412 & 0.520 & 19\% \\
+C2 related only & 12 & 0.444 & 0.413 & 0.412 & 0.520 & 30\% \\
+C2 related only & 16 & 0.452 & 0.420 & 0.412 & 0.520 & 37\% \\
+C3 unprofiled & 2 & 0.347 & 0.180 & 0.391 & 0.518 & -35\% \\
+C3 unprofiled & 4 & 0.402 & 0.260 & 0.391 & 0.518 & 8\% \\
+C3 unprofiled & 8 & 0.438 & 0.342 & 0.391 & 0.518 & 37\% \\
+C3 unprofiled & 12 & 0.453 & 0.382 & 0.391 & 0.518 & 49\% \\
+C3 unprofiled & 16 & 0.461 & 0.404 & 0.391 & 0.518 & 55\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\caption{Where the gain is (post hoc, descriptive): Siraj loci split into quartiles of the gap between the label-free default and the oracle track (which needs all labels), gain of the pilot panel over the default at $k=8$, and loci worse than the default by more than 0.05.}\label{tab:s8}
+\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+View & Quartile & Loci & Gap & Gain & Share closed & Worse $>0.05$ \\
+\midrule
+C1 profiled & 1 & 32 & 0.009 & +0.000 & 0\% & 0 \\
+C1 profiled & 2 & 31 & 0.030 & $-$0.008 & -26\% & 3 \\
+C1 profiled & 3 & 31 & 0.055 & +0.004 & 8\% & 0 \\
+C1 profiled & 4 & 31 & 0.155 & +0.042 & 27\% & 0 \\
+C2 related only & 1 & 32 & 0.057 & +0.004 & 7\% & 1 \\
+C2 related only & 2 & 31 & 0.085 & +0.012 & 15\% & 0 \\
+C2 related only & 3 & 31 & 0.108 & +0.013 & 12\% & 0 \\
+C2 related only & 4 & 31 & 0.184 & +0.053 & 29\% & 1 \\
+C3 unprofiled & 1 & 32 & 0.053 & +0.004 & 7\% & 2 \\
+C3 unprofiled & 2 & 31 & 0.090 & +0.017 & 19\% & 1 \\
+C3 unprofiled & 3 & 31 & 0.121 & +0.034 & 28\% & 1 \\
+C3 unprofiled & 4 & 31 & 0.244 & +0.133 & 54\% & 2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\caption{Cross-locus prior (pre-registered extension; 85 test loci, 20 repeats, $\lambda=0.75$ chosen on 40 development loci). The prior of a new locus mixes the frozen prior with the mean posterior of $m$ other loci in the same cell type after their own 8-variant pilot panels. X1 (C3, $k=8$, cross-locus minus single locus at least 0.02): +0.0116, 65/85 loci positive, one-sided Wilcoxon $P=4\times10^{-8}$; not met. X2 (C1, $k=8$, non-inferior to the matched mean): +0.0141, lower bound +0.0069, 3/85 loci worse by more than 0.05 (upper bound 0.089); met. }\label{tab:s9}
+\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+View & $k$ & $m$ & Single locus & Cross-locus & Difference & Loci $>0$ \\
+\midrule
+C3 unprofiled & 4 & 10 & 0.396 & 0.418 & +0.0217 & 66/85 \\
+C3 unprofiled & 8 & 10 & 0.436 & 0.448 & +0.0116 & 65/85 \\
+C3 unprofiled & 8 & 1 & -- & 0.442 & +0.0061 & -- \\
+C3 unprofiled & 8 & 3 & -- & 0.446 & +0.0095 & -- \\
+C3 unprofiled & 8 & 30 & -- & 0.449 & +0.0127 & -- \\
+C2 related only & 4 & 10 & 0.410 & 0.422 & +0.0122 & 62/85 \\
+C2 related only & 8 & 10 & 0.430 & 0.443 & +0.0121 & 70/85 \\
+C2 related only & 8 & 1 & -- & 0.436 & +0.0053 & -- \\
+C2 related only & 8 & 3 & -- & 0.439 & +0.0088 & -- \\
+C2 related only & 8 & 30 & -- & 0.445 & +0.0144 & -- \\
+C1 profiled & 4 & 10 & 0.466 & 0.477 & +0.0106 & 59/85 \\
+C1 profiled & 8 & 10 & 0.484 & 0.490 & +0.0056 & 62/85 \\
+C1 profiled & 8 & 1 & -- & 0.486 & +0.0015 & -- \\
+C1 profiled & 8 & 3 & -- & 0.488 & +0.0038 & -- \\
+C1 profiled & 8 & 30 & -- & 0.491 & +0.0068 & -- \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -48,7 +48,7 @@ returns a posterior over tracks and a posterior-weighted prediction for every un
 test on 125 loci from a saturation mutagenesis reporter assay, eight pilot measurements were non-inferior to the
 matched tracks when these existed (mean $+0.010$ in Spearman correlation) and improved on the all-track mean by 0.047
 when they were hidden ($P = 3\times10^{-12}$). With eight random measurements, the same inference was worse than not
-measuring. On a second dataset with the cell type hidden, eight pilot measurements beat eight random ones by 0.084.
+measuring, and four chosen measurements were as accurate as sixteen random ones. On a second dataset with the cell type hidden, eight pilot measurements beat eight random ones by 0.084.
 The conclusions held with model checkpoints that had not been trained on the tested loci, and with a second
 foundation model, Enformer, without changing any parameter. The whole panel can be chosen in a single round.\\
 \textbf{Availability and implementation:} \tp{} is a Python package and command-line tool (MIT licence) at
@@ -257,7 +257,10 @@ in elements with very few significant variants (\textit{FOXE1}, 5).
 The pre-registered Siraj test confirmed this on 125 new loci (Table~\ref{tab:siraj}, Fig.~\ref{fig:siraj}). Without
 matched or related tracks, eight measurements improved on the all-track mean by 0.047 (0.391 to 0.438; $P = 3\times
 10^{-12}$; P3). With related-cell tracks only, sixteen measurements improved on their mean by 0.040 (0.412 to 0.452;
-$P = 3\times10^{-19}$; P4).
+$P = 3\times10^{-19}$; P4). Four pilot measurements were as accurate as sixteen random ones (0.402 against 0.404;
+Supplementary Table~S7). The gain was concentrated where the default was poor (post hoc): in the quarter of loci where
+the all-track mean was furthest from the best track it was 0.133, more than half of that gap, and in the quarter where
+it was closest, 0.004 (Supplementary Table~S8).
 
 \begin{table*}[t]
 \centering
@@ -383,6 +386,12 @@ agreed with the rank results (Supplementary Table~S2). On Kircher, the fitted of
 \tp{} called fewer signs correctly than the matched mean ($-0.133$); without the offsets the deficit shrank to $-0.071$
 (5 regions better, 4 worse; 95\% interval $-0.21$ to $+0.01$). \tp{} therefore also reports offset-free predictions
 for calling directions.
+\textbf{Sharing across loci.} A laboratory often studies several loci in one cell type. In a pre-registered extension,
+the prior of a new locus mixed the frozen prior with the mean posterior of ten other loci after their own eight-variant
+panels (weight 0.75, chosen on 40 development loci). On 85 test loci with the cell type unprofiled, this added 0.012
+at eight measurements (65/85 loci, $P = 4\times10^{-8}$), below the pre-registered 0.02, and 0.022 at four; with
+matched tracks it stayed non-inferior ($+0.014$, 3/85 loci harmed; Supplementary Table~S9). Sharing helps consistently
+but modestly.
 
 \subsection{A second foundation model}
 \label{sec:general}

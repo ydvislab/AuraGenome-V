@@ -1,0 +1,4 @@
+cross-locus prior, lam = 0.75, m = 10, 85 test loci, repeats 0-19
+X1 C3 k=8: cross - single = +0.0116 (>= 0.02?), 65/85 > 0, one-sided Wilcoxon p = 4.34e-08 -> FAILS
+X2 C1 k=8: cross - matched = +0.0141, bootstrap lower bound +0.0069 (> -0.02?), harmed 3/85, upper bound 0.089 (<= 0.15?) -> HOLDS
+DECISION: NOT SUPPORTED
