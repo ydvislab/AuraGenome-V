@@ -404,25 +404,27 @@ model, not of cell type.
 % AlphaGenome columns: results/a1/siraj_ref (same 40 loci) and proxy_select_v2/p0.95_fam (Kircher test)
 \caption{Frozen \tp{} on two models. Siraj: 40 random loci, both cell types averaged; Kircher: 11 test regions,
 unprofiled scenario. Differences in Spearman correlation on held-out variants; regions or loci $>0$ and one-sided $P$
-in brackets. Both columns use the frozen method with the family prior; Table~\ref{tab:kircher} shows the
+in brackets; $^a$unprofiled, $^b$related cells only. Kircher random-panel $P$: 0.002 (AlphaGenome), 0.001
+(Enformer). Both columns use the frozen method with the family prior; Table~\ref{tab:kircher} shows the
 pre-registered version.}
 \label{tab:enformer}
-\begin{tabular}{lcc}
+{\small\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcc@{}}
 \toprule
-Contrast & AlphaGenome & Enformer \\
+\tp{} minus & AlphaGenome & Enformer \\
 \midrule
-\multicolumn{3}{l}{\textit{Siraj, 40 loci}} \\
-profiled, $k=8$: $-$ matched mean & $+0.006$ & $+0.022$ \\
+\multicolumn{3}{@{}l}{\textit{Siraj, 40 loci}} \\
+matched mean, $k=8$ & $+0.006$ & $+0.022$ \\
 \quad loci worse by $>0.05$ & 1/40 & 1/40 \\
-unprofiled, $k=8$: $-$ all-track mean & $+0.032$ ($3\times10^{-4}$) & $+0.052$ ($4\times10^{-4}$) \\
-related only, $k=16$: $-$ related mean & $+0.036$ ($4\times10^{-10}$) & $+0.047$ ($5\times10^{-7}$) \\
+all-track mean$^a$, $k=8$ & $+0.032$ ($3\mathrm{e}{-4}$) & $+0.052$ ($4\mathrm{e}{-4}$) \\
+related mean$^b$, $k=16$ & $+0.036$ ($4\mathrm{e}{-10}$) & $+0.047$ ($5\mathrm{e}{-7}$) \\
 matched mean (absolute) & 0.473 & 0.404 \\
-\multicolumn{3}{l}{\textit{Kircher, 11 regions, $k=8$}} \\
-$-$ random panel & $+0.090$ (9/11, 0.002) & $+0.097$ (10/11, 0.001) \\
-$-$ all-track mean & $+0.077$ (8/11) & $+0.109$ (8/11) \\
+\multicolumn{3}{@{}l}{\textit{Kircher, 11 regions$^a$, $k=8$}} \\
+random panel & $+0.090$ (9/11) & $+0.097$ (10/11) \\
+all-track mean & $+0.077$ (8/11) & $+0.109$ (8/11) \\
 \tp{} (absolute) & 0.373 & 0.324 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Worked example \todo{pending}}
