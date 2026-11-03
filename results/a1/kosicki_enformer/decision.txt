@@ -1,0 +1,6 @@
+neuron MPRA, enformer: 159 regions, 328 tiles
+N1 C3 k=8: TrackPilot - all-track mean = -0.0348 (>= 0.03?), 55/159 > 0, one-sided Wilcoxon p = 1 -> FAILS
+N2 C3 k=8: pilot - random panel = +0.0053, 81/159 > 0, one-sided Wilcoxon p = 0.165 -> FAILS
+N3 C1 k=8: TrackPilot - matched mean = -0.0299, bootstrap lower bound -0.0383 (> -0.02?), harmed 48/159, upper bound 0.367 (<= 0.15?) -> FAILS
+N4 C2 k=8: TrackPilot - related mean = -0.0214, 43/159 > 0, one-sided Wilcoxon p = 1 -> FAILS
+DECISION: NOT SUPPORTED (N1 and N3)

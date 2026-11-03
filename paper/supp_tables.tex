@@ -345,3 +345,29 @@ C1 profiled & 8 & 30 & -- & 0.491 & +0.0068 & -- \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[!ht]
+\caption{Neuron MPRA (pre-registered third dataset; WTC11-NGN2 induced excitatory neurons, 159 regions, 200 repeats). Mean Spearman correlation of TrackPilot after $k$ pilot or random measurements and of the label-free default (matched, related or all-track mean). AlphaGenome: N1 $-$0.014 (not met), N2 +0.009 ($P=0.027$, held), N3 $-$0.019, lower bound $-$0.028, 47/159 regions worse by more than 0.05 (not met), N4 $-$0.015 (not met); Enformer: N1 $-$0.035 (not met), N2 +0.005 ($P=0.17$, not met), N3 $-$0.030, lower bound $-$0.038, 48/159 regions worse by more than 0.05 (not met), N4 $-$0.021 (not met). Decision (N1 and N3): not supported for either model. The best single track chosen with all labels reached 0.32 and 0.32 (AlphaGenome, Enformer), mostly selection among about 1,000 tracks on about 34 held-out variants per tile.}\label{tab:s10}
+\centering\small
+\begin{tabular}{lrrrrrrr}
+\toprule
+View & $k$ & AG pilot & AG random & AG default & Enf.\ pilot & Enf.\ random & Enf.\ default \\
+\midrule
+C1 profiled & 2 & 0.052 & 0.069 & 0.073 & 0.042 & 0.066 & 0.070 \\
+C1 profiled & 4 & 0.054 & 0.066 & 0.073 & 0.040 & 0.062 & 0.070 \\
+C1 profiled & 8 & 0.053 & 0.059 & 0.073 & 0.040 & 0.054 & 0.070 \\
+C1 profiled & 12 & 0.054 & 0.055 & 0.073 & 0.041 & 0.049 & 0.070 \\
+C1 profiled & 16 & 0.053 & 0.053 & 0.073 & 0.041 & 0.046 & 0.070 \\
+C2 related only & 2 & 0.044 & 0.057 & 0.059 & 0.031 & 0.050 & 0.053 \\
+C2 related only & 4 & 0.044 & 0.053 & 0.059 & 0.031 & 0.047 & 0.053 \\
+C2 related only & 8 & 0.044 & 0.048 & 0.059 & 0.032 & 0.041 & 0.053 \\
+C2 related only & 12 & 0.045 & 0.045 & 0.059 & 0.033 & 0.038 & 0.053 \\
+C2 related only & 16 & 0.045 & 0.044 & 0.059 & 0.034 & 0.036 & 0.053 \\
+C3 unprofiled & 2 & 0.024 & 0.010 & 0.044 & 0.010 & 0.006 & 0.054 \\
+C3 unprofiled & 4 & 0.028 & 0.013 & 0.044 & 0.015 & 0.009 & 0.054 \\
+C3 unprofiled & 8 & 0.030 & 0.021 & 0.044 & 0.019 & 0.014 & 0.054 \\
+C3 unprofiled & 12 & 0.032 & 0.025 & 0.044 & 0.021 & 0.016 & 0.054 \\
+C3 unprofiled & 16 & 0.033 & 0.027 & 0.044 & 0.023 & 0.018 & 0.054 \\
+\bottomrule
+\end{tabular}
+\end{table}

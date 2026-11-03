@@ -196,5 +196,27 @@ parts.append(table("tab:s9", "Cross-locus prior (pre-registered extension; 85 te
                    + x1x2 + " ",
                    ["View", "$k$", "$m$", "Single locus", "Cross-locus", "Difference", "Loci $>0$"], rows, "lrrrrrr"))
 
+# S10: neuron MPRA (pre-registered third dataset; pilot/scripts/kosicki_report.py)
+lev = {m: tsv(f"kosicki_{m}/levels.tsv").set_index(["scenario", "k"]) for m in ["alphagenome", "enformer"]}
+verdicts = []
+for m, name in [("alphagenome", "AlphaGenome"), ("enformer", "Enformer")]:
+    lines = open(f"{R}/kosicki_{m}/decision.txt").read().splitlines()[1:5]
+    n = [re.findall(r"[-+]?\d+\.\d+(?:e-?\d+)?|\d+/\d+", l) for l in lines]
+    held = ["held" if "HOLDS" in l else "not met" for l in lines]
+    verdicts.append(f"{name}: N1 {f(float(n[0][0]))} ({held[0]}), N2 {f(float(n[1][0]))} ($P={float(n[1][-1]):.2g}$, "
+                    f"{held[1]}), N3 {f(float(n[2][0]))}, lower bound {f(float(n[2][1]))}, {n[2][3]} regions worse "
+                    f"by more than 0.05 ({held[2]}), N4 {f(float(n[3][0]))} ({held[3]})")
+rows = [[view[s], int(k)] + [f(lev[m].loc[(s, k), c], sign=False) for m in lev for c in ["pilot", "random", "default"]]
+        for s, k in lev["alphagenome"].index]
+orc = " and ".join(f"{lev[m].oracle.mean():.2f}" for m in lev)
+parts.append(table("tab:s10", "Neuron MPRA (pre-registered third dataset; WTC11-NGN2 induced excitatory neurons, 159 "
+                   "regions, 200 repeats). Mean Spearman correlation of TrackPilot after $k$ pilot or random measurements "
+                   "and of the label-free default (matched, related or all-track mean). "
+                   + "; ".join(verdicts) + ". Decision (N1 and N3): not supported for either model. The best single "
+                   f"track chosen with all labels reached {orc} (AlphaGenome, Enformer), mostly selection among about "
+                   "1,000 tracks on about 34 held-out variants per tile.",
+                   ["View", "$k$", "AG pilot", "AG random", "AG default", "Enf.\\ pilot", "Enf.\\ random",
+                    "Enf.\\ default"], rows, "lrrrrrrr"))
+
 open("paper/supp_tables.tex", "w").write("\n".join(parts))
 print("wrote paper/supp_tables.tex")

@@ -50,7 +50,9 @@ matched tracks when these existed (mean $+0.010$ in Spearman correlation) and im
 when they were hidden ($P = 3\times10^{-12}$). With eight random measurements, the same inference was worse than not
 measuring, and four chosen measurements were as accurate as sixteen random ones. On a second dataset with the cell type hidden, eight pilot measurements beat eight random ones by 0.084.
 The conclusions held with model checkpoints that had not been trained on the tested loci, and with a second
-foundation model, Enformer, without changing any parameter. The whole panel can be chosen in a single round.\\
+foundation model, Enformer, without changing any parameter. The whole panel can be chosen in a single round. In a
+third pre-registered test, a reporter assay in induced neurons that no track predicted (matched tracks $\rho=0.07$),
+\tp{} did not help and fell 0.01--0.04 below the defaults: it needs a track that carries the assay's signal.\\
 \textbf{Availability and implementation:} \tp{} is a Python package and command-line tool (MIT licence) at
 \url{https://github.com/ydvislab/AuraGenome-V} \todo{final repository, PyPI name, Zenodo DOI of the submitted version}.
 Pre-registrations and all derived results are in the same repository.\\
@@ -96,8 +98,8 @@ Here we present \tp{}, a tool that turns a few measured variants into a decision
 starts from the metadata-matched tracks and moves away from them only when the measurements contradict them; (iii)
 chooses the variants to measure by the classical criterion for discriminating between models
 \citep{box1967discrimination}; and (iv) reports a posterior-weighted prediction rather than one selected track. We
-evaluated it on two saturation mutagenesis datasets in two pre-registered tests, checked the dependence on the model's
-training exposure, and compared it with simpler panels, few-label regression and active model selection methods.
+evaluated it in pre-registered tests on three mutagenesis reporter datasets, including one where it failed, checked
+the dependence on the model's training exposure, and compared it with simpler panels, few-label regression and active model selection methods.
 
 %===============================================================================
 \section{Methods}
@@ -178,16 +180,14 @@ measurement, by replacing each chosen variant's label with the current posterior
 \subsection{Implementation}
 
 \tp{} is a Python package with a command-line interface \todo{finalise once the package is released; keep in step
-with the README}. The optional AlphaGenome module calls the same API as our scoring scripts but has not yet been run
-from the package with a live key. Its input is a table of predicted effects (variants $\times$ tracks) with track metadata, so it is
-not tied to one model; an optional module scores the variants of a region with AlphaGenome using the user's own API
-key. \texttt{trackpilot suggest} returns a pilot panel of $k$ variants from a pool; \texttt{trackpilot predict} takes
-the measured effects and returns the posterior over tracks, the predictions for all variants, and a report.
-For a 1,353-variant element with 1,018 tracks, reading the predictions, choosing a panel and computing the
-predictions take under five seconds on a laptop (Apple M2 Pro).
-A reproduction script recomputes, with the package, every frozen \tp{} result for the first repeat (22 Kircher
-experiments, 234 numbers; 125 Siraj loci in two cell types, 4,500 numbers) with no difference; unit tests check
-selected loci and repeats. The pre-registered Kircher version (uniform prior) is not covered.
+with the README}. Its input is a table of predicted effects (variants $\times$ tracks) with track metadata, so it is
+not tied to one model; an optional module scores a region with AlphaGenome using the user's own API key (not yet run
+from the package with a live key). \texttt{trackpilot suggest} returns a pilot panel of $k$ variants from a pool;
+\texttt{trackpilot predict} takes the measured effects and returns the posterior over tracks, predictions for all
+variants and a report. For a 1,353-variant element with 1,018 tracks the whole run takes under five seconds on a laptop
+(Apple M2 Pro). A reproduction script recomputes with the package every frozen \tp{} result for the first repeat (22
+Kircher experiments, 234 numbers; 125 Siraj loci in two cell types, 4,500 numbers) with no difference; the
+pre-registered Kircher version (uniform prior) is not covered.
 
 \subsection{Data and predictions}
 
@@ -201,10 +201,15 @@ around fine-mapped trait variants in K562 and HepG2 cells. We used 125 of the 12
 deletion in the reference, two for having no unique match in GRCh38), 74,975 substitutions each measured in both cell
 types. The effect is the log$_2$ fold change of the substituted oligo minus that of the unmutated reference oligo in
 the same experiment, which a laboratory measuring a pilot panel would also build.
+\textbf{Kosicki et al.} \citep{kosicki2025mpra} measured synthetic transversions at every fourth base of 270-bp tiles
+by lentiviral MPRA in WTC11-derived, NGN2-induced excitatory neurons (ENCODE ENCSR548AQS). We used the 328
+forward-strand tiles with at least 30 measured substitutions (22,397 measurements), grouped into 159 regions of
+overlapping tiles; the effect is the activity of the mutated tile minus that of the reference tile. Neurons are barely
+profiled: four AlphaGenome and two Enformer tracks match.
 \textbf{Predictions.} We scored every variant by in-silico mutagenesis with AlphaGenome (1-Mb context, default
 distilled checkpoint) on all CAGE, DNase and ATAC tracks for human biosamples \citep{avsec2026alphagenome}, which derive
-from ENCODE and FANTOM5 \citep{encode2020expanded,fantom2014atlas}. For Section~\ref{sec:general} we also scored
-the 11 Kircher test regions and 40 randomly drawn Siraj loci with Enformer \citep{avsec2021enformer} on its 1,322
+from ENCODE and FANTOM5 \citep{encode2020expanded,fantom2014atlas}. We scored the neuron regions in the same way, and for
+Section~\ref{sec:general} the 11 Kircher test regions, 40 randomly drawn Siraj loci and the neuron regions with Enformer \citep{avsec2021enformer} on its 1,322
 human CAGE, DNase and ATAC tracks (196-kb context, one forward pass), using the same score: the change in log$_2$ of
 the summed signal over a 501-bp window centred on the variant.
 
@@ -222,7 +227,8 @@ For Kircher (version without the metadata prior): H1, the pilot panel beats rand
 mean by at least 0.03 with a positive difference in at least 7/11 regions. For Siraj (frozen \tp{}): P1,
 non-inferiority to the matched mean in the profiled scenario at $k=8$ (one-sided 95\% bootstrap lower bound above
 $-0.02$); P2, at most 15\% of loci worse by more than 0.05; P3, improvement over the all-track mean when unprofiled at
-$k=8$ of at least 0.03; P4, improvement over the related-cell mean when related-only at $k=16$. Analyses added later
+$k=8$ of at least 0.03; P4, improvement over the related-cell mean when related-only at $k=16$. A third, for the neurons (N1--N4: the
+analogues of P3, S1, P1--P2 and P4, all at $k=8$), was committed before any variant was scored. Analyses added later
 are labelled post hoc.
 \textbf{Training data, test sets and homology.} \tp{} trains no model; AlphaGenome is used frozen, and the only labels
 are the $k$ measured variants of the element being predicted. No measurement from another element and no evaluation
@@ -296,7 +302,7 @@ best single track chosen with all labels (a reference).}
 \label{fig:curve}
 \end{figure}
 
-\subsection{With matched tracks, \tp{} is non-inferior to them}
+\subsection{With informative matched tracks, \tp{} is non-inferior to them}
 
 A laboratory working in a profiled cell type would simply use the matched tracks, so the first requirement is not to
 do worse than them. On Siraj, with all tracks kept, eight measurements were non-inferior to the matched mean (P1:
@@ -410,9 +416,10 @@ model, not of cell type.
 \begin{table}[t]
 \centering
 % results/a1/enformer_siraj/siraj_decision.txt, results/a1/enformer_kircher/kircher_decision.txt;
+% neurons: results/a1/kosicki_{alphagenome,enformer}/decision.txt, levels.tsv;
 % AlphaGenome columns: results/a1/siraj_ref (same 40 loci) and proxy_select_v2/p0.95_fam (Kircher test)
 \caption{Frozen \tp{} on two models. Siraj: 40 random loci, both cell types averaged; Kircher: 11 test regions,
-unprofiled scenario. Differences in Spearman correlation on held-out variants; regions or loci $>0$ and one-sided $P$
+unprofiled scenario; neurons: 159 regions, all hypotheses at $k=8$ (Supplementary Table~S10). Differences in Spearman correlation on held-out variants; regions or loci $>0$ and one-sided $P$
 in brackets; $^a$unprofiled, $^b$related cells only. Kircher random-panel $P$: 0.002 (AlphaGenome), 0.001
 (Enformer). Both columns use the frozen method with the family prior; Table~\ref{tab:kircher} shows the
 pre-registered version.}
@@ -432,9 +439,31 @@ matched mean (absolute) & 0.473 & 0.404 \\
 random panel & $+0.090$ (9/11) & $+0.097$ (10/11) \\
 all-track mean & $+0.077$ (8/11) & $+0.109$ (8/11) \\
 \tp{} (absolute) & 0.373 & 0.324 \\
+\multicolumn{3}{@{}l}{\textit{Neurons, 159 regions, $k=8$}} \\
+matched mean & $-0.019$ & $-0.030$ \\
+\quad regions worse by $>0.05$ & 47/159 & 48/159 \\
+all-track mean$^a$ & $-0.014$ & $-0.035$ \\
+random panel$^a$ & $+0.009$ ($0.03$) & $+0.005$ ($0.17$) \\
+related mean$^b$ & $-0.015$ & $-0.021$ \\
+matched mean (absolute) & 0.073 & 0.070 \\
 \bottomrule
 \end{tabular}}
 \end{table}
+
+\subsection{A boundary: an assay that no track predicts}
+\label{sec:boundary}
+
+On the two main datasets the cell lines are profiled, so the unprofiled scenarios are simulated. As a cell type that
+the models barely profile, we pre-registered the neuron assay and analysed it with both models, changing no parameter.
+The main hypotheses did not hold (Table~\ref{tab:enformer}; Supplementary Table~S10). The absolute values show why:
+the matched tracks reached a Spearman correlation of only 0.07 with the measured effects, and the all-track mean
+0.04--0.05. With eight measurements, \tp{} was 0.02--0.03 below the matched mean, with about 30\% of regions worse by
+more than 0.05, and 0.01--0.04 below the all-track mean without matched tracks. The pilot panel still beat random
+panels (AlphaGenome $+0.009$, $P = 0.03$; Enformer $+0.005$, $P = 0.17$), but labels with almost no signal that any
+track shares move the posterior by noise. The best single track chosen with all labels reached 0.32, yet 0.30 in the
+least active quarter of tiles, where substitutions barely change activity (post hoc), so this value mostly reflects
+selection among a thousand tracks. When no track carries the assay's signal, a few measurements cannot find one, and
+the defaults were the better choice.
 
 \subsection{Worked example \todo{pending}}
 
@@ -449,7 +478,7 @@ held-out variants, compared with the all-track mean. Generated by \texttt{trackp
 tracks whose metadata match, measure about eight variants chosen to split the competing tracks, and let the
 measurements move the prediction only when they contradict the default. In two pre-registered tests this was
 non-inferior to the matched tracks when they existed and recovered 0.04--0.05 in Spearman correlation when they were
-missing or only approximate.
+missing or only approximate. In a third, on an assay that no track predicted, it did not help, which marks its limit.
 
 Three lessons appear to hold beyond this setting. First, which variants are measured matters as much as how they are
 modelled; random measurements made the same inference worse than not measuring. Second, re-fitting a default
@@ -457,20 +486,23 @@ predictor to a handful of labels is harmful, and a prior centred on the default 
 be an average: among a thousand correlated heads, the posterior-weighted prediction beat the single most probable
 track, and at \textit{HBG1} even the best single track chosen with all labels. These lessons should apply to any model with
 many output heads, because \tp{} uses only the matrix of predictions and the track metadata; on Enformer all
-pre-registered hypotheses held without changing a parameter.
+pre-registered hypotheses for the two main datasets held without changing a parameter.
 
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome, so on Siraj the unprofiled scenarios are simulated by
-hiding tracks; truly unprofiled cell lines appear only in a few Kircher elements, and the Enformer test addresses a
-change of model, not of cell type. The evaluation is retrospective. Non-inferiority on average does not exclude
+hiding tracks. The one barely profiled cell type we tested in a pre-registered way, induced neurons, came with an
+assay that the tracks did not predict, so the case of an unprofiled cell type with a predictable assay rests on a few
+Kircher elements. The evaluation is retrospective. Non-inferiority on average does not exclude
 losses at single loci (3/125 worse by more than 0.05, the largest $-0.26$). Absolute
 correlations are moderate (0.44--0.49 on Siraj), and gains are small where the assay has few significant variants.
-\tp{} helps only if at least one track, or a mixture of tracks, is roughly proportional to the assay.
+\tp{} helps only if at least one track, or a mixture of tracks, is roughly proportional to the assay; on the neuron
+assay none was, and \tp{} lost 0.01--0.04 to the defaults.
 
 %===============================================================================
 \section{Conclusion}
 
 A handful of well-chosen measurements is enough to decide which of a thousand foundation-model tracks to use for a
-cell type, as long as the decision starts from the metadata default and the measurements are chosen to discriminate.
+cell type, as long as some track carries the assay's signal, the decision starts from the metadata default and the measurements
+are chosen to discriminate.
 \tp{} makes this a two-command step: one to choose the panel and one to turn its measurements into predictions.
 
 \section*{Acknowledgements}
@@ -491,7 +523,8 @@ None declared.
 \section*{Data availability}
 Kircher et al. data are available from the original publication \citep{kircher2019saturation}
 \todo{database accession}. Siraj et al. saturation mutagenesis data are available from Zenodo under CC-BY-NC
-\citep{siraj2025data}; they are not redistributed. AlphaGenome predictions can be regenerated with the public API and
+\citep{siraj2025data}; they are not redistributed. The neuron MPRA data are ENCODE experiment ENCSR548AQS (files
+ENCFF958ZLG and ENCFF752NFF, CC BY 4.0) \citep{kosicki2025mpra}. AlphaGenome predictions can be regenerated with the public API and
 the scripts in the repository. Pre-registrations, code and all derived tables are at
 \url{https://github.com/ydvislab/AuraGenome-V}.
 
