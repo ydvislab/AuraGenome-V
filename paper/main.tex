@@ -79,16 +79,17 @@ effects on our development elements, and the choice changed biological conclusio
 K562 cells, replacing K562 tracks by HepG2 tracks lowered the fraction of significant variants with the correct sign
 from 0.96 to 0.69--0.85. Many cell types used in the laboratory, including patient-derived lines, are not profiled,
 and then there is no name to match. Adapting the model to a new cell type is possible but requires genome-wide
-profiles of that cell type \todo{cite Scooby-2 and related cell-type adaptation work after checking the references}.
+profiles of that cell type \citep{hingerl2025scooby}.
 
 What a laboratory usually can do is measure a few variants, for example in a pilot reporter assay of 8--16 constructs
 before a larger study. This turns the choice of tracks into a label-efficient model selection problem: decide which
 variants to measure so that the measurements identify the tracks, or the mixture of tracks, that best predict the
-rest. Active model selection methods address this for classifiers \citep{karimi2021modelpicker,okanovic2025modelselector,
+rest \citep{cohn1996active}. Active model selection methods address this for classifiers \citep{karimi2021modelpicker,okanovic2025modelselector,
 kay2025coda}. Two features of foundation-model tracks break their assumptions. The tracks are regression outputs on
 arbitrary scales, so each must be calibrated to the assay with an unknown slope and offset that a few labels cannot pin
-down. And they are a thousand strongly correlated heads of one network, so a single best track is often not
-identifiable from a few labels \todo{cite Kuboyama 2026, arXiv:2609.18622, after verification}. The problem is
+down. And they are a thousand strongly correlated heads of one network, so after a few labels substantial uncertainty
+remains over which track is best, and averaging over tracks is safer than choosing one
+\citep{hoeting1999bma,kuboyama2026labels}. The problem is
 not specific to AlphaGenome: any model with many output heads and a user with a few labels faces it.
 
 Here we present \tp{}, a tool that turns a few measured variants into a decision about which tracks to use.
@@ -223,11 +224,14 @@ are labelled post hoc.
 are the $k$ measured variants of the element being predicted. No measurement from another element and no evaluation
 variant enters the inference. The two test sets (11 Kircher regions, 125 Siraj loci) were fixed before analysis and do
 not overlap the development regions. AlphaGenome's training tracks do cover these regions, so we repeated the tests
-with checkpoints that held out each locus's genomic fold \todo{state how homologous sequence is assigned to folds in
-the AlphaGenome/Borzoi split; required by the journal}. Leave-one-out appears only inside the regression baselines, to
+with, for each locus, the checkpoint whose held-out folds contain every training window overlapping the locus
+(\texttt{alphagenome.data.fold\_intervals}). These folds are the Borzoi partitions, which assign genome fragments to
+eight folds at random while keeping human and mouse orthologous regions together \citep{linder2025borzoi}. Homologous
+sequence within the human genome is not explicitly grouped, so the held-out-fold results reduce, rather than remove,
+training exposure. Leave-one-out appears only inside the regression baselines, to
 choose a penalty.
 \textbf{Baselines.} Label-free: the all-track mean, the matched-track mean and the related-cell mean. Other panels:
-random, largest predicted effect, and largest unweighted disagreement. Few-label regression: ridge and LASSO
+random, largest predicted effect, and largest unweighted disagreement. Few-label regression: ridge \citep{hoerl1970ridge} and LASSO
 \citep{tibshirani1996lasso} over all tracks; an affine re-fit of the matched mean (\texttt{matched\_cal}); and a
 ridge fit on residuals of the calibrated matched mean (\texttt{meta\_ridge}). Active model selection: CODA- and
 MODEL SELECTOR-style selection \citep{kay2025coda,okanovic2025modelselector} with our calibrated likelihood. The best
@@ -360,7 +364,8 @@ metadata prior when matched tracks exist, and averaging over calibrated tracks i
 
 \subsection{Robustness}
 
-\textbf{Training exposure.} The distilled checkpoint was trained on every genomic region. We repeated both tests with,
+\textbf{Training exposure.} The default checkpoint was distilled from teachers trained on all training folds, so it has seen tracks over
+every tested locus \citep{avsec2026alphagenome}. We repeated both tests with,
 for each locus, the AlphaGenome checkpoint that held out its genomic fold, using reading rules committed before the
 runs. Absolute accuracies fell by 0.035--0.07, for the matched tracks most (Siraj: 0.474 to 0.402). All four Siraj
 hypotheses still held, with larger effects (P1 $+0.024$, P3 $+0.050$, P4 $+0.053$; Supplementary Table~S3). On the 11
