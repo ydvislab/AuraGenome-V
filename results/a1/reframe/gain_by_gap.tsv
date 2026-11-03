@@ -1,0 +1,13 @@
+scenario	quartile	loci	gap	gain_k8	share_closed	worse_by_005
+all	1	32	0.0094	0.0	0.0032	0
+all	2	31	0.0301	-0.0078	-0.2603	3
+all	3	31	0.0548	0.0044	0.081	0
+all	4	31	0.1546	0.0418	0.2701	0
+hide_exact	1	32	0.0567	0.0038	0.067	1
+hide_exact	2	31	0.0852	0.0124	0.1458	0
+hide_exact	3	31	0.108	0.0128	0.1184	0
+hide_exact	4	31	0.1838	0.0532	0.2897	1
+hide_matched	1	32	0.0526	0.0039	0.0746	2
+hide_matched	2	31	0.0902	0.0172	0.1912	1
+hide_matched	3	31	0.1211	0.0344	0.284	1
+hide_matched	4	31	0.2443	0.1326	0.5429	2
