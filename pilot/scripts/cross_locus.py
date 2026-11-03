@@ -59,8 +59,25 @@ def panel_result(tp, y, pool, out, ks):
     return rho, w
 
 
+def biosample(h):
+    """'ATAC|CL:0000084 ATAC-seq|.' -> 'CL:0000084'; the anchor is its own group."""
+    return h.split("|")[1].split(" ")[0] if "|" in h else h
+
+
+def pooled(tp, ws, level):
+    """Average posterior of other loci, aligned to the target's hypotheses. level 'biosample': each biosample's
+    total weight, spread over the target's tracks of that biosample in proportion to the target's prior."""
+    if level == "track":
+        return sum(w.reindex(tp.hypotheses, fill_value=0.0).to_numpy() for w in ws) / len(ws)
+    groups = pd.Index([biosample(h) for h in tp.hypotheses])
+    tot = sum(w.groupby([biosample(h) for h in w.index]).sum() for w in ws) / len(ws)
+    base = pd.Series(np.exp(tp.log_prior), index=tp.hypotheses)
+    share = base / base.groupby(groups).transform("sum").to_numpy()
+    return (share.to_numpy() * tot.reindex(groups, fill_value=0.0).to_numpy())
+
+
 def job(args):
-    cell, scen, stage, lams, ms, reps = args
+    cell, scen, stage, lams, ms, reps, level = args
     t0 = time.time()
     data = [build(l, cell, scen) for l in LOCI]
     rows, post = [], {}
@@ -80,7 +97,7 @@ def job(args):
             pool, out = split(len(y), rep)
             perm = np.random.default_rng([1, rep, i]).permutation(others)
             for m in ms:
-                q = sum(post[j, rep].reindex(tp.hypotheses, fill_value=0.0).to_numpy() for j in perm[:m]) / m
+                q = pooled(tp, [post[j, rep] for j in perm[:m]], level)
                 for lam in lams:
                     p = (1 - lam) * base + lam * q
                     tp.log_prior = np.log(p / p.sum())
@@ -89,9 +106,11 @@ def job(args):
                         rows.append((LOCI[i], cell, scen, rep, "cross", lam, m, k, r))
         tp.log_prior = np.log(base)
     df = pd.DataFrame(rows, columns=["locus", "cell", "scenario", "rep", "method", "lam", "m", "k", "rho"])
-    os.makedirs(os.path.join(OUT, stage), exist_ok=True)
-    df.to_csv(os.path.join(OUT, stage, f"{cell}_{scen}.tsv.gz"), sep="\t", index=False, float_format="%.6g")
-    return f"{cell} {scen} {stage}: {len(df)} rows, {time.time() - t0:.0f}s"
+    df["level"] = level
+    sub = stage if level == "track" else f"{stage}_{level}"
+    os.makedirs(os.path.join(OUT, sub), exist_ok=True)
+    df.to_csv(os.path.join(OUT, sub, f"{cell}_{scen}.tsv.gz"), sep="\t", index=False, float_format="%.6g")
+    return f"{cell} {scen} {sub}: {len(df)} rows, {time.time() - t0:.0f}s"
 
 
 def read(stage):
@@ -166,13 +185,16 @@ if __name__ == "__main__":
     ap.add_argument("--lam", type=float, default=None)
     ap.add_argument("--reps", type=int, default=20)
     ap.add_argument("--jobs", type=int, default=6)
+    ap.add_argument("--level", choices=["track", "biosample"], default="track")
+    ap.add_argument("--scenarios", default=",".join(SCENS))
     a = ap.parse_args()
     if a.cmd == "run":
         lams = [0.25, 0.5, 0.75, 0.9] if a.stage == "dev" else [a.lam]
         ms = [10] if a.stage == "dev" else [1, 3, 10, 30]
         assert a.stage == "dev" or a.lam is not None, "--lam is required for the test stage"
         with Pool(a.jobs) as pool:
-            for msg in pool.imap_unordered(job, [(c, s, a.stage, lams, ms, a.reps) for c in CELLS for s in SCENS]):
+            for msg in pool.imap_unordered(job, [(c, s, a.stage, lams, ms, a.reps, a.level) for c in CELLS
+                                                for s in a.scenarios.split(",")]):
                 print(msg, flush=True)
     elif a.cmd == "choose":
         choose()
