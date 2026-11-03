@@ -58,6 +58,10 @@ class Fit:
         return pd.Series((self.intercept + self._Z * self.slope) @ self.weights, index=self._variants,
                          name="prediction")
 
+    def predict_no_offset(self):
+        """Posterior-average prediction without the fitted intercepts; use it to call effect directions."""
+        return pd.Series((self._Z * self.slope) @ self.weights, index=self._variants, name="prediction_no_offset")
+
     def predict_map(self):
         """Prediction of the single most probable hypothesis, calibrated."""
         t = int(np.argmax(self.log_posterior))

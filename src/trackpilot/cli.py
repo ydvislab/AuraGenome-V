@@ -60,7 +60,7 @@ def predict(a):
     y = read_labels(a.labels, a.column)
     y = y[y.index.isin(tp.variants)]
     fit = tp.fit(y)
-    out = pd.concat([fit.predict(), fit.predict_map(), tp.prior_prediction(), y.rename("measured")], axis=1)
+    out = pd.concat([fit.predict(), fit.predict_no_offset(), fit.predict_map(), tp.prior_prediction(), y.rename("measured")], axis=1)
     out.index.name = "variant_id"
     out.to_csv(a.out or sys.stdout, sep="\t", float_format="%.6g")
     post = posterior_table(tp, fit, meta)

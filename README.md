@@ -98,7 +98,8 @@ metadata if the model profiles it. It then
 1. **`trackpilot suggest`** picks a pilot panel: the few variants (8 in the paper) whose measurement best tells the
    tracks apart. The whole panel is fixed in one round, so it can be ordered at once.
 2. **`trackpilot predict`** takes your measurements of the panel and returns the posterior over tracks, a calibrated
-   prediction for every unmeasured variant (the posterior average), and an HTML report.
+   prediction for every unmeasured variant (the posterior average), the same prediction without the fitted offsets
+   (`prediction_no_offset`, for calling effect directions), and an HTML report.
 
 ```bash
 pip install -e .                       # from a clone; PyPI release planned

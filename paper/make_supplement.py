@@ -54,7 +54,7 @@ rows = []
 for key in ref:
     def cell(n):
         return f"{f(float(n[0]))} ({f(float(n[1]))})" if key[:2] == "P1" else \
-            f"{n[1]} ({float(n[-1]):.3f})" if key[:2] == "P2" else f"{f(float(n[0]))} ($P$={float(n[-1]):.0e})"
+            f"{n[1]} ({float(n[-2]):.3f})" if key[:2] == "P2" else f"{f(float(n[0]))} ($P$={float(n[-1]):.0e})"
     rows.append([key, what[key[:2]], cell(ref[key][0]), cell(pub[key][0])])
 s_ref, s_pub = tsv("siraj_ref/siraj_secondary.tsv"), tsv("siraj_secondary.tsv")
 for _, r in s_ref.iterrows():

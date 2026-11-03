@@ -72,7 +72,7 @@ them \citep{avsec2026alphagenome}. On saturation mutagenesis benchmarks such as 
 \citep{kircher2019saturation,shigaki2019cagi5} it is among the best available predictors. Its output, however, is not
 one prediction per variant but about a thousand, one per track.
 
-A laboratory that studies variants in a particular cell type therefore has to choose which tracks to trust. The usual
+A laboratory that studies variants in a particular cell type therefore has to choose which tracks to use. The usual
 choice is the tracks whose biosample name matches the cell line. We found this unreliable. Across the 1,018 CAGE,
 DNase and ATAC tracks of AlphaGenome, the name-matched track ranked between first and 27th by agreement with measured
 effects on our development elements, and the choice changed biological conclusions: at the \textit{PKLR} promoter in
@@ -87,9 +87,8 @@ variants to measure so that the measurements identify the tracks, or the mixture
 rest \citep{cohn1996active}. Active model selection methods address this for classifiers \citep{karimi2021modelpicker,okanovic2025modelselector,
 kay2025coda}. Two features of foundation-model tracks break their assumptions. The tracks are regression outputs on
 arbitrary scales, so each must be calibrated to the assay with an unknown slope and offset that a few labels cannot pin
-down. And they are a thousand strongly correlated heads of one network, so after a few labels substantial uncertainty
-remains over which track is best, and averaging over tracks is safer than choosing one
-\citep{hoeting1999bma,kuboyama2026labels}. The problem is
+down. And they are a thousand strongly correlated heads of one network, so a few labels often cannot settle which one is best \citep{kuboyama2026labels}, and averaging over
+the plausible tracks accounts for this uncertainty \citep{hoeting1999bma}. The problem is
 not specific to AlphaGenome: any model with many output heads and a user with a few labels faces it.
 
 Here we present \tp{}, a tool that turns a few measured variants into a decision about which tracks to use.
@@ -131,7 +130,8 @@ the tracks disagree, updates the posterior with their measured effects and predi
 
 A regulatory element is studied in cell type $c$. A foundation model gives a predicted effect $x_{t,j}$ for each
 candidate variant $j$ on each of $T$ tracks ($T = 1{,}018$ here). The laboratory can measure the effects $y_j$ of $k$
-variants, chosen from a pool of variants that can be built. We want a prediction $\hat y_j$ for every other variant,
+variants, chosen from a pool of variants that can be built, together with the unmutated reference sequence as a
+control, so that each effect is measured relative to the reference. We want a prediction $\hat y_j$ for every other variant,
 and the panel $S$, $|S| = k$, that makes these predictions as accurate as possible. We measure accuracy by the Spearman
 correlation between $\hat y$ and $y$ on variants outside the pool.
 
@@ -160,9 +160,10 @@ When the model profiles the cell type, the mean of the metadata-matched tracks i
 one extra hypothesis that holds prior mass $\pi = 0.95$, with a slope prior centred on a positive value, $b \sim
 N(\sqrt{\beta}\,s,\ (\beta/4)\,s^2)$, so that a negative slope has prior probability of about 2\%. Single tracks share
 the remaining mass. Tracks whose predictions correlate at $r \ge 0.9$ form a family (average linkage, no labels used),
-and the prior is split equally between families and then within them, so a family of near-duplicates counts as one
-track. Without matched tracks there is no default and all mass goes to single tracks. $\pi$ was chosen on development
-elements by a rule written in advance and then frozen.
+and the prior is split equally between families and then within them, so a family of near-duplicates shares the
+prior mass of one track. Without matched tracks there is no default and all mass goes to single tracks. $\pi$ was chosen on the Kircher development
+elements and frozen before the Siraj test; unlike the pre-registered tests, the rule for this choice was not committed
+before the development runs.
 
 \subsection{Choosing the pilot panel}
 
@@ -177,13 +178,16 @@ measurement, by replacing each chosen variant's label with the current posterior
 \subsection{Implementation}
 
 \tp{} is a Python package with a command-line interface \todo{finalise once the package is released; keep in step
-with the README}. Its input is a table of predicted effects (variants $\times$ tracks) with track metadata, so it is
+with the README}. The optional AlphaGenome module calls the same API as our scoring scripts but has not yet been run
+from the package with a live key. Its input is a table of predicted effects (variants $\times$ tracks) with track metadata, so it is
 not tied to one model; an optional module scores the variants of a region with AlphaGenome using the user's own API
 key. \texttt{trackpilot suggest} returns a pilot panel of $k$ variants from a pool; \texttt{trackpilot predict} takes
 the measured effects and returns the posterior over tracks, the predictions for all variants, and a report.
 For a 1,353-variant element with 1,018 tracks, reading the predictions, choosing a panel and computing the
 predictions take under five seconds on a laptop (Apple M2 Pro).
-The package includes tests that reproduce the pre-registered results in this paper.
+A reproduction script recomputes, with the package, every frozen \tp{} result for the first repeat (22 Kircher
+experiments, 234 numbers; 125 Siraj loci in two cell types, 4,500 numbers) with no difference; unit tests check
+selected loci and repeats. The pre-registered Kircher version (uniform prior) is not covered.
 
 \subsection{Data and predictions}
 
@@ -295,14 +299,15 @@ A laboratory working in a profiled cell type would simply use the matched tracks
 do worse than them. On Siraj, with all tracks kept, eight measurements were non-inferior to the matched mean (P1:
 $+0.010$, one-sided lower bound $+0.005$ against a margin of $-0.02$), and only 3/125 loci were worse by more than 0.05
 (P2: upper bound 6.1\% against 15\%). At $k=16$ the difference was $+0.019$ with one locus harmed. All four
-pre-registered hypotheses held, and the pre-registered safety-net claim is therefore supported.
+pre-registered hypotheses held. Non-inferiority holds on average, not at every locus: the largest losses were $-0.26$
+(one HepG2 locus) and $-0.15$ (one K562 locus).
 
-The metadata prior is what makes this safe. Without it, \tp{} was 0.029 below the matched mean on the Kircher test
+The metadata prior is what keeps \tp{} level with the matched tracks. Without it, \tp{} was 0.029 below the matched mean on the Kircher test
 regions at $k=8$, with 7/11 regions harmed (post hoc): it helped where the matched tracks were poor (\textit{LDLR}:
 matched mean 0.24, \tp{} 0.51) but lost where they were good (\textit{SORT1}: 0.65 against 0.48). With the prior, chosen on development
 elements before these runs, it was level with the matched mean ($+0.001$, one region harmed; $+0.018$ and none harmed
-at $k=16$). The obvious shortcut, re-fitting the matched mean to the same few labels, lowered accuracy at 124/125 Siraj
-loci ($-0.082$ on random panels, $-0.010$ on pilot panels), because the fitted slope is poorly determined and can flip
+at $k=16$). The obvious shortcut, re-fitting the matched mean to the same few labels, lowered accuracy on Siraj
+($-0.082$ on random panels, $-0.010$ on pilot panels; better at only 1/125 loci with either panel), because the fitted slope is poorly determined and can flip
 sign. On the same panel, \tp{} was slightly ahead of \texttt{meta\_ridge} on Siraj ($+0.007$, 97/125 loci) and tied
 with it on Kircher.
 
@@ -375,8 +380,9 @@ over the all-track mean shrank ($+0.054$, $P = 0.062$).
 each pre-registered contrast by at most 0.002 (Supplementary Table~S1).
 \textbf{Direction of effects.} On Siraj, the fraction of significant held-out variants with the correct predicted sign
 agreed with the rank results (Supplementary Table~S2). On Kircher, the fitted offsets shifted the zero point and
-\tp{} called fewer signs correctly than the matched mean ($-0.133$); without the offsets it was level in 9/11 regions.
-\tp{} therefore reports offset-free predictions for calling directions.
+\tp{} called fewer signs correctly than the matched mean ($-0.133$); without the offsets the deficit shrank to $-0.071$
+(5 regions better, 4 worse; 95\% interval $-0.21$ to $+0.01$). \tp{} therefore also reports offset-free predictions
+for calling directions.
 
 \subsection{A second foundation model}
 \label{sec:general}
@@ -443,8 +449,9 @@ many output heads, because \tp{} uses only the matrix of predictions and the tra
 pre-registered hypotheses held without changing a parameter.
 
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome, so on Siraj the unprofiled scenarios are simulated by
-hiding tracks; truly unprofiled cell lines appear only in a few Kircher elements \todo{update after Section 3.6}. The
-evaluation is retrospective. Non-inferiority on average does not exclude losses at single loci (3/125). Absolute
+hiding tracks; truly unprofiled cell lines appear only in a few Kircher elements, and the Enformer test addresses a
+change of model, not of cell type. The evaluation is retrospective. Non-inferiority on average does not exclude
+losses at single loci (3/125 worse by more than 0.05, the largest $-0.26$). Absolute
 correlations are moderate (0.44--0.49 on Siraj), and gains are small where the assay has few significant variants.
 \tp{} helps only if at least one track, or a mixture of tracks, is roughly proportional to the assay.
 

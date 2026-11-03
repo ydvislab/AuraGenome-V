@@ -104,6 +104,7 @@ def test_cli(tmp_path):
     main(["predict", PRED, str(lab), "--anchor", "lung", "-o", str(out), "--posterior", str(post), "--report", str(rep)])
     p = pd.read_csv(out, sep="\t")
     assert len(p) == 600 and p.measured.notna().sum() == 8
+    assert "prediction_no_offset" in p
     assert pd.read_csv(post, sep="\t").weight.sum() == pytest.approx(1.0, abs=1e-4)
     assert "TrackPilot report" in rep.read_text()
     # suggest more after a first round

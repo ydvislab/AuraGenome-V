@@ -43,7 +43,7 @@ posterior average can beat every single track).
 With --common-eval, every strategy and reference is scored on the variants outside the repeat's pool.
 Method v2 (docs/internal/method_v2_zh.md): --anchor-prior adds the mean of the matched tracks as a hypothesis holding
 that prior mass, with its slope prior centred on +sqrt(beta)*s; --family-prior splits the tracks' prior equally between
-prediction clusters (no labels used; duplicating a track changes nothing); --controls adds same-budget metadata
+prediction clusters (no labels used; near-duplicate tracks share one family's prior mass); --controls adds same-budget metadata
 controls (+matched_cal, +meta_ridge) on the random and disc panels.
 With --comparators (post hoc, docs/internal/acquisition_comparators_zh.md), on the first --comparator-repeats repeats:
   disc_static   one round: the k variants with the largest prior-weighted disagreement (disc's first score)
