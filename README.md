@@ -124,6 +124,18 @@ trackpilot predict example_predictions.tsv.gz measured.tsv -o predictions.tsv --
 - **Labels** (`predict`): a TSV/CSV with `variant_id` and `effect` (e.g. log2 fold change, alt vs ref).
 - **Python**: `TrackPilot(X, anchor_mask).suggest(8)`, `.fit(labels).predict()`; see `src/trackpilot/core.py`.
 
+**How many variants to measure (`-k`).** The panel size is yours to set; 8 is the default and the size the paper's
+pre-registered tests used. TrackPilot still weighs every track: `k` is the number of measured variants, not of tracks.
+- Each track hypothesis spends two degrees of freedom on its calibration (slope and offset), so 2–4 labels mostly fix
+  the calibration. On Siraj, 2 measurements were below the label-free default in every scenario; 4 beat it only when
+  matched tracks were hidden; 8 beat it in every scenario.
+- The applicability check permutes the `k` labels, which have only `k!` orderings (24 for `k = 4`), so it needs about
+  8 labels to reach small P values.
+- Accuracy kept rising up to 16 labels, most in cell types far from every profiled one (Kircher mouse-cell regions:
+  0.243 at `k = 8`, 0.265 at `k = 16`, all-track mean 0.246).
+- Measure in rounds: `trackpilot suggest PREDICTIONS -k 8 --measured first_round.tsv -o next.tsv` proposes 8 more
+  variants given the labels you already have, and `trackpilot predict` accepts any number of labels.
+
 The method's parameters are those frozen before the paper's tests (α = 0.1, β = 0.5, anchor prior 0.95, track
 families at correlation 0.9). On a laptop (Apple M2 Pro), a region of 1,353 variants × 1,018 tracks takes about 1 s
 to set up, 0.1 s per panel and 0.01 s per prediction.
