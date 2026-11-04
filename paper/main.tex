@@ -192,8 +192,7 @@ with the README}. Its input is a table of predicted effects (variants $\times$ t
 not tied to one model; an optional module scores a region with AlphaGenome using the user's own API key (not yet run
 from the package with a live key). \texttt{trackpilot suggest} returns a pilot panel of $k$ variants from a pool;
 \texttt{trackpilot predict} takes the measured effects and returns the posterior over tracks, predictions for all
-variants, the prediction after the applicability check and a report. For a 1,353-variant element with 1,018 tracks the whole run takes under five seconds on a laptop
-(Apple M2 Pro). A reproduction script recomputes with the package every frozen \tp{} result for the first repeat (22
+variants, the prediction after the applicability check and a report. A 1,353-variant element with 1,018 tracks takes under five seconds on a laptop. A reproduction script recomputes with the package every frozen \tp{} result for the first repeat (22
 Kircher experiments, 234 numbers; 125 Siraj loci in two cell types, 4,500 numbers) with no difference; the
 pre-registered Kircher version (uniform prior) is not covered.
 
@@ -263,7 +262,7 @@ single track chosen with all labels is reported as a reference.
 
 With the element's own and related cell types hidden, the label-free alternative is the mean of all tracks.
 On the 11 Kircher test regions, eight pilot measurements raised the mean Spearman correlation from 0.296 (all-track
-mean) to 0.370, while eight random measurements gave 0.286 (Table~\ref{tab:kircher}, Fig.~\ref{fig:curve}). Both
+mean) to 0.370, while eight random measurements gave 0.286 (Table~\ref{tab:kircher}; Supplementary Fig.~S1). Both
 pre-registered hypotheses held: the pilot panel beat random panels by 0.084 (9/11 regions, $P = 0.0024$) and the
 all-track mean by 0.074 (8/11 regions). Gains were largest where the tracks disagreed and the all-track mean was far
 from the best track, including \textit{IRF4} in SK-MEL-28, a cell line the model does not profile. They were absent
@@ -302,14 +301,6 @@ all labels & best single track (reference) & 0.454 & --- & --- \\
 \end{tabular}
 \end{table*}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/fig5_test_learning_curve_common_eval.png}
-\caption{Kircher test set, unprofiled scenario: Spearman correlation on held-out variants against the number of
-measured variants $k$. All panels use the same track posterior. Dashed lines: the label-free all-track mean and the
-best single track chosen with all labels (a reference).}
-\label{fig:curve}
-\end{figure}
 
 \subsection{With informative matched tracks, \tp{} is non-inferior to them}
 
@@ -376,9 +367,8 @@ sixteen labels.
 \subsection{Comparison with regression and active model selection}
 
 With the same eight labels, regression over all tracks was much worse than \tp{} (Table~\ref{tab:kircher}), and on
-the pilot panel itself \tp{}'s inference still beat LASSO and ridge by 0.023--0.048. Active model selection methods
-for classifiers keep a posterior over which candidate is best and report one candidate. We adapted CODA and MODEL
-SELECTOR \citep{kay2025coda,okanovic2025modelselector}, gave them our calibrated likelihood, and fixed CODA's prior
+the pilot panel itself \tp{}'s inference still beat LASSO and ridge by 0.023--0.048. We adapted the active model
+selection methods CODA and MODEL SELECTOR \citep{kay2025coda,okanovic2025modelselector}, gave them our calibrated likelihood, and fixed CODA's prior
 weight on development elements (post hoc; Supplementary Table~S5). \tp{} beat the CODA-style selected track by 0.075
 on Siraj with matched tracks kept (111/125 loci), by 0.029--0.034 without them, and by 0.051--0.082 on Kircher.
 Reporting the baseline's posterior average instead of its single track recovered 0.016--0.026, and with matched
@@ -405,8 +395,7 @@ for calling directions.
 the prior of a new locus mixed the frozen prior with the mean posterior of ten other loci after their own eight-variant
 panels (weight 0.75, chosen on 40 development loci). On 85 test loci with the cell type unprofiled, this added 0.012
 at eight measurements (65/85 loci, $P = 4\times10^{-8}$), below the pre-registered 0.02, and 0.022 at four; with
-matched tracks it stayed non-inferior ($+0.014$, 3/85 loci harmed; Supplementary Table~S9). Sharing helps consistently
-but modestly.
+matched tracks it stayed non-inferior ($+0.014$, 3/85 loci harmed; Supplementary Table~S9).
 
 \subsection{A second foundation model}
 \label{sec:general}
@@ -470,11 +459,23 @@ intervened in 5--8\% of runs and kept the gains: $+0.056$ over the all-track mea
 over the matched mean with them (A2; Supplementary Table~S11). The overall neuron results had been seen before the
 check was designed, so A1 is weaker evidence than the other pre-registered tests.
 
-\subsection{Worked example \todo{pending}}
+\subsection{Worked example}
 
-\todo{Figure: \tp{} output for one locus, e.g. \textit{IRF4} in SK-MEL-28: (a) the suggested panel on the element;
-(b) the posterior over track families after 0, 4 and 8 measurements; (c) predicted against measured effects for the
-held-out variants, compared with the all-track mean. Generated by \texttt{trackpilot predict}.}
+Figure~\ref{fig:example} shows one run on the \textit{IRF4} enhancer in SK-MEL-28 melanoma cells, with the melanocyte
+and related tracks hidden. The eight pilot variants spread over the element and include its strongest losses of
+activity. After eight measurements the posterior favoured DNase tracks of neural crest cells, from which melanocytes
+derive, but no family held more than 0.09 of it; the posterior-average prediction reached $\rho = 0.59$ on the held-out
+variants, against 0.39 for the all-track mean. The applicability check passed ($P = 0.09$).
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_worked_example.pdf}
+\caption{Worked example: \textit{IRF4} enhancer in SK-MEL-28, melanocyte and related tracks hidden, AlphaGenome, one
+repeat. (a) Measured effects; pilot panel in orange, numbered in order. (b) Posterior weight of the four leading
+track families after 0, 4 and 8 measurements (further biosamples in brackets). (c) Held-out variants against the
+posterior-average prediction.}
+\label{fig:example}
+\end{figure*}
 
 %===============================================================================
 \section{Discussion}

@@ -3,9 +3,10 @@
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{amsmath}
+\usepackage{graphicx}
 \setlength{\LTcapwidth}{\textwidth}
 \renewcommand{\thetable}{S\arabic{table}}
-\title{Supplementary Tables\\[2pt]\large Label-efficient choice of proxy tracks for variant-effect prediction}
+\title{Supplementary Figure and Tables\\[2pt]\large Label-efficient choice of proxy tracks for variant-effect prediction}
 \date{}
 \begin{document}
 \maketitle
@@ -13,6 +14,15 @@
 \texttt{results/a1} in the code repository. Spearman correlations are between predicted and measured effects of
 held-out variants; differences are paired within a unit (Kircher genomic region, or Siraj locus with its two cell
 types averaged). Siraj-derived tables are released under CC-BY-NC 4.0. Table~S6 has two parts (S6a, S6b).
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/fig5_test_learning_curve_common_eval.png}
+\renewcommand{\thefigure}{S1}
+\caption{Kircher test set, unprofiled scenario: Spearman correlation on held-out variants against the number of
+measured variants $k$. All panels use the same track posterior. Dashed lines: the label-free all-track mean and the
+best single track chosen with all labels (a reference).}
+\end{figure}
 
 \input{supp_tables}
 \end{document}

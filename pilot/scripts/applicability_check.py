@@ -7,6 +7,7 @@ usage (from the repository root, package installed):
   python pilot/scripts/applicability_check.py choose               # p* chosen on the development units
   python pilot/scripts/applicability_check.py run --stage test     # test units (only after p* is committed)
   python pilot/scripts/applicability_check.py evaluate --pstar P   # A1, A2 and secondary results
+  python pilot/scripts/applicability_check.py enformer --pstar P   # secondary: neuron test regions, Enformer
 Output: pilot/results/applicability/<stage>.tsv.gz, results/a1/applicability/*.
 """
 import os, sys, glob, argparse
@@ -31,27 +32,28 @@ def kircher_region(e):
     return e.split(".")[0].split("-flip")[0] if not e.startswith("TERT") else "TERT"
 
 
-def units():
-    """(dataset, element, unit, stage, variants path, prediction dir) for every element."""
+def units(neuron_model="alphagenome"):
+    """(dataset, element, unit, stage, variants path, prediction dir, version) for every element."""
     out = []
     for f in sorted(glob.glob(os.path.join(ROOT, "results/proxy_select_v2/p0.95_fam/*"))):
         e = os.path.basename(f)
         out.append(("kircher", e, kircher_region(e), "dev" if e in KIRCHER_DEV else "test",
-                    "data/variants_grch38.tsv", "predictions/alphagenome_all"))
+                    "data/variants_grch38.tsv", "predictions/alphagenome_all", "ALL_FOLDS"))
     loci = sorted(os.path.basename(os.path.dirname(f))
                   for f in glob.glob(os.path.join(ROOT, SIRAJ["runs"].format(locus="*"))))
     dev = set(np.random.default_rng(2611).choice(loci, 40, replace=False))
     for locus in loci:
         for cell in ["K562", "HEPG2"]:
             out.append(("siraj", f"{locus}.{cell}", locus, "dev" if locus in dev else "test", SIRAJ["variants"],
-                        SIRAJ["pred_dir"]))
-    v = pd.read_csv(os.path.join(ROOT, "data/kosicki/proxy_variants_alphagenome.tsv"), sep="\t",
+                        SIRAJ["pred_dir"], "ALL_FOLDS"))
+    nv = f"data/kosicki/proxy_variants_{neuron_model}.tsv"
+    v = pd.read_csv(os.path.join(ROOT, nv), sep="\t",
                     usecols=["element", "pred_element"]).drop_duplicates()
     regions = sorted(v.pred_element.unique())
     dev = set(np.random.default_rng(2612).choice(regions, 50, replace=False))
     for e, r in v.itertuples(index=False):
-        out.append(("neuron", e, r, "dev" if r in dev else "test", "data/kosicki/proxy_variants_alphagenome.tsv",
-                    "predictions/kosicki_alphagenome"))
+        out.append(("neuron", e, r, "dev" if r in dev else "test", nv, f"predictions/kosicki_{neuron_model}",
+                    "ALL_FOLDS" if neuron_model == "alphagenome" else "ENFORMER"))
     return out
 
 
@@ -64,8 +66,8 @@ def check(tp, rows, ys, rep):
 
 
 def job(u):
-    dataset, element, unit, stage, vpath, pdir = u
-    X, y, matched, related = load(element, vpath, pdir)
+    dataset, element, unit, stage, vpath, pdir, version = u
+    X, y, matched, related = load(element, vpath, pdir, version)
     n, rows = len(y), []
     for scen, tp in scenarios(X, matched, related).items():
         if scen not in SCENS:
@@ -101,7 +103,7 @@ def lower_bound(x):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["run", "choose", "evaluate"])
+    ap.add_argument("cmd", choices=["run", "choose", "evaluate", "enformer"])
     ap.add_argument("--stage", choices=["dev", "test"])
     ap.add_argument("--pstar", type=float)
     ap.add_argument("--jobs", type=int, default=10)
@@ -114,6 +116,24 @@ if __name__ == "__main__":
             res = pool.map(job, todo, chunksize=1)
         pd.DataFrame([r for rr in res for r in rr]).to_csv(f"{OUT}/{a.stage}.tsv.gz", sep="\t", index=False)
         print(f"wrote {OUT}/{a.stage}.tsv.gz")
+    elif a.cmd == "enformer":
+        todo = [u for u in units("enformer") if u[0] == "neuron" and u[3] == "test"]
+        with Pool(a.jobs) as pool:
+            res = pool.map(job, todo, chunksize=1)
+        d = pd.DataFrame([r for rr in res for r in rr])
+        d.to_csv(f"{OUT}/test_neuron_enformer.tsv.gz", sep="\t", index=False)
+        u = unit_means(d, a.pstar)
+        both = u.groupby("unit")[["rho_tp", "rho_default", "gated"]].mean()
+        d1, d2 = both.gated - both.rho_tp, both.gated - both.rho_default
+        text = (f"secondary: neuron test regions with Enformer, p* = {a.pstar}: {len(both)} regions; gated - TrackPilot "
+                f"= {d1.mean():+.4f}, {int((d1 > 0).sum())}/{len(d1)} > 0, P = "
+                f"{wilcoxon(d1, alternative='greater').pvalue:.3g}; gated - default = {d2.mean():+.4f}, lower bound "
+                f"{lower_bound(d2):+.4f}; share no signal "
+                + ", ".join(f"{s} {v:.2f}" for s, v in d.groupby("scenario").p.apply(lambda x: (x > a.pstar).mean()).items()))
+        os.makedirs(REPORT, exist_ok=True)
+        open(f"{REPORT}/secondary_enformer.txt", "w").write(text + "\n")
+        print(text)
+        print(u.groupby("scenario")[["rho_tp", "rho_default", "gated"]].mean().round(3))
     elif a.cmd == "choose":
         d = pd.read_csv(f"{OUT}/dev.tsv.gz", sep="\t")
         rows = []
