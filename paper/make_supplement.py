@@ -284,8 +284,8 @@ def mouse_fallback_sentence():
     rates = "; ".join(f"{n} {float(share[(n, 'all')]):.0%} with the proxy, {float(share[(n, 'hide_matched')]):.0%} "
                       f"without" for n in ["AlphaGenome", "Enformer"]).replace("%", "\\%")
     return ("Descriptive, as pre-registered (20 repeats), share of runs in which the applicability check fell back "
-            "to the default: " + rates + "; the checked prediction was not below unchecked TrackPilot, and the "
-            "verdict is unchanged.")
+            "to the default: " + rates + "; the mean accuracy of the checked prediction was not below that of "
+            "unchecked TrackPilot. These descriptive results do not alter the verdict on the unchecked method.")
 
 
 parts.append(table("tab:s14", "Pre-registered test: Kircher experiments measured in mouse cell lines, which no "
