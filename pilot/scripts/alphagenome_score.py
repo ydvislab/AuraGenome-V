@@ -50,6 +50,7 @@ if "variant_id" not in var:     # second-dataset tables: one row per substitutio
     var["element"] = var.element.str.replace(":", "_")
 if not a.include_mouse_cell_elements:
     var = var[var.human_cells]
+var["model_biosample_keywords"] = var.model_biosample_keywords.fillna("")   # mouse-cell experiments have none
 if a.elements:
     var = var[var.element.isin(a.elements.split(","))]
 
