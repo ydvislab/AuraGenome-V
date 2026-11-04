@@ -251,5 +251,17 @@ parts.append(table("tab:s12", "Threshold of the applicability check (post hoc, d
                    "through by chance.",
                    ["$p^*$"] + [n for _, n in cols], rows, "l" + "r" * len(cols)))
 
+# S13: Kircher regions in cell lines the models do not profile (post hoc subgroup; unprofiled_report.py)
+sub = tsv("unprofiled/subgroup.tsv")
+rows = [[r.model, r.region, r.cell, f(r.proxy_mean, sign=False), f(r.tp_c1, sign=False), f(r.all_mean, sign=False),
+         f(r.tp_c3, sign=False), f(r.random_c3, sign=False)] for _, r in sub.iterrows()]
+parts.append(table("tab:s13", "Kircher test regions measured in human cell lines without tracks of their own (post hoc "
+                   "subgroup; the cell lines were flagged as unprofiled, and a related biosample chosen as their proxy, "
+                   "when the variant table was built, before any run). Frozen TrackPilot, $k=8$, 200 repeats. "
+                   "With proxy: the proxy tracks are the matched tracks; proxy hidden: proxy and related tracks hidden. "
+                   + " ".join(l.strip().replace(" > 0)", " $>0$)").replace(" - ", " $-$ ") + "." for l in open(f"{R}/unprofiled/summary.txt")),
+                   ["Model", "Region", "Cell line", "Proxy mean", "TP, with proxy", "All-track mean", "TP, proxy hidden",
+                    "Random panel"], rows, "lllrrrrr"))
+
 open("paper/supp_tables.tex", "w").write("\n".join(parts))
 print("wrote paper/supp_tables.tex")

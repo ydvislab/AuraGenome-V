@@ -1,0 +1,11 @@
+model	region	cell	proxy_mean	tp_c1	all_mean	tp_c3	random_c3
+AlphaGenome	GP1BA	HEL 92.1.7	0.498	0.4981	0.3744	0.4809	0.3293
+AlphaGenome	HBB	HEL 92.1.7	0.6448	0.6447	0.4798	0.4496	0.3775
+AlphaGenome	HBG1	HEL 92.1.7	0.5193	0.5291	0.1816	0.5449	0.3987
+AlphaGenome	IRF4	SK-MEL-28	0.65	0.6499	0.3403	0.5619	0.4336
+AlphaGenome	TERT (glioblastoma)	glioblastoma (alt.)	0.6413	0.6418	0.6665	0.6233	0.5838
+Enformer	GP1BA	HEL 92.1.7	0.3868	0.3876	0.2894	0.4017	0.2051
+Enformer	HBB	HEL 92.1.7	0.492	0.4961	0.3834	0.4744	0.3636
+Enformer	HBG1	HEL 92.1.7	0.2916	0.337	-0.1195	0.3429	0.2902
+Enformer	IRF4	SK-MEL-28	0.5756	0.5757	0.2985	0.4718	0.3578
+Enformer	TERT (glioblastoma)	glioblastoma (alt.)	0.5937	0.5921	0.6155	0.5763	0.5465

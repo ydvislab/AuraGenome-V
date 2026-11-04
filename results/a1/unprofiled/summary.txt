@@ -1,0 +1,6 @@
+AlphaGenome, 5 regions, with proxy tracks: TrackPilot - proxy mean = +0.002 (3/5 > 0)
+AlphaGenome, 5 regions, proxy hidden: TrackPilot - all-track mean = +0.124 (3/5 > 0)
+AlphaGenome, 5 regions, proxy hidden: pilot - random panel = +0.108 (5/5 > 0)
+Enformer, 5 regions, with proxy tracks: TrackPilot - proxy mean = +0.010 (4/5 > 0)
+Enformer, 5 regions, proxy hidden: TrackPilot - all-track mean = +0.160 (4/5 > 0)
+Enformer, 5 regions, proxy hidden: pilot - random panel = +0.101 (5/5 > 0)
