@@ -228,13 +228,13 @@ parts.append(table("tab:s11", "Applicability check (pre-registered extension; te
                    "$P>0.5$ chosen on development units). After the pilot panel is measured, a permutation test (200 "
                    "shuffles of the eight labels) compares the mixture's log evidence with that of shuffled labels; if "
                    "the labels are explained no better, the label-free default is returned. Mean Spearman correlation "
-                   "of TrackPilot without and with the check, of the default, and the share of runs judged to carry no "
-                   "trackable signal. A1 (neurons: checked $-$ unchecked $>0$; checked non-inferior to the default, "
+                   "of TrackPilot without and with the check, of the default, and the share of runs in which the fallback was triggered. "
+                   "Evaluated with sequentially chosen panels. A1 (neurons: checked $-$ unchecked $>0$; checked non-inferior to the default, "
                    "margin 0.02) and A2 (Siraj: gains over the defaults kept; checked non-inferior to unchecked, "
                    "margin 0.01) both held; see the repository for the exact statistics. Secondary, neuron test regions with "
                    "Enformer predictions: checked $-$ unchecked $+0.019$ ($P=2\\times10^{-4}$), checked $-$ default $-0.015$ "
                    "(lower bound $-0.020$).",
-                   ["Data", "View", "Unchecked", "Checked", "Default", "No signal"], rows, "llrrrr"))
+                   ["Data", "View", "Unchecked", "Checked", "Default", "Fallback"], rows, "llrrrr"))
 
 # S12: threshold of the applicability check (post hoc, descriptive; applicability_check.py curve)
 cur = tsv("applicability/threshold_curve.tsv")
@@ -246,9 +246,8 @@ parts.append(table("tab:s12", "Threshold of the applicability check (post hoc, d
                    "repeats). Mean difference in Spearman correlation between the checked prediction and the label-free "
                    "default for each threshold (fall back to the default when the permutation $P$ exceeds it); "
                    "``none'': no check. The frozen threshold is 0.5; on the development units 0.2, 0.3 and 0.5 scored "
-                   "within 0.0005 of each other. On the neuron assay the permutation $P$ values were close to uniform, "
-                   "as expected when no track carries the signal, so a threshold $p^*$ lets about a share $p^*$ of runs "
-                   "through by chance.",
+                   "within 0.0005 of each other. On the neuron assay the permutation $P$ values were empirically close to "
+                   "uniform, so a threshold $p^*$ let about a share $p^*$ of runs pass.",
                    ["$p^*$"] + [n for _, n in cols], rows, "l" + "r" * len(cols)))
 
 # S13: Kircher regions in cell lines the models do not profile (post hoc subgroup; unprofiled_report.py)

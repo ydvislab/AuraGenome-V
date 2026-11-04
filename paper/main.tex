@@ -265,7 +265,7 @@ single track chosen with all labels is reported as a reference.
 %===============================================================================
 \section{Results}
 
-\subsection{When matched tracks exist, \tp{} is non-inferior to them on average}
+\subsection{When matched tracks exist, \tp{} was non-inferior to them on Siraj and Kircher}
 
 In a profiled cell type the matched tracks are the natural default, so the first requirement is not to do worse than
 them. On Siraj, with all tracks kept, eight measurements were non-inferior to the matched mean (P1: $+0.010$, one-sided
@@ -361,7 +361,7 @@ families after 0, 4 and 8 measurements. (c) Held-out variants against the predic
 \label{fig:example}
 \end{figure*}
 
-\subsection{Which and how many variants are measured matters; one round suffices}
+\subsection{Which and how many variants are measured matters; one round matched sequential choice}
 \label{sec:panel}
 
 Measuring random variants was worse than not measuring: in the unprofiled scenario on Siraj, the same inference
@@ -444,8 +444,8 @@ about 30\% of regions worse by more than 0.05 (Supplementary Table~S10).
 \subsection{A fallback when the measurements follow no track}
 \label{sec:boundary}
 
-A user cannot see the tracks' accuracy before measuring, but the eight labels themselves can show that no track follows them. We
-therefore pre-registered the applicability check: its threshold was chosen on development units of all three datasets
+A user cannot see the tracks' accuracy before measuring, but can compare the fit of the eight labels with that of
+shuffled copies. We therefore pre-registered the applicability check, evaluated with sequentially chosen panels: its threshold was chosen on development units of all three datasets
 (5 Kircher experiments, 40 Siraj loci, 50 neuron regions) and committed before the held-out units were run. On the 109
 held-out neuron regions it fell back in 43--46\% of runs, raised accuracy over unchecked \tp{} by
 0.010 (65/109 regions, $P = 0.002$; A1) and stayed within 0.004 of the default. On the 85 held-out Siraj loci it
@@ -462,7 +462,8 @@ equally good on development units, cut this loss to at most 0.007 for both model
 \tp{} gives laboratories a concrete protocol for using a foundation model in their own cell type: start from the
 tracks whose metadata match, measure about eight variants chosen to split the competing tracks, and let the
 measurements move the prediction only when they contradict the default. The evidence for this protocol has three
-tiers. When matched tracks exist, it was non-inferior to them on average in rank correlation. When they are missing but tracks of other cell types
+tiers. When matched tracks exist, it was non-inferior to them on average in rank correlation on Siraj and Kircher, though
+not in neurons, where no track predicted the assay. When they are missing but tracks of other cell types
 carry the signal, it recovered 0.04--0.05 in Spearman correlation, with two datasets, two models and held-out
 checkpoints. In cell types without tracks of their own it still chose better variants than random, but eight
 measurements did not reliably beat the all-track mean, and where no track predicted the assay the applicability check
@@ -470,13 +471,15 @@ fell back to the default in about half the runs. The number of measurements is t
 four labels the prediction can fall below the default, and beyond eight accuracy kept rising, most where no close track exists, which is where a second round pays.
 
 Three lessons appear general: which variants are measured matters as much as how they are modelled; re-fitting a
-default predictor to a handful of labels is harmful, whereas a prior centred on it is not; and among a thousand
+default predictor to a handful of labels is harmful, and on Kircher and Siraj a prior centred on it avoided these
+losses; and among a thousand
 correlated heads, a posterior average beats the single most probable track.
 
 \textbf{Limitations.} The main gains were measured by hiding the tracks of profiled cell types. For cell types
 without tracks of their own the only positive evidence is post hoc and covers five regions; the pre-registered test in
 mouse cell lines was not supported. With eight labels the applicability check has limited power. The evaluation is retrospective, but a panel chosen in one round, before any label, was as accurate
-(Section~\ref{sec:panel}), so a laboratory can follow the protocol as evaluated. Non-inferiority on average does not exclude
+(Section~\ref{sec:panel}), so a laboratory can order the panel at once; the fallback rule was evaluated only with
+sequential panels. Non-inferiority on average does not exclude
 losses at single loci (3/125 worse by more than 0.05, the largest $-0.13$; $-0.26$ in one cell type). Absolute
 correlations are moderate (0.44--0.49 on Siraj).
 \tp{} helps only if at least one track, or a mixture of tracks, is roughly proportional to the assay.

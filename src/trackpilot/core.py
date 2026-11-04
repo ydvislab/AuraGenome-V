@@ -149,8 +149,9 @@ class TrackPilot:
     def signal_check(self, labels: pd.Series, n_perm=200, seed=0) -> float:
         """Applicability check: permutation P value of the mixture's log evidence for the measured labels.
 
-        A large P means the labels are explained no better than after shuffling them, i.e. no track carries the
-        assay's signal; above SIGNAL_P (frozen on development data) use prior_prediction() instead of the fit."""
+        A large P means the labels are explained no better than after shuffling them. This is an empirical fallback
+        rule, not a test that no track carries signal (few labels also give large P). Above SIGNAL_P (frozen on
+        development data, evaluated with sequential panels) use prior_prediction() instead of the fit."""
         labels = labels.dropna()
         rows, ys = self._rows(labels.index), labels.to_numpy(float)
         obs = logsumexp(self._posterior(rows, ys)[0])

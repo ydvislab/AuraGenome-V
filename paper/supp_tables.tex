@@ -373,11 +373,11 @@ C3 unprofiled & 16 & 0.033 & 0.027 & 0.044 & 0.023 & 0.018 & 0.054 \\
 \end{table}
 
 \begin{table}[!ht]
-\caption{Applicability check (pre-registered extension; test units, $k=8$, 20 repeats, threshold $P>0.5$ chosen on development units). After the pilot panel is measured, a permutation test (200 shuffles of the eight labels) compares the mixture's log evidence with that of shuffled labels; if the labels are explained no better, the label-free default is returned. Mean Spearman correlation of TrackPilot without and with the check, of the default, and the share of runs judged to carry no trackable signal. A1 (neurons: checked $-$ unchecked $>0$; checked non-inferior to the default, margin 0.02) and A2 (Siraj: gains over the defaults kept; checked non-inferior to unchecked, margin 0.01) both held; see the repository for the exact statistics. Secondary, neuron test regions with Enformer predictions: checked $-$ unchecked $+0.019$ ($P=2\times10^{-4}$), checked $-$ default $-0.015$ (lower bound $-0.020$).}\label{tab:s11}
+\caption{Applicability check (pre-registered extension; test units, $k=8$, 20 repeats, threshold $P>0.5$ chosen on development units). After the pilot panel is measured, a permutation test (200 shuffles of the eight labels) compares the mixture's log evidence with that of shuffled labels; if the labels are explained no better, the label-free default is returned. Mean Spearman correlation of TrackPilot without and with the check, of the default, and the share of runs in which the fallback was triggered. Evaluated with sequentially chosen panels. A1 (neurons: checked $-$ unchecked $>0$; checked non-inferior to the default, margin 0.02) and A2 (Siraj: gains over the defaults kept; checked non-inferior to unchecked, margin 0.01) both held; see the repository for the exact statistics. Secondary, neuron test regions with Enformer predictions: checked $-$ unchecked $+0.019$ ($P=2\times10^{-4}$), checked $-$ default $-0.015$ (lower bound $-0.020$).}\label{tab:s11}
 \centering\small
 \begin{tabular}{llrrrr}
 \toprule
-Data & View & Unchecked & Checked & Default & No signal \\
+Data & View & Unchecked & Checked & Default & Fallback \\
 \midrule
 Kircher (11 regions) & C1 profiled & 0.407 & 0.410 & 0.408 & 5\% \\
 Kircher (11 regions) & C3 unprofiled & 0.370 & 0.371 & 0.302 & 8\% \\
@@ -390,7 +390,7 @@ Siraj (85 loci) & C3 unprofiled & 0.436 & 0.438 & 0.382 & 8\% \\
 \end{table}
 
 \begin{table}[!ht]
-\caption{Threshold of the applicability check (post hoc, descriptive; test units, $k=8$, 20 repeats). Mean difference in Spearman correlation between the checked prediction and the label-free default for each threshold (fall back to the default when the permutation $P$ exceeds it); ``none'': no check. The frozen threshold is 0.5; on the development units 0.2, 0.3 and 0.5 scored within 0.0005 of each other. On the neuron assay the permutation $P$ values were close to uniform, as expected when no track carries the signal, so a threshold $p^*$ lets about a share $p^*$ of runs through by chance.}\label{tab:s12}
+\caption{Threshold of the applicability check (post hoc, descriptive; test units, $k=8$, 20 repeats). Mean difference in Spearman correlation between the checked prediction and the label-free default for each threshold (fall back to the default when the permutation $P$ exceeds it); ``none'': no check. The frozen threshold is 0.5; on the development units 0.2, 0.3 and 0.5 scored within 0.0005 of each other. On the neuron assay the permutation $P$ values were empirically close to uniform, so a threshold $p^*$ let about a share $p^*$ of runs pass.}\label{tab:s12}
 \centering\small
 \begin{tabular}{lrrrrrrrr}
 \toprule

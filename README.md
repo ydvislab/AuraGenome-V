@@ -4,7 +4,8 @@
 
 > The paper (`paper/main.tex`, `paper/main.pdf`) is the current statement of methods, results and their limits. The
 > notes below are the project log in the order the work was done; some early wording is broader than the final
-> claims. In short: with matched tracks TrackPilot is non-inferior to them on average; with them hidden it recovers
+> claims. In short: with matched tracks TrackPilot was non-inferior to them on average in rank correlation on the Siraj and
+> Kircher benchmarks (not in neurons, where no track predicted the assay); with them hidden it recovers
 > 0.04–0.05 in Spearman correlation; in cell types without tracks of their own its pilot panels beat random ones but
 > eight measurements did not reliably beat the all-track mean (pre-registered test not supported).
 
