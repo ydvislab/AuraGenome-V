@@ -26,8 +26,10 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.special import logsumexp
 
 ANCHOR = "anchor"
+SIGNAL_P = 0.5   # applicability check threshold, chosen on development units (docs/internal/applicability_check_zh.md)
 
 
 def softmax(ll):
@@ -143,6 +145,18 @@ class TrackPilot:
         rows = self._rows(labels.index)
         ll, A, B, s2 = self._posterior(rows, labels.to_numpy(float))
         return Fit(self.hypotheses, softmax(ll), A, B, ll, s2, self.Z, self.variants)
+
+    def signal_check(self, labels: pd.Series, n_perm=200, seed=0) -> float:
+        """Applicability check: permutation P value of the mixture's log evidence for the measured labels.
+
+        A large P means the labels are explained no better than after shuffling them, i.e. no track carries the
+        assay's signal; above SIGNAL_P (frozen on development data) use prior_prediction() instead of the fit."""
+        labels = labels.dropna()
+        rows, ys = self._rows(labels.index), labels.to_numpy(float)
+        obs = logsumexp(self._posterior(rows, ys)[0])
+        rng = np.random.default_rng(seed)
+        perm = np.array([logsumexp(self._posterior(rows, rng.permutation(ys))[0]) for _ in range(n_perm)])
+        return (1 + int((perm >= obs).sum())) / (n_perm + 1)
 
     def prior_prediction(self):
         """Label-free default: the anchor (mean of the matched tracks) if there is one, else the all-track mean."""

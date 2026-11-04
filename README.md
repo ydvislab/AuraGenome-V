@@ -99,7 +99,9 @@ metadata if the model profiles it. It then
    tracks apart. The whole panel is fixed in one round, so it can be ordered at once.
 2. **`trackpilot predict`** takes your measurements of the panel and returns the posterior over tracks, a calibrated
    prediction for every unmeasured variant (the posterior average), the same prediction without the fitted offsets
-   (`prediction_no_offset`, for calling effect directions), and an HTML report.
+   (`prediction_no_offset`, for calling effect directions), and an HTML report. An applicability check asks whether
+   the measurements follow any track better than shuffled labels do; if not (P > 0.5), no track carries the assay's
+   signal and `prediction_checked` falls back to the label-free default (matched-track or all-track mean).
 
 ```bash
 pip install -e .                       # from a clone; PyPI release planned

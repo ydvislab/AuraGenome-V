@@ -92,6 +92,15 @@ def test_scale_invariance(example):
     assert np.allclose(tp.fit(y.loc[panel]).predict(), tp2.fit(y.loc[panel]).predict())
 
 
+def test_signal_check(example):
+    X, _, y = example
+    tp = TrackPilot(X)
+    panel = tp.suggest(8)
+    assert tp.signal_check(y.loc[panel]) < 0.1
+    noise = pd.Series(np.random.default_rng(1).normal(size=8), index=panel)
+    assert tp.signal_check(noise) > 0.1
+
+
 def test_cli(tmp_path):
     panel = tmp_path / "panel.tsv"
     main(["suggest", PRED, "-k", "8", "--anchor", "lung", "-o", str(panel)])
@@ -104,7 +113,7 @@ def test_cli(tmp_path):
     main(["predict", PRED, str(lab), "--anchor", "lung", "-o", str(out), "--posterior", str(post), "--report", str(rep)])
     p = pd.read_csv(out, sep="\t")
     assert len(p) == 600 and p.measured.notna().sum() == 8
-    assert "prediction_no_offset" in p
+    assert "prediction_no_offset" in p and "prediction_checked" in p
     assert pd.read_csv(post, sep="\t").weight.sum() == pytest.approx(1.0, abs=1e-4)
     assert "TrackPilot report" in rep.read_text()
     # suggest more after a first round

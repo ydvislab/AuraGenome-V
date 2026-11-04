@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from . import __version__
-from .core import ANCHOR, TrackPilot
+from .core import ANCHOR, SIGNAL_P, TrackPilot
 from .io import OUTPUTS, match_tracks, read_labels, read_predictions, split_list
 
 
@@ -60,7 +60,10 @@ def predict(a):
     y = read_labels(a.labels, a.column)
     y = y[y.index.isin(tp.variants)]
     fit = tp.fit(y)
-    out = pd.concat([fit.predict(), fit.predict_no_offset(), fit.predict_map(), tp.prior_prediction(), y.rename("measured")], axis=1)
+    p = tp.signal_check(y)
+    checked = (tp.prior_prediction() if p > SIGNAL_P else fit.predict()).rename("prediction_checked")
+    out = pd.concat([fit.predict(), checked, fit.predict_no_offset(), fit.predict_map(), tp.prior_prediction(),
+                     y.rename("measured")], axis=1)
     out.index.name = "variant_id"
     out.to_csv(a.out or sys.stdout, sep="\t", float_format="%.6g")
     post = posterior_table(tp, fit, meta)
@@ -69,7 +72,10 @@ def predict(a):
     if a.report:
         from .report import write_report
         write_report(a.report, tp, fit, post, out)
-    print(summary(tp, fit, post) + f"\n({time.time() - t0:.1f}s)", file=sys.stderr)
+    verdict = ("no track carries the assay's signal: prediction_checked is the label-free default" if p > SIGNAL_P
+               else "the measurements follow the tracks: prediction_checked is the posterior average")
+    print(summary(tp, fit, post) + f"\napplicability check P = {p:.2f} ({verdict})\n({time.time() - t0:.1f}s)",
+          file=sys.stderr)
 
 
 def posterior_table(tp, fit, meta):

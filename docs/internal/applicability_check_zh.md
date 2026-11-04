@@ -78,3 +78,17 @@
 **选定 p* = 0.5**：最大值在 0.3（0.0120），0.5 与之相差 0.0003，小于 0.002，按规则取较大的 p*。
 
 检验命令：`python pilot/scripts/applicability_check.py run --stage test`，然后 `evaluate --pstar 0.5`。
+
+## 8. 结果（检验单位，2026-11-04）
+
+判定表在 `results/a1/applicability/decision.txt`，次要结果在 `secondary.tsv`，补充材料为表 S11。
+
+- **A1 成立**：神经元 109 个检验区域，带检查减不带检查 = +0.010（65/109 > 0，单侧 Wilcoxon P = 0.0025）；带检查减默认 = −0.004，下界 −0.011（> −0.02）。
+- **A2 成立**：Siraj 85 个检验位点，C3 带检查减全轨道均值 = +0.056（P = 3e-11）；C1 带检查减匹配均值 = +0.011，下界 +0.006；带检查减不带检查 = +0.002，下界 +0.001。
+- **判定**：得到支持。
+
+判为"无信号"的比例：神经元 43%（C1）/ 46%（C3），Kircher 5% / 8%，Siraj 5% / 8%。Kircher 11 个检验区域上带检查与不带检查几乎相同（C1 0.410 对 0.407，C3 0.371 对 0.370）。
+
+未运行：神经元数据换成 Enformer 预测的次要分析（`applicability_check.py` 只接 AlphaGenome 预测）。
+
+已加入软件包：`TrackPilot.signal_check()`，`trackpilot predict` 输出 `prediction_checked` 列；与冻结脚本逐行一致（同一种子下 P 值相同）。

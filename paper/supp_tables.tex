@@ -371,3 +371,20 @@ C3 unprofiled & 16 & 0.033 & 0.027 & 0.044 & 0.023 & 0.018 & 0.054 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[!ht]
+\caption{Applicability check (pre-registered extension; test units, $k=8$, 20 repeats, threshold $P>0.5$ chosen on development units). After the pilot panel is measured, a permutation test (200 shuffles of the eight labels) compares the mixture's log evidence with that of shuffled labels; if the labels are explained no better, the label-free default is returned. Mean Spearman correlation of TrackPilot without and with the check, of the default, and the share of runs judged to carry no trackable signal. A1 (neurons: checked $-$ unchecked $>0$; checked non-inferior to the default, margin 0.02) and A2 (Siraj: gains over the defaults kept; checked non-inferior to unchecked, margin 0.01) both held; see the repository for the exact statistics.}\label{tab:s11}
+\centering\small
+\begin{tabular}{llrrrr}
+\toprule
+Data & View & Unchecked & Checked & Default & No signal \\
+\midrule
+Kircher (11 regions) & C1 profiled & 0.407 & 0.410 & 0.408 & 5\% \\
+Kircher (11 regions) & C3 unprofiled & 0.370 & 0.371 & 0.302 & 8\% \\
+Neurons (109 regions) & C1 profiled & 0.055 & 0.066 & 0.072 & 43\% \\
+Neurons (109 regions) & C3 unprofiled & 0.026 & 0.035 & 0.037 & 46\% \\
+Siraj (85 loci) & C1 profiled & 0.484 & 0.486 & 0.476 & 5\% \\
+Siraj (85 loci) & C3 unprofiled & 0.436 & 0.438 & 0.382 & 8\% \\
+\bottomrule
+\end{tabular}
+\end{table}

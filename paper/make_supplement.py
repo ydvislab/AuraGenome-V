@@ -218,5 +218,21 @@ parts.append(table("tab:s10", "Neuron MPRA (pre-registered third dataset; WTC11-
                    ["View", "$k$", "AG pilot", "AG random", "AG default", "Enf.\\ pilot", "Enf.\\ random",
                     "Enf.\\ default"], rows, "lrrrrrrr"))
 
+# S11: applicability check (pre-registered extension; pilot/scripts/applicability_check.py)
+dec = open(f"{R}/applicability/decision.txt").read().splitlines()
+sec = tsv("applicability/secondary.tsv")
+name = {"kircher": "Kircher (11 regions)", "siraj": "Siraj (85 loci)", "neuron": "Neurons (109 regions)"}
+rows = [[name[r.dataset], view[r.scenario], f(r.rho_tp, sign=False), f(r.gated, sign=False), f(r.rho_default, sign=False),
+         f"{100 * r.share_no_signal:.0f}\\%"] for _, r in sec.iterrows()]
+parts.append(table("tab:s11", "Applicability check (pre-registered extension; test units, $k=8$, 20 repeats, threshold "
+                   "$P>0.5$ chosen on development units). After the pilot panel is measured, a permutation test (200 "
+                   "shuffles of the eight labels) compares the mixture's log evidence with that of shuffled labels; if "
+                   "the labels are explained no better, the label-free default is returned. Mean Spearman correlation "
+                   "of TrackPilot without and with the check, of the default, and the share of runs judged to carry no "
+                   "trackable signal. A1 (neurons: checked $-$ unchecked $>0$; checked non-inferior to the default, "
+                   "margin 0.02) and A2 (Siraj: gains over the defaults kept; checked non-inferior to unchecked, "
+                   "margin 0.01) both held; see the repository for the exact statistics.",
+                   ["Data", "View", "Unchecked", "Checked", "Default", "No signal"], rows, "llrrrr"))
+
 open("paper/supp_tables.tex", "w").write("\n".join(parts))
 print("wrote paper/supp_tables.tex")

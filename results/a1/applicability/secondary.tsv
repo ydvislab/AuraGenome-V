@@ -1,0 +1,7 @@
+dataset	scenario	rho_tp	rho_default	gated	share_no_signal
+kircher	all	0.4072	0.4077	0.4097	0.0529
+kircher	hide_matched	0.3705	0.3017	0.3715	0.0794
+neuron	all	0.0554	0.0724	0.0663	0.4324
+neuron	hide_matched	0.0264	0.0373	0.0353	0.4639
+siraj	all	0.4841	0.4756	0.4863	0.0465
+siraj	hide_matched	0.436	0.3824	0.4384	0.0762

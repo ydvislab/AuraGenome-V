@@ -52,7 +52,8 @@ measuring, and four chosen measurements were as accurate as sixteen random ones.
 The conclusions held with model checkpoints that had not been trained on the tested loci, and with a second
 foundation model, Enformer, without changing any parameter. The whole panel can be chosen in a single round. In a
 third pre-registered test, a reporter assay in induced neurons that no track predicted (matched tracks $\rho=0.07$),
-\tp{} did not help and fell 0.01--0.04 below the defaults: it needs a track that carries the assay's signal.\\
+\tp{} fell 0.01--0.04 below the defaults. A pre-registered applicability check on the same eight measurements detects
+such assays and falls back to the default, recovering 0.010 there while keeping the gains on the other data.\\
 \textbf{Availability and implementation:} \tp{} is a Python package and command-line tool (MIT licence) at
 \url{https://github.com/ydvislab/AuraGenome-V} \todo{final repository, PyPI name, Zenodo DOI of the submitted version}.
 Pre-registrations and all derived results are in the same repository.\\
@@ -177,6 +178,13 @@ symmetric slope prior, so the first step uses each track's standardised predicti
 weakly on the measured values (Section~\ref{sec:panel}), \tp{} can also return the whole panel before any
 measurement, by replacing each chosen variant's label with the current posterior-average prediction.
 
+\subsection{Applicability check}
+
+\tp{} can only help if some track, or mixture of tracks, follows the assay. After the panel is measured, \tp{} compares
+the mixture's log evidence, $\log\sum_t p(t)\,p(y_S\mid t)$, with its value for 200 random permutations of the same
+labels. If the labels are explained no better than shuffled ones (permutation $P > 0.5$, a threshold chosen on
+development units), no track carries the assay's signal and \tp{} returns the label-free default instead.
+
 \subsection{Implementation}
 
 \tp{} is a Python package with a command-line interface \todo{finalise once the package is released; keep in step
@@ -184,7 +192,7 @@ with the README}. Its input is a table of predicted effects (variants $\times$ t
 not tied to one model; an optional module scores a region with AlphaGenome using the user's own API key (not yet run
 from the package with a live key). \texttt{trackpilot suggest} returns a pilot panel of $k$ variants from a pool;
 \texttt{trackpilot predict} takes the measured effects and returns the posterior over tracks, predictions for all
-variants and a report. For a 1,353-variant element with 1,018 tracks the whole run takes under five seconds on a laptop
+variants, the prediction after the applicability check and a report. For a 1,353-variant element with 1,018 tracks the whole run takes under five seconds on a laptop
 (Apple M2 Pro). A reproduction script recomputes with the package every frozen \tp{} result for the first repeat (22
 Kircher experiments, 234 numbers; 125 Siraj loci in two cell types, 4,500 numbers) with no difference; the
 pre-registered Kircher version (uniform prior) is not covered.
@@ -228,7 +236,8 @@ mean by at least 0.03 with a positive difference in at least 7/11 regions. For S
 non-inferiority to the matched mean in the profiled scenario at $k=8$ (one-sided 95\% bootstrap lower bound above
 $-0.02$); P2, at most 15\% of loci worse by more than 0.05; P3, improvement over the all-track mean when unprofiled at
 $k=8$ of at least 0.03; P4, improvement over the related-cell mean when related-only at $k=16$. A third, for the neurons (N1--N4: the
-analogues of P3, S1, P1--P2 and P4, all at $k=8$), was committed before any variant was scored. Analyses added later
+analogues of P3, S1, P1--P2 and P4, all at $k=8$), was committed before any variant was scored, and a fourth, for the applicability check (A1, A2; Section~\ref{sec:boundary}),
+before its test units were run. Analyses added later
 are labelled post hoc.
 \textbf{Training data, test sets and homology.} \tp{} trains no model; AlphaGenome is used frozen, and the only labels
 are the $k$ measured variants of the element being predicted. No measurement from another element and no evaluation
@@ -416,10 +425,9 @@ model, not of cell type.
 \begin{table}[t]
 \centering
 % results/a1/enformer_siraj/siraj_decision.txt, results/a1/enformer_kircher/kircher_decision.txt;
-% neurons: results/a1/kosicki_{alphagenome,enformer}/decision.txt, levels.tsv;
 % AlphaGenome columns: results/a1/siraj_ref (same 40 loci) and proxy_select_v2/p0.95_fam (Kircher test)
 \caption{Frozen \tp{} on two models. Siraj: 40 random loci, both cell types averaged; Kircher: 11 test regions,
-unprofiled scenario; neurons: 159 regions, all hypotheses at $k=8$ (Supplementary Table~S10). Differences in Spearman correlation on held-out variants; regions or loci $>0$ and one-sided $P$
+unprofiled scenario. Differences in Spearman correlation on held-out variants; regions or loci $>0$ and one-sided $P$
 in brackets; $^a$unprofiled, $^b$related cells only. Kircher random-panel $P$: 0.002 (AlphaGenome), 0.001
 (Enformer). Both columns use the frozen method with the family prior; Table~\ref{tab:kircher} shows the
 pre-registered version.}
@@ -439,31 +447,28 @@ matched mean (absolute) & 0.473 & 0.404 \\
 random panel & $+0.090$ (9/11) & $+0.097$ (10/11) \\
 all-track mean & $+0.077$ (8/11) & $+0.109$ (8/11) \\
 \tp{} (absolute) & 0.373 & 0.324 \\
-\multicolumn{3}{@{}l}{\textit{Neurons, 159 regions, $k=8$}} \\
-matched mean & $-0.019$ & $-0.030$ \\
-\quad regions worse by $>0.05$ & 47/159 & 48/159 \\
-all-track mean$^a$ & $-0.014$ & $-0.035$ \\
-random panel$^a$ & $+0.009$ ($0.03$) & $+0.005$ ($0.17$) \\
-related mean$^b$ & $-0.015$ & $-0.021$ \\
-matched mean (absolute) & 0.073 & 0.070 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-\subsection{A boundary: an assay that no track predicts}
+\subsection{Detecting assays that no track predicts}
 \label{sec:boundary}
 
 On the two main datasets the cell lines are profiled, so the unprofiled scenarios are simulated. As a cell type that
-the models barely profile, we pre-registered the neuron assay and analysed it with both models, changing no parameter.
-The main hypotheses did not hold (Table~\ref{tab:enformer}; Supplementary Table~S10). The absolute values show why:
-the matched tracks reached a Spearman correlation of only 0.07 with the measured effects, and the all-track mean
-0.04--0.05. With eight measurements, \tp{} was 0.02--0.03 below the matched mean, with about 30\% of regions worse by
-more than 0.05, and 0.01--0.04 below the all-track mean without matched tracks. The pilot panel still beat random
-panels (AlphaGenome $+0.009$, $P = 0.03$; Enformer $+0.005$, $P = 0.17$), but labels with almost no signal that any
-track shares move the posterior by noise. The best single track chosen with all labels reached 0.32, yet 0.30 in the
-least active quarter of tiles, where substitutions barely change activity (post hoc), so this value mostly reflects
-selection among a thousand tracks. When no track carries the assay's signal, a few measurements cannot find one, and
-the defaults were the better choice.
+the models barely profile, we pre-registered a third test on the neuron assay (N1--N4, both models, no parameter
+changed). The main hypotheses did not hold (Supplementary Table~S10), and the absolute values show why: the matched
+tracks reached a Spearman correlation of only 0.07 with the measured effects and the all-track mean 0.04--0.05, so the
+eight labels carried almost no signal that any track shares. \tp{} was 0.02--0.03 below the matched mean and
+0.01--0.04 below the all-track mean, with about 30\% of regions worse by more than 0.05.
+
+A user cannot see these absolute values before measuring, but the eight labels themselves show the problem. We
+therefore pre-registered the applicability check: its threshold was chosen on development units of all three datasets
+(5 Kircher experiments, 40 Siraj loci, 50 neuron regions) and committed before the held-out units were run. On the 109
+held-out neuron regions it judged 43--46\% of runs to have no trackable signal, raised accuracy over unchecked \tp{} by
+0.010 (65/109 regions, $P = 0.002$; A1) and stayed within 0.004 of the default. On the 85 held-out Siraj loci it
+intervened in 5--8\% of runs and kept the gains: $+0.056$ over the all-track mean without matched tracks and $+0.011$
+over the matched mean with them (A2; Supplementary Table~S11). The overall neuron results had been seen before the
+check was designed, so A1 is weaker evidence than the other pre-registered tests.
 
 \subsection{Worked example \todo{pending}}
 
@@ -478,7 +483,8 @@ held-out variants, compared with the all-track mean. Generated by \texttt{trackp
 tracks whose metadata match, measure about eight variants chosen to split the competing tracks, and let the
 measurements move the prediction only when they contradict the default. In two pre-registered tests this was
 non-inferior to the matched tracks when they existed and recovered 0.04--0.05 in Spearman correlation when they were
-missing or only approximate. In a third, on an assay that no track predicted, it did not help, which marks its limit.
+missing or only approximate. On an assay that no track predicted it did not help, and an applicability check on the
+same measurements identified such cases and returned the default.
 
 Three lessons appear to hold beyond this setting. First, which variants are measured matters as much as how they are
 modelled; random measurements made the same inference worse than not measuring. Second, re-fitting a default
@@ -491,11 +497,11 @@ pre-registered hypotheses for the two main datasets held without changing a para
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome, so on Siraj the unprofiled scenarios are simulated by
 hiding tracks. The one barely profiled cell type we tested in a pre-registered way, induced neurons, came with an
 assay that the tracks did not predict, so the case of an unprofiled cell type with a predictable assay rests on a few
-Kircher elements. The evaluation is retrospective. Non-inferiority on average does not exclude
+Kircher elements. With eight labels the applicability check has limited power: it recovered only part of the loss on
+the neuron assay and occasionally discards a useful fit. The evaluation is retrospective. Non-inferiority on average does not exclude
 losses at single loci (3/125 worse by more than 0.05, the largest $-0.26$). Absolute
 correlations are moderate (0.44--0.49 on Siraj), and gains are small where the assay has few significant variants.
-\tp{} helps only if at least one track, or a mixture of tracks, is roughly proportional to the assay; on the neuron
-assay none was, and \tp{} lost 0.01--0.04 to the defaults.
+\tp{} helps only if at least one track, or a mixture of tracks, is roughly proportional to the assay.
 
 %===============================================================================
 \section{Conclusion}
@@ -503,7 +509,8 @@ assay none was, and \tp{} lost 0.01--0.04 to the defaults.
 A handful of well-chosen measurements is enough to decide which of a thousand foundation-model tracks to use for a
 cell type, as long as some track carries the assay's signal, the decision starts from the metadata default and the measurements
 are chosen to discriminate.
-\tp{} makes this a two-command step: one to choose the panel and one to turn its measurements into predictions.
+\tp{} makes this a two-command step: one to choose the panel and one to turn its measurements into predictions,
+with a check that tells the user when the measurements follow no track.
 
 \section*{Acknowledgements}
 \todo{acknowledgements}
