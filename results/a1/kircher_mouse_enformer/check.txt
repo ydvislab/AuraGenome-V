@@ -1,0 +1,3 @@
+Kircher mouse-cell experiments, enformer, applicability check p* = 0.5 (descriptive)
+all: share no signal 0.21; mean rho TrackPilot 0.210, checked 0.216, default 0.190 (5 regions)
+hide_matched: share no signal 0.29; mean rho TrackPilot 0.210, checked 0.229, default 0.193 (5 regions)
