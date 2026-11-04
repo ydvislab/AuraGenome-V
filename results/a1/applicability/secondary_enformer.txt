@@ -1,0 +1,1 @@
+secondary: neuron test regions with Enformer, p* = 0.5: 109 regions; gated - TrackPilot = +0.0185, 68/109 > 0, P = 0.000191; gated - default = -0.0149, lower bound -0.0204; share no signal all 0.45, hide_matched 0.49

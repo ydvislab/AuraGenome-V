@@ -443,8 +443,8 @@ all-track mean & $+0.077$ (8/11) & $+0.109$ (8/11) \\
 \subsection{Detecting assays that no track predicts}
 \label{sec:boundary}
 
-On the two main datasets the cell lines are profiled, so the unprofiled scenarios are simulated. As a cell type that
-the models barely profile, we pre-registered a third test on the neuron assay (N1--N4, both models, no parameter
+On the two main datasets the unprofiled scenarios are simulated. For a cell type that the models barely profile, we
+pre-registered a third test on the neuron assay (N1--N4, both models, no parameter
 changed). The main hypotheses did not hold (Supplementary Table~S10), and the absolute values show why: the matched
 tracks reached a Spearman correlation of only 0.07 with the measured effects and the all-track mean 0.04--0.05, so the
 eight labels carried almost no signal that any track shares. \tp{} was 0.02--0.03 below the matched mean and
@@ -457,7 +457,8 @@ held-out neuron regions it judged 43--46\% of runs to have no trackable signal, 
 0.010 (65/109 regions, $P = 0.002$; A1) and stayed within 0.004 of the default. On the 85 held-out Siraj loci it
 intervened in 5--8\% of runs and kept the gains: $+0.056$ over the all-track mean without matched tracks and $+0.011$
 over the matched mean with them (A2; Supplementary Table~S11). The overall neuron results had been seen before the
-check was designed, so A1 is weaker evidence than the other pre-registered tests.
+check was designed, so A1 is weaker evidence than the other pre-registered tests. With Enformer predictions
+(secondary) the check gained 0.019 over unchecked \tp{} but stayed 0.015 below the default.
 
 \subsection{Worked example}
 
@@ -492,8 +493,7 @@ modelled; random measurements made the same inference worse than not measuring. 
 predictor to a handful of labels is harmful, and a prior centred on the default avoids this. Third, the output should
 be an average: among a thousand correlated heads, the posterior-weighted prediction beat the single most probable
 track, and at \textit{HBG1} even the best single track chosen with all labels. These lessons should apply to any model with
-many output heads, because \tp{} uses only the matrix of predictions and the track metadata; on Enformer all
-pre-registered hypotheses for the two main datasets held without changing a parameter.
+many output heads, as the Enformer results suggest.
 
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome, so on Siraj the unprofiled scenarios are simulated by
 hiding tracks. The one barely profiled cell type we tested in a pre-registered way, induced neurons, came with an

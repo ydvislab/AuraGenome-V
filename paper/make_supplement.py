@@ -231,7 +231,9 @@ parts.append(table("tab:s11", "Applicability check (pre-registered extension; te
                    "of TrackPilot without and with the check, of the default, and the share of runs judged to carry no "
                    "trackable signal. A1 (neurons: checked $-$ unchecked $>0$; checked non-inferior to the default, "
                    "margin 0.02) and A2 (Siraj: gains over the defaults kept; checked non-inferior to unchecked, "
-                   "margin 0.01) both held; see the repository for the exact statistics.",
+                   "margin 0.01) both held; see the repository for the exact statistics. Secondary, neuron test regions with "
+                   "Enformer predictions: checked $-$ unchecked $+0.019$ ($P=2\\times10^{-4}$), checked $-$ default $-0.015$ "
+                   "(lower bound $-0.020$).",
                    ["Data", "View", "Unchecked", "Checked", "Default", "No signal"], rows, "llrrrr"))
 
 open("paper/supp_tables.tex", "w").write("\n".join(parts))

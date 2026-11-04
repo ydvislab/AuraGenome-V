@@ -89,6 +89,6 @@
 
 判为"无信号"的比例：神经元 43%（C1）/ 46%（C3），Kircher 5% / 8%，Siraj 5% / 8%。Kircher 11 个检验区域上带检查与不带检查几乎相同（C1 0.410 对 0.407，C3 0.371 对 0.370）。
 
-未运行：神经元数据换成 Enformer 预测的次要分析（`applicability_check.py` 只接 AlphaGenome 预测）。
+次要分析，神经元检验区域改用 Enformer 预测（`secondary_enformer.txt`）：带检查减不带检查 = +0.019（68/109 > 0，P = 2e-4）；带检查减默认 = −0.015，下界 −0.020，没有达到 A1 的非劣界值；判为无信号 45%（C1）/ 49%（C3）。即检查同样能减少损失，但在 Enformer 上只挽回了一部分。
 
 已加入软件包：`TrackPilot.signal_check()`，`trackpilot predict` 输出 `prediction_checked` 列；与冻结脚本逐行一致（同一种子下 P 值相同）。
