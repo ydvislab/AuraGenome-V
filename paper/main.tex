@@ -3,8 +3,8 @@
 % Numbers come from results/a1/*.tsv (see the comment next to each table); do not edit them by hand.
 % DRAFT FOR THE AUTHORS TO REWRITE. The journal's LLM policy does not accept text drafted by an LLM. This draft fixes
 % the structure, the claims and the numbers; every sentence must be rewritten by the authors before submission.
-% The previous draft is commit 5eea6e1. Items marked TODO are pending: generalisation experiments (Section 3.6),
-% the worked example figure (Section 3.7), the TrackPilot release, the author block.
+% Results are ordered by question: matched tracks present (3.1), missing (3.2), what drives the gain (3.3-3.6),
+% cell types without tracks of their own (3.7), and the applicability check (3.8). Items marked TODO are pending.
 \documentclass[webpdf,contemporary,large]{oup-authoring-template}
 
 \usepackage{booktabs}
@@ -44,17 +44,14 @@ handful of measurements into a choice among a thousand correlated tracks.\\
 \textbf{Results:} We present \tp{}. It treats each track as a hypothesis that the assay is an unknown linear
 function of the track's predictions, integrates the calibration out in closed form, and starts from the tracks whose
 metadata match the cell type. It proposes a pilot panel of variants on which the plausible tracks disagree, and
-returns a posterior over tracks and a posterior-weighted prediction for every unmeasured variant. In a pre-registered
-test on 125 loci from a saturation mutagenesis reporter assay, eight pilot measurements were non-inferior to the
-matched tracks when these existed (mean $+0.010$ in Spearman correlation) and improved on the all-track mean by 0.047
-when they were hidden ($P = 3\times10^{-12}$). With eight random measurements, the same inference was worse than not
-measuring, and four chosen measurements were as accurate as sixteen random ones. On a second dataset with the cell type hidden, eight pilot measurements beat eight random ones by 0.084.
-The conclusions held with model checkpoints that had not been trained on the tested loci, and with a second
-foundation model, Enformer, without changing any parameter. The whole panel can be chosen in a single round. In a
-third pre-registered test, a reporter assay in induced neurons that no track predicted (matched tracks $\rho=0.07$),
-\tp{} fell 0.01--0.04 below the defaults. A pre-registered applicability check on the same eight measurements detects
-such assays and falls back to the default, recovering 0.010 there while keeping the gains on the other data. In mouse
-cell lines that no human track profiles, pilot panels beat random ones but not the all-track mean.\\
+returns a posterior-weighted prediction for every unmeasured variant. We evaluated it in pre-registered tests on three
+saturation mutagenesis reporter assays. On 125 loci, eight pilot measurements were non-inferior to the matched tracks
+(mean $+0.010$ in Spearman correlation) and, with these tracks hidden, improved on the all-track mean by 0.047
+($P = 3\times10^{-12}$); eight random measurements made the same inference worse than not measuring. These results
+held on a second dataset, with checkpoints not trained on the tested loci and with a second model, Enformer. In cell
+types without tracks of their own the gains were not consistent: pilot panels still beat random ones, but eight
+measurements did not beat the all-track mean in mouse cell lines, and in induced neurons no track predicted the assay.
+An applicability check on the same measurements detects such assays and returns the default.\\
 \textbf{Availability and implementation:} \tp{} is a Python package and command-line tool (MIT licence) at
 \url{https://github.com/ydvislab/AuraGenome-V} \todo{final repository, PyPI name, Zenodo DOI of the submitted version}.
 Pre-registrations and all derived results are in the same repository.\\
@@ -100,8 +97,10 @@ Here we present \tp{}, a tool that turns a few measured variants into a decision
 starts from the metadata-matched tracks and moves away from them only when the measurements contradict them; (iii)
 chooses the variants to measure by the classical criterion for discriminating between models
 \citep{box1967discrimination}; and (iv) reports a posterior-weighted prediction rather than one selected track. We
-evaluated it in pre-registered tests on three mutagenesis reporter datasets, including two that it did not pass, checked
-the dependence on the model's training exposure, and compared it with simpler panels, few-label regression and active model selection methods.
+evaluated it in pre-registered tests on three saturation mutagenesis reporter datasets and asked three questions in
+turn: does it do worse than the matched tracks when they exist, does it find a substitute when they are missing, and
+where does it stop helping. We also compared it with simpler panels, few-label regression and active model selection,
+and checked the dependence on the model's training exposure.
 
 %===============================================================================
 \section{Methods}
@@ -202,8 +201,9 @@ pre-registered Kircher version (uniform prior) is not covered.
 \textbf{Kircher et al.} \citep{kircher2019saturation} measured every possible substitution in 20 disease-associated
 regulatory elements by saturation mutagenesis MPRA. We used the 22 experiments in human cells (27,789 variants).
 Five experiments from five regions formed the development set; the other 17 experiments from 11 regions formed the
-test set. Several test experiments used cell lines AlphaGenome does not profile, such as SK-MEL-28 and glioblastoma
-lines.
+test set. Several test experiments used human cell lines AlphaGenome does not profile, such as SK-MEL-28 and
+glioblastoma lines. The six experiments in mouse cell lines (Neuro-2a, MIN6, NIH/3T3; five regions) were analysed only
+in a separate pre-registered test.
 \textbf{Siraj et al.} \citep{siraj2026functional,siraj2025data} measured all substitutions in 200-bp oligonucleotides
 around fine-mapped trait variants in K562 and HepG2 cells. We used 125 of the 128 published loci (one excluded for a
 deletion in the reference, two for having no unique match in GRCh38), 74,975 substitutions each measured in both cell
@@ -215,7 +215,7 @@ in iPSC-derived excitatory neurons (ENCSR548AQS): 328 tiles with at least 30 sub
 \textbf{Predictions.} We scored every variant by in-silico mutagenesis with AlphaGenome (1-Mb context, default
 distilled checkpoint) on all CAGE, DNase and ATAC tracks for human biosamples \citep{avsec2026alphagenome}, which derive
 from ENCODE and FANTOM5 \citep{encode2020expanded,fantom2014atlas}. We scored the neuron regions in the same way, and for
-Section~\ref{sec:general} the 11 Kircher test regions, 40 randomly drawn Siraj loci and the neuron regions with Enformer \citep{avsec2021enformer} on its 1,322
+Section~\ref{sec:general} the 11 Kircher test regions, the mouse-cell regions, 40 randomly drawn Siraj loci and the neuron regions with Enformer \citep{avsec2021enformer} on its 1,322
 human CAGE, DNase and ATAC tracks (196-kb context, one forward pass), using the same score: the change in log$_2$ of
 the summed signal over a 501-bp window centred on the variant.
 
@@ -224,19 +224,19 @@ the summed signal over a 501-bp window centred on the variant.
 
 \textbf{Scenarios.} We hid tracks to simulate three situations: \emph{profiled}, all tracks kept;
 \emph{related-only}, the element's own cell line hidden; \emph{unprofiled}, the own and related cell types hidden.
-Related cell types were listed from track metadata before any result was seen.
+Related cell types were listed from track metadata before any result was seen. These scenarios simulate a missing
+cell type; cell types that truly lack tracks are analysed separately (Section~\ref{sec:unprofiled}).
 \textbf{Protocol.} In each of 200 repeats, half of an element's variants form the pool that could be measured. Every
 method is scored by Spearman correlation on the same variants outside the pool. The unit of analysis is the region
 (Kircher; experiments in one region averaged) or the locus (Siraj; two cell types averaged).
-\textbf{Pre-registration.} Two pre-registrations were committed with frozen code before the test data were analysed.
+\textbf{Pre-registration.} Each test below was committed with frozen code before its test data were analysed.
 For Kircher (version without the metadata prior): H1, the pilot panel beats random panels; H2, it beats the all-track
 mean by at least 0.03 with a positive difference in at least 7/11 regions. For Siraj (frozen \tp{}): P1,
 non-inferiority to the matched mean in the profiled scenario at $k=8$ (one-sided 95\% bootstrap lower bound above
 $-0.02$); P2, at most 15\% of loci worse by more than 0.05; P3, improvement over the all-track mean when unprofiled at
-$k=8$ of at least 0.03; P4, improvement over the related-cell mean when related-only at $k=16$. A third, for the neurons (N1--N4: the
-analogues of P3, S1, P1--P2 and P4, all at $k=8$), was committed before any variant was scored, and a fourth, for the applicability check (A1, A2; Section~\ref{sec:boundary}),
-before its test units were run; a fifth, for Kircher experiments in mouse cell lines (M1--M3), before scoring. Analyses added later
-are labelled post hoc.
+$k=8$ of at least 0.03; P4, improvement over the related-cell mean when related-only at $k=16$. For the neurons (N1--N4) and
+the mouse-cell experiments (M1--M3), the analogues of these hypotheses at $k=8$ (Supplementary Tables~S10, S14); for the
+applicability check, A1 and A2 (Section~\ref{sec:boundary}). Analyses added later are labelled post hoc.
 \textbf{Training data, test sets and homology.} \tp{} trains no model; AlphaGenome is used frozen, and the only labels
 are the $k$ measured variants of the element being predicted. No measurement from another element and no evaluation
 variant enters the inference. The test sets were fixed before analysis and do not overlap the development
@@ -256,73 +256,20 @@ single track chosen with all labels is reported as a reference.
 %===============================================================================
 \section{Results}
 
-\subsection{Eight pilot measurements recover a proxy for unprofiled cell types}
+\subsection{When matched tracks exist, \tp{} does not do worse than them}
 
-With the element's own and related cell types hidden, the label-free alternative is the mean of all tracks.
-On the 11 Kircher test regions, eight pilot measurements raised the mean Spearman correlation from 0.296 (all-track
-mean) to 0.370, while eight random measurements gave 0.286 (Table~\ref{tab:kircher}; Supplementary Fig.~S1). Both
-pre-registered hypotheses held: the pilot panel beat random panels by 0.084 (9/11 regions, $P = 0.0024$) and the
-all-track mean by 0.074 (8/11 regions). Gains were largest where the tracks disagreed and the all-track mean was far
-from the best track, including \textit{IRF4} in SK-MEL-28, a cell line the model does not profile. They were absent
-in elements with very few significant variants (\textit{FOXE1}, 5).
-
-The pre-registered Siraj test confirmed this on 125 new loci (Table~\ref{tab:siraj}, Fig.~\ref{fig:siraj}). Without
-matched or related tracks, eight measurements improved on the all-track mean by 0.047 (0.391 to 0.438; $P = 3\times
-10^{-12}$; P3). With related-cell tracks only, sixteen measurements improved on their mean by 0.040 (0.412 to 0.452;
-$P = 3\times10^{-19}$; P4). Four pilot measurements were as accurate as sixteen random ones (0.402 against 0.404;
-Supplementary Table~S7). The gain was concentrated where the default was poor (post hoc): in the quarter of loci where
-the all-track mean was furthest from the best track it was 0.133, more than half of that gap, and in the quarter where
-it was closest, 0.004 (Supplementary Table~S8).
-
-Five Kircher test regions were measured in cell lines without tracks of their own (HEL 92.1.7, SK-MEL-28, three
-glioblastoma lines); a related biosample, chosen before any run, served as matched tracks. There (post hoc), \tp{} kept
-their accuracy ($+0.002$ with AlphaGenome, $+0.010$ with Enformer) and, with them hidden,
-beat the all-track mean by 0.12 and 0.16 and random panels by 0.10--0.11 in 5/5 regions (Supplementary Table~S13).
-A pre-registered test on five further regions, in mouse cell lines with a human proxy named from metadata, was not
-supported with either model (Supplementary Table~S14). With the proxy hidden, pilot panels beat random ones
-(AlphaGenome $+0.086$, Enformer $+0.102$) but not the all-track mean ($-0.004$, $+0.022$; required 0.03). With it,
-\tp{} corrected a poor proxy (\textit{ZFAND3}: $+0.17$, $+0.14$) but lost 0.068 at \textit{RET} with AlphaGenome.
-
-\begin{table*}[t]
-\centering
-% results/a1/common_eval_test_k8_by_element.tsv (region means), common_eval_test_decision.txt,
-% common_eval_regression_baselines_k8.tsv
-\caption{Kircher test set, unprofiled scenario (own and related cell types hidden), $k=8$, 11 regions. Spearman
-correlation on held-out variants. Pre-registered version (uniform prior); the metadata prior is inactive in this scenario.
-$^\dagger$Post hoc (first 50 repeats); for LASSO the range covers three rules for all-zero fits.}
-\label{tab:kircher}
-\begin{tabular}{llccc}
-\toprule
-Panel & Prediction & Mean $\rho$ & \tp{} $-$ this row & Regions $>0$, one-sided $P$ \\
-\midrule
-pilot (\tp{}) & track posterior & 0.370 & --- & --- \\
-random & track posterior & 0.286 & $+0.084$ & 9/11, 0.0024 \\
-largest predicted effect & track posterior & 0.338 & $+0.031$ & --, 0.18 \\
-none & all-track mean & 0.296 & $+0.074$ & 8/11, -- \\
-random & LASSO$^\dagger$ & -- & $+0.110$ to $+0.182$ & 9--10/11, $\le$0.0024 \\
-random & ridge$^\dagger$ & -- & $+0.116$ & 8/11, 0.0068 \\
-pilot & LASSO$^\dagger$ & -- & $+0.034$ to $+0.048$ & 8/11, $\le$0.016 \\
-pilot & ridge$^\dagger$ & -- & $+0.023$ & 8/11, 0.042 \\
-all labels & best single track (reference) & 0.454 & --- & --- \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-
-\subsection{With informative matched tracks, \tp{} is non-inferior to them}
-
-In a profiled cell type, \tp{} must not do worse than the matched tracks. On Siraj, with all tracks kept, eight measurements were non-inferior to the matched mean (P1:
-$+0.010$, one-sided lower bound $+0.005$ against a margin of $-0.02$), and only 3/125 loci were worse by more than 0.05
-(P2: upper bound 6.1\% against 15\%). At $k=16$ the difference was $+0.019$ with one locus harmed. All four
-pre-registered hypotheses held.
+In a profiled cell type the matched tracks are the natural default, so the first requirement is not to do worse than
+them. On Siraj, with all tracks kept, eight measurements were non-inferior to the matched mean (P1: $+0.010$, one-sided
+lower bound $+0.005$ against a margin of $-0.02$), and only 3/125 loci were worse by more than 0.05 (P2: upper bound
+6.1\% against 15\%; Table~\ref{tab:siraj}, Fig.~\ref{fig:siraj}). At $k=16$ the difference was $+0.019$ with one locus
+harmed.
 
 The metadata prior is what keeps \tp{} level with the matched tracks. Without it, \tp{} was 0.029 below the matched mean on the Kircher test
 regions at $k=8$, with 7/11 regions harmed (post hoc): it helped where the matched tracks were poor (\textit{LDLR}:
 matched mean 0.24, \tp{} 0.51) but lost where they were good (\textit{SORT1}: 0.65 against 0.48). With the prior, chosen on development
 elements before these runs, it was level with the matched mean ($+0.001$, one region harmed; $+0.018$ and none harmed
 at $k=16$). The obvious shortcut, re-fitting the matched mean to the same few labels, lowered accuracy on Siraj
-($-0.082$ on random panels, $-0.010$ on pilot panels), because the fitted slope is poorly determined and can flip sign. On the same panel, \tp{} was slightly ahead of \texttt{meta\_ridge} on Siraj ($+0.007$, 97/125 loci) and tied
-with it on Kircher.
+($-0.082$ on random panels, $-0.010$ on pilot panels), because the fitted slope is poorly determined and can flip sign. A ridge fit on residuals of the matched mean (\texttt{meta\_ridge}) was level with \tp{} (Table~\ref{tab:siraj}, S2).
 
 \begin{table*}[t]
 \centering
@@ -354,6 +301,58 @@ pre-registered harm threshold ($-0.05$).}
 \label{fig:siraj}
 \end{figure*}
 
+\subsection{When matched tracks are missing, eight measurements find a substitute}
+
+With the element's own and related cell types hidden, the label-free alternative is the mean of all tracks. On Siraj,
+eight measurements improved on it by 0.047 (0.391 to 0.438; $P = 3\times10^{-12}$; P3). With related-cell tracks only,
+sixteen measurements improved on their mean by 0.040 (0.412 to 0.452; $P = 3\times10^{-19}$; P4). With P1 and P2, all
+four Siraj hypotheses held. The Kircher test, with different elements, cell lines and assay design, agreed: eight
+pilot measurements raised the mean Spearman correlation from 0.296 (all-track mean) to 0.370, while eight random
+measurements gave 0.286 (Table~\ref{tab:kircher}; Supplementary Fig.~S1). Both pre-registered hypotheses held: the
+pilot panel beat random panels by 0.084 (9/11 regions, $P = 0.0024$) and the all-track mean by 0.074 (8/11 regions).
+
+The gain was concentrated where the default was poor (post hoc): in the quarter of Siraj loci where the all-track mean
+was furthest from the best track it was 0.133, more than half of that gap, and in the quarter where it was closest,
+0.004 (Supplementary Table~S8). It was absent in elements with very few significant variants (\textit{FOXE1}, 5).
+Figure~\ref{fig:example} shows one run, on the \textit{IRF4} enhancer in SK-MEL-28 melanoma cells with the melanocyte
+and related tracks hidden. After eight measurements the posterior favoured DNase tracks of neural crest cells, from which melanocytes derive, and the prediction reached
+$\rho = 0.59$ on held-out variants, against 0.39 for the all-track mean.
+
+\begin{table*}[t]
+\centering
+% results/a1/common_eval_test_k8_by_element.tsv (region means), common_eval_test_decision.txt,
+% common_eval_regression_baselines_k8.tsv
+\caption{Kircher test set, unprofiled scenario (own and related cell types hidden), $k=8$, 11 regions. Spearman
+correlation on held-out variants. Pre-registered version (uniform prior); the metadata prior is inactive in this scenario.
+$^\dagger$Post hoc (first 50 repeats); for LASSO the range covers three rules for all-zero fits.}
+\label{tab:kircher}
+\begin{tabular}{llccc}
+\toprule
+Panel & Prediction & Mean $\rho$ & \tp{} $-$ this row & Regions $>0$, one-sided $P$ \\
+\midrule
+pilot (\tp{}) & track posterior & 0.370 & --- & --- \\
+random & track posterior & 0.286 & $+0.084$ & 9/11, 0.0024 \\
+largest predicted effect & track posterior & 0.338 & $+0.031$ & --, 0.18 \\
+none & all-track mean & 0.296 & $+0.074$ & 8/11, -- \\
+random & LASSO$^\dagger$ & -- & $+0.110$ to $+0.182$ & 9--10/11, $\le$0.0024 \\
+random & ridge$^\dagger$ & -- & $+0.116$ & 8/11, 0.0068 \\
+pilot & LASSO$^\dagger$ & -- & $+0.034$ to $+0.048$ & 8/11, $\le$0.016 \\
+pilot & ridge$^\dagger$ & -- & $+0.023$ & 8/11, 0.042 \\
+all labels & best single track (reference) & 0.454 & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_worked_example.pdf}
+\caption{Worked example: \textit{IRF4} enhancer in SK-MEL-28, melanocyte and related tracks hidden, AlphaGenome, one
+repeat. (a) Measured effects; pilot panel in orange, in order. (b) Posterior weight of the four leading track
+families after 0, 4 and 8 measurements. (c) Held-out variants against the prediction.}
+\label{fig:example}
+\end{figure*}
+
 \subsection{Which variants are measured matters; when they are measured does not}
 \label{sec:panel}
 
@@ -363,7 +362,8 @@ at 122/125 loci (S1). The specific criterion mattered less: choosing by the expe
 correct matched the pilot panel (differences $\le 0.003$; post hoc; Supplementary Tables~S4, S6). Panels of the largest predicted effects were as good when matched tracks
 were kept, but worse without them (Siraj unprofiled: $-0.028$, 97/125 loci). Most useful in practice, a panel chosen
 in one round, before any measurement, was within 0.005 of sequential choice on both datasets, inside our pre-declared
-equivalence margin of 0.02. A laboratory can therefore order the whole panel at once.
+equivalence margin of 0.02. A laboratory can therefore order the whole panel at once. Four pilot measurements were as accurate as sixteen random
+ones (Siraj, matched tracks hidden: 0.402 against 0.404; Supplementary Table~S7).
 
 \subsection{Comparison with regression and active model selection}
 
@@ -376,26 +376,6 @@ Reporting the baseline's posterior average instead of its single track recovered
 tracks hidden the averaged baseline was level with \tp{}. The advantage thus comes from the metadata prior and from
 averaging over calibrated tracks.
 
-\subsection{Robustness}
-
-\textbf{Training exposure.} The default checkpoint was distilled from teachers trained on all training folds, so it has seen tracks over
-every tested locus \citep{avsec2026alphagenome}. We repeated both tests with,
-for each locus, the AlphaGenome checkpoint that held out its genomic fold, using reading rules committed before the
-runs. Absolute accuracies fell by 0.035--0.07, for the matched tracks most (Siraj: 0.474 to 0.402). All four Siraj
-hypotheses still held, with larger effects (P1 $+0.024$, P3 $+0.050$, P4 $+0.053$; Supplementary Table~S3). On the 11
-Kircher regions the pilot panel's advantage over random panels grew ($+0.093$, 10/11, $P = 0.0015$) and its advantage
-over the all-track mean shrank ($+0.054$, $P = 0.062$).
-\textbf{Label definition.} Using the published centring of the Siraj effects instead of the reference oligo changed
-each pre-registered contrast by at most 0.002 (Supplementary Table~S1).
-\textbf{Direction of effects.} On Siraj sign accuracy agreed with the rank results; on Kircher \tp{} called fewer
-signs correctly than the matched mean ($-0.133$; $-0.071$ without the fitted offsets, which it therefore also reports;
-Supplementary Table~S2).
-\textbf{Sharing across loci.} A laboratory often studies several loci in one cell type. In a pre-registered extension,
-the prior of a new locus mixed the frozen prior with the mean posterior of ten other loci after their own eight-variant
-panels (weight 0.75, chosen on 40 development loci). On 85 test loci with the cell type unprofiled, this added 0.012
-at eight measurements (65/85 loci, $P = 4\times10^{-8}$), below the pre-registered 0.02, and 0.022 at four; with
-matched tracks it stayed non-inferior ($+0.014$, 3/85 loci harmed; Supplementary Table~S9).
-
 \subsection{A second foundation model}
 \label{sec:general}
 
@@ -406,8 +386,7 @@ All six hypotheses held (Table~\ref{tab:enformer}). With matched tracks, eight m
 ($+0.022$, one-sided lower bound $+0.007$; 1/40 loci worse by more than 0.05). Without them, eight measurements
 improved on the all-track mean by 0.052 on Siraj ($P = 4\times10^{-4}$) and by 0.109 on Kircher (8/11 regions), and
 beat eight random measurements by 0.097 (10/11 regions, $P = 0.001$). Enformer's tracks were less accurate than
-AlphaGenome's (matched mean 0.404 against 0.473 on the same loci), and \tp{}'s gains were at least as
-large. Both models' training data cover these regions and include K562 and HepG2, so this test addresses a change of
+AlphaGenome's, and \tp{}'s gains were at least as large. Both models' training data cover these regions and include K562 and HepG2, so this test addresses a change of
 model, not of cell type.
 
 \begin{table}[t]
@@ -439,16 +418,54 @@ all-track mean & $+0.077$ (8/11) & $+0.109$ (8/11) \\
 \end{tabular}}
 \end{table}
 
+\subsection{Robustness}
+
+\textbf{Training exposure.} The default checkpoint was distilled from teachers trained on all training folds, so it has seen tracks over
+every tested locus \citep{avsec2026alphagenome}. We repeated both tests with,
+for each locus, the AlphaGenome checkpoint that held out its genomic fold, using reading rules committed before the
+runs. Absolute accuracies fell by 0.035--0.07, for the matched tracks most (Siraj: 0.474 to 0.402). All four Siraj
+hypotheses still held, with larger effects (P1 $+0.024$, P3 $+0.050$, P4 $+0.053$; Supplementary Table~S3). On the 11
+Kircher regions the pilot panel's advantage over random panels grew ($+0.093$, 10/11, $P = 0.0015$) and its advantage
+over the all-track mean shrank ($+0.054$, $P = 0.062$).
+\textbf{Label definition.} Using the published centring of the Siraj effects instead of the reference oligo changed
+each pre-registered contrast by at most 0.002 (Supplementary Table~S1).
+\textbf{Direction of effects.} On Siraj sign accuracy agreed with the rank results; on Kircher \tp{} called fewer
+signs correctly than the matched mean ($-0.133$; $-0.071$ without the fitted offsets, which it therefore also reports;
+Supplementary Table~S2).
+\textbf{Sharing across loci.} A laboratory often studies several loci in one cell type. In a pre-registered extension,
+the prior of a new locus mixed the frozen prior with the mean posterior of ten other loci after their own eight-variant
+panels (weight 0.75, chosen on 40 development loci). On 85 test loci with the cell type unprofiled, this added 0.012
+at eight measurements (65/85 loci, $P = 4\times10^{-8}$), below the pre-registered 0.02, and 0.022 at four; with
+matched tracks it stayed non-inferior ($+0.014$, 3/85 loci harmed; Supplementary Table~S9).
+
+\subsection{Cell types without tracks of their own}
+\label{sec:unprofiled}
+
+Hiding the tracks of a profiled cell type usually leaves a closely related track. Three sets of experiments address
+cell types with no tracks of their own, with decreasing support.
+
+Five Kircher test regions were measured in human cell lines without tracks of their own (HEL 92.1.7, SK-MEL-28, three
+glioblastoma lines), with a related biosample, named before any run, as their proxy. There (post hoc), \tp{} kept the
+proxy's accuracy ($+0.002$ with AlphaGenome, $+0.010$ with Enformer) and, with the proxy hidden, beat the all-track
+mean by 0.12 and 0.16 and random panels by 0.10--0.11 in 5/5 regions (Supplementary Table~S13).
+
+We then pre-registered a test on the five Kircher regions measured in mouse cell lines (Neuro-2a, MIN6, NIH/3T3),
+which no human track profiles, with human proxies named from metadata. It was not supported with either model
+(Supplementary Table~S14). With the proxy hidden, pilot panels beat random ones (AlphaGenome $+0.086$, Enformer
+$+0.102$) but not the all-track mean ($-0.004$, $+0.022$; required 0.03). With the proxy, \tp{} corrected a poor one
+(\textit{ZFAND3}: $+0.17$, $+0.14$) but lost 0.068 at \textit{RET} with AlphaGenome, where the proxy was already
+close to the best track. The best single track reached 0.30--0.34, so a signal was there, but eight measurements did
+not find it reliably.
+
+In induced neurons, which the models barely profile, the pre-registered test (N1--N4, both models) failed for a
+different reason: no track predicted the assay. The matched tracks reached a Spearman correlation of 0.07 and the
+all-track mean 0.04--0.05; \tp{} was 0.02--0.03 below the matched mean and 0.01--0.04 below the all-track mean, with
+about 30\% of regions worse by more than 0.05 (Supplementary Table~S10).
+
 \subsection{Detecting assays that no track predicts}
 \label{sec:boundary}
 
-For a cell type that the models barely profile, we pre-registered a third test on the neuron assay (N1--N4, both
-models, no parameter changed). The main hypotheses did not hold (Supplementary Table~S10), and the absolute values show why: the matched
-tracks reached a Spearman correlation of only 0.07 with the measured effects and the all-track mean 0.04--0.05, so the
-eight labels carried almost no signal that any track shares. \tp{} was 0.02--0.03 below the matched mean and
-0.01--0.04 below the all-track mean, with about 30\% of regions worse by more than 0.05.
-
-A user cannot see these absolute values before measuring, but the eight labels themselves show the problem. We
+A user cannot see the tracks' accuracy before measuring, but the eight labels themselves can show that no track follows them. We
 therefore pre-registered the applicability check: its threshold was chosen on development units of all three datasets
 (5 Kircher experiments, 40 Siraj loci, 50 neuron regions) and committed before the held-out units were run. On the 109
 held-out neuron regions it judged 43--46\% of runs to have no trackable signal, raised accuracy over unchecked \tp{} by
@@ -458,45 +475,29 @@ over the matched mean with them (A2; Supplementary Table~S11). The overall neuro
 check was designed, so A1 is weaker evidence. With Enformer predictions (secondary) the check gained 0.019 over unchecked \tp{} but stayed 0.015 below the default: without signal the
 permutation $P$ is uniform, so half of the runs pass by chance. A stricter threshold (0.2, an option of \tp{}),
 equally good on development units, cut this loss to at most 0.007 for both models and cost at most 0.004 on Siraj
-(post hoc; Supplementary Table~S12).
-
-\subsection{Worked example}
-
-Figure~\ref{fig:example} shows one run on the \textit{IRF4} enhancer in SK-MEL-28 melanoma cells, with the melanocyte
-and related tracks hidden. The eight pilot variants spread over the element and include its strongest losses of
-activity. After eight measurements the posterior favoured DNase tracks of neural crest cells, from which melanocytes
-derive, but no family held more than 0.09 of it; the posterior-average prediction reached $\rho = 0.59$ on the held-out
-variants, against 0.39 for the all-track mean. The applicability check passed ($P = 0.09$).
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_worked_example.pdf}
-\caption{Worked example: \textit{IRF4} enhancer in SK-MEL-28, melanocyte and related tracks hidden, AlphaGenome, one
-repeat. (a) Measured effects; pilot panel in orange, in order. (b) Posterior weight of the four leading track
-families after 0, 4 and 8 measurements. (c) Held-out variants against the prediction.}
-\label{fig:example}
-\end{figure*}
+(post hoc; Supplementary Table~S12). On the \textit{IRF4} run of Fig.~\ref{fig:example} the check passed ($P = 0.09$).
 
 %===============================================================================
 \section{Discussion}
 
 \tp{} gives laboratories a concrete protocol for using a foundation model in their own cell type: start from the
 tracks whose metadata match, measure about eight variants chosen to split the competing tracks, and let the
-measurements move the prediction only when they contradict the default. In two pre-registered tests this was
-non-inferior to the matched tracks when they existed and recovered 0.04--0.05 in Spearman correlation when they were
-missing or only approximate. On an assay that no track predicted it did not help, and an applicability check on the
-same measurements identified such cases and returned the default.
+measurements move the prediction only when they contradict the default. The evidence for this protocol has three
+tiers. When matched tracks exist, it was non-inferior to them. When they are missing but tracks of other cell types
+carry the signal, it recovered 0.04--0.05 in Spearman correlation, with two datasets, two models and held-out
+checkpoints. In cell types without tracks of their own it still chose better variants than random, but eight
+measurements did not reliably beat the all-track mean, and where no track predicted the assay the applicability check
+returned the default.
 
 Three lessons appear general. First, which variants are measured matters as much as how they are
 modelled; random measurements made the same inference worse than not measuring. Second, re-fitting a default
 predictor to a handful of labels is harmful, and a prior centred on the default avoids this. Third, the output should
 be an average: among a thousand correlated heads, the posterior-weighted prediction beat the single most probable
-track, and at \textit{HBG1} even the best single track chosen with all labels.
+track.
 
-\textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome, so on Siraj the unprofiled scenarios are simulated by
-hiding tracks. The one barely profiled cell type we tested in a pre-registered way, induced neurons, came with an
-assay that the tracks did not predict; in mouse cell lines eight measurements did not beat the all-track mean, so the
-positive evidence for a truly unprofiled cell type is post hoc (Supplementary Tables~S13, S14). With eight labels the applicability check has limited power. The evaluation is retrospective, but a panel chosen in one round, before any label, was as accurate
+\textbf{Limitations.} The main gains were measured by hiding the tracks of profiled cell types. For cell types
+without tracks of their own the only positive evidence is post hoc and covers five regions; the pre-registered test in
+mouse cell lines was not supported. With eight labels the applicability check has limited power. The evaluation is retrospective, but a panel chosen in one round, before any label, was as accurate
 (Section~\ref{sec:panel}), so a laboratory can follow the protocol as evaluated. Non-inferiority on average does not exclude
 losses at single loci (3/125 worse by more than 0.05, the largest $-0.26$). Absolute
 correlations are moderate (0.44--0.49 on Siraj), and gains are small where the assay has few significant variants.
@@ -506,16 +507,15 @@ correlations are moderate (0.44--0.49 on Siraj), and gains are small where the a
 \section{Conclusion}
 
 A handful of well-chosen measurements is enough to decide which of a thousand foundation-model tracks to use for a
-cell type, as long as some track carries the assay's signal, the decision starts from the metadata default and the measurements
-are chosen to discriminate.
+cell type, as long as the decision starts from the metadata default, the measurements are chosen to discriminate, and
+some track close to the cell type carries the assay's signal. For cell types far from every profiled one, more
+measurements or new profiles are needed.
 \tp{} makes this a two-command step: one to choose the panel and one to turn its measurements into predictions,
 with a check that tells the user when the measurements follow no track.
 
 \section*{Acknowledgements}
 \todo{acknowledgements}
-\todo{Required by the journal's LLM policy, to be completed by the authors: declare where AI tools were used (for
-example code, analysis scripts, figures, language editing), in this section or in Methods and in the cover letter.
-The journal does not accept papers drafted with LLMs; the final text must be written by the authors.}
+\todo{AI-use declaration (journal LLM policy); the authors must rewrite the text.}
 
 \section*{Author contributions}
 \todo{CRediT roles for each author}
@@ -530,8 +530,7 @@ None declared.
 Kircher et al. data are available from the original publication \citep{kircher2019saturation}
 \todo{database accession}. Siraj et al. saturation mutagenesis data are available from Zenodo under CC-BY-NC
 \citep{siraj2025data}; they are not redistributed. The neuron MPRA data are ENCODE experiment ENCSR548AQS (files
-ENCFF958ZLG and ENCFF752NFF, CC BY 4.0) \citep{kosicki2025mpra}. AlphaGenome predictions can be regenerated with the public API and
-the scripts in the repository. Pre-registrations, code and all derived tables are at
+ENCFF958ZLG and ENCFF752NFF, CC BY 4.0) \citep{kosicki2025mpra}. Predictions can be regenerated with the scripts in the repository. Pre-registrations, code and all derived tables are at
 \url{https://github.com/ydvislab/AuraGenome-V}.
 
 \bibliographystyle{plainnat}
