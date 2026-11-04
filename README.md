@@ -1,6 +1,12 @@
 # AuraGenome-V
 
-**Choosing which foundation-model track to trust for a cell type the model does not profile, from a handful of measurements.**
+**TrackPilot: choosing which foundation-model tracks to rely on for a cell type, from a handful of measured variants.**
+
+> The paper (`paper/main.tex`, `paper/main.pdf`) is the current statement of methods, results and their limits. The
+> notes below are the project log in the order the work was done; some early wording is broader than the final
+> claims. In short: with matched tracks TrackPilot is non-inferior to them on average; with them hidden it recovers
+> 0.04–0.05 in Spearman correlation; in cell types without tracks of their own its pilot panels beat random ones but
+> eight measurements did not reliably beat the all-track mean (pre-registered test not supported).
 
 Genomic foundation models such as AlphaGenome predict the effect of any variant on thousands of functional
 tracks (cell types × assays). When the cell type of interest is not among them, a researcher has to pick a proxy
@@ -100,8 +106,10 @@ metadata if the model profiles it. It then
 2. **`trackpilot predict`** takes your measurements of the panel and returns the posterior over tracks, a calibrated
    prediction for every unmeasured variant (the posterior average), the same prediction without the fitted offsets
    (`prediction_no_offset`, for calling effect directions), and an HTML report. An applicability check asks whether
-   the measurements follow any track better than shuffled labels do; if not (P > 0.5), no track carries the assay's
-   signal and `prediction_checked` falls back to the label-free default (matched-track or all-track mean).
+   the measurements fit any track better than shuffled labels do; if not (P > 0.5), `prediction_checked` falls back to
+   the label-free default (matched-track or all-track mean). This is an empirical fallback rule, not proof that no
+   track carries signal. The fallback is a ranking score in standardised track units, not a calibrated effect;
+   `checked_source` says which branch was used.
 
 ```bash
 pip install -e .                       # from a clone; PyPI release planned
@@ -126,11 +134,10 @@ trackpilot predict example_predictions.tsv.gz measured.tsv -o predictions.tsv --
 
 **How many variants to measure (`-k`).** The panel size is yours to set; 8 is the default and the size the paper's
 pre-registered tests used. TrackPilot still weighs every track: `k` is the number of measured variants, not of tracks.
-- Each track hypothesis spends two degrees of freedom on its calibration (slope and offset), so 2–4 labels mostly fix
-  the calibration. On Siraj, 2 measurements were below the label-free default in every scenario; 4 beat it only when
-  matched tracks were hidden; 8 beat it in every scenario.
-- The applicability check permutes the `k` labels, which have only `k!` orderings (24 for `k = 4`), so with few
-  labels it has little power to tell a real track from chance.
+- 8 is a practical budget fixed before the tests (the smallest usual pilot size), not a derived minimum. With very
+  few labels each track's calibration (slope and offset) is poorly determined: on Siraj, 2 measurements were below
+  the label-free default in every scenario; 4 beat it only when matched tracks were hidden; 8 beat it in every
+  scenario. Few labels also leave the applicability check little power.
 - Accuracy kept rising up to 16 labels, most in cell types far from every profiled one (Kircher mouse-cell regions:
   0.243 at `k = 8`, 0.265 at `k = 16`, all-track mean 0.246).
 - Measure in rounds: `trackpilot suggest PREDICTIONS -k 8 --measured first_round.tsv -o next.tsv` proposes 8 more

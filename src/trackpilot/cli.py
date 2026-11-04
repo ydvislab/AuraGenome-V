@@ -61,9 +61,12 @@ def predict(a):
     y = y[y.index.isin(tp.variants)]
     fit = tp.fit(y)
     p = tp.signal_check(y)
-    checked = (tp.prior_prediction() if p > a.check_p else fit.predict()).rename("prediction_checked")
+    fallback = p > a.check_p
+    checked = (tp.prior_prediction() if fallback else fit.predict()).rename("prediction_checked")
     out = pd.concat([fit.predict(), checked, fit.predict_no_offset(), fit.predict_map(), tp.prior_prediction(),
                      y.rename("measured")], axis=1)
+    # the fallback is the label-free default in standardised track units: a ranking score, not a calibrated effect
+    out["checked_source"] = "default_ranking_score" if fallback else "posterior_average"
     out.index.name = "variant_id"
     out.to_csv(a.out or sys.stdout, sep="\t", float_format="%.6g")
     post = posterior_table(tp, fit, meta)
@@ -72,8 +75,9 @@ def predict(a):
     if a.report:
         from .report import write_report
         write_report(a.report, tp, fit, post, out)
-    verdict = ("no track carries the assay's signal: prediction_checked is the label-free default" if p > a.check_p
-               else "the measurements follow the tracks: prediction_checked is the posterior average")
+    verdict = ("the labels fit no track better than shuffled labels: prediction_checked is the label-free default, a "
+               "ranking score in standardised track units, not a calibrated effect" if fallback
+               else "the labels fit the tracks better than shuffled labels: prediction_checked is the posterior average")
     print(summary(tp, fit, post) + f"\napplicability check P = {p:.2f} ({verdict})\n({time.time() - t0:.1f}s)",
           file=sys.stderr)
 

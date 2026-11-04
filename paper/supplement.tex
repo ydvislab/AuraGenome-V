@@ -17,11 +17,13 @@ types averaged). Siraj-derived tables are released under CC-BY-NC 4.0. Table~S6 
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=0.55\textwidth]{figures/fig5_test_learning_curve_common_eval.png}
+\includegraphics[width=0.55\textwidth]{figures/fig_s1_kircher_curve.pdf}
 \renewcommand{\thefigure}{S1}
-\caption{Kircher test set, unprofiled scenario: Spearman correlation on held-out variants against the number of
-measured variants $k$. All panels use the same track posterior. Dashed lines: the label-free all-track mean and the
-best single track chosen with all labels (a reference).}
+\caption{Kircher test set, own and related cell types hidden: Spearman correlation on held-out variants against
+the number of measured variants $k$, averaged over the 11 test regions (experiments in one region averaged first, as
+in Table~2 of the main text). All panels use the same track posterior (pre-registered version). Dashed lines: the
+label-free all-track mean and the best single track chosen with all labels (a reference). Source:
+\texttt{paper/make\_fig\_s1.py}.}
 \end{figure}
 
 \input{supp_tables}
@@ -33,7 +35,7 @@ best single track chosen with all labels (a reference).}
 \caption{Frozen TrackPilot on two models. Siraj: 40 random loci, both cell types averaged; Kircher: 11 test regions,
 unprofiled scenario. Differences in Spearman correlation on held-out variants; regions or loci $>0$ and one-sided $P$
 in brackets; $^a$unprofiled, $^b$related cells only. Kircher random-panel $P$: 0.002 (AlphaGenome), 0.001
-(Enformer). Both columns use the frozen method with the family prior; Table~1 of the main text shows the
+(Enformer). Both columns use the frozen method with the family prior; Table~2 of the main text shows the
 pre-registered version. Numbers copied from the decision files named in the source.}
 \label{tab:enformer}
 {\small\setlength{\tabcolsep}{4pt}
