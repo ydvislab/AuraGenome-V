@@ -273,6 +273,21 @@ for model, name in [("alphagenome", "AlphaGenome"), ("enformer", "Enformer")]:
     lines = open(f"{R}/kircher_mouse_{model}/decision.txt").read().splitlines()
     v = [re.search(r"-> (\w+)", l).group(1).lower() for l in lines[1:4]]
     verdicts.append(f"{name}: M1 {v[0]}, M2 {v[1]}, M3 {v[2]}")
+def mouse_fallback_sentence():
+    """Descriptive report promised in the mouse-cell pre-registration (results/a1/kircher_mouse_*/check.txt)."""
+    share = {}
+    for m, name in [("alphagenome", "AlphaGenome"), ("enformer", "Enformer")]:
+        for line in open(f"results/a1/kircher_mouse_{m}/check.txt"):
+            if ": share no signal" in line:
+                scen, rest = line.split(":", 1)
+                share[(name, scen)] = rest.split("share no signal")[1].split(";")[0].strip()
+    rates = "; ".join(f"{n} {float(share[(n, 'all')]):.0%} with the proxy, {float(share[(n, 'hide_matched')]):.0%} "
+                      f"without" for n in ["AlphaGenome", "Enformer"]).replace("%", "\\%")
+    return ("Descriptive, as pre-registered (20 repeats), share of runs in which the applicability check fell back "
+            "to the default: " + rates + "; the checked prediction was not below unchecked TrackPilot, and the "
+            "verdict is unchanged.")
+
+
 parts.append(table("tab:s14", "Pre-registered test: Kircher experiments measured in mouse cell lines, which no "
                    "human track profiles (five regions; the two ZRS experiments averaged). A human proxy was named from "
                    "metadata before any scoring (neuroblastoma lines for Neuro-2a, endocrine-pancreas precursors for "
@@ -280,7 +295,8 @@ parts.append(table("tab:s14", "Pre-registered test: Kircher experiments measured
                    "TP $-$ all-track mean $\\ge 0.03$ and $\\ge 4/5$ regions $>0$; M2, proxy hidden, pilot $-$ random "
                    "panel $\\ge 4/5$ regions $>0$; M3, with proxy, TP $-$ proxy mean $\\ge -0.02$ and no region below "
                    "$-0.05$; supported if M1 and M3 hold. " + "; ".join(verdicts) + ". Neither model met the "
-                   "pre-registered criterion. Best track: best single track chosen with all labels (post hoc).",
+                   "pre-registered criterion. Best track: best single track chosen with all labels (post hoc). "
+                   + mouse_fallback_sentence(),
                    ["Model", "Region", "Cell line", "Proxy mean", "TP, with proxy", "All-track mean", "TP, proxy hidden",
                     "Random panel", "Best track"], rows, "lllrrrrrr"))
 
