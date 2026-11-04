@@ -129,8 +129,8 @@ pre-registered tests used. TrackPilot still weighs every track: `k` is the numbe
 - Each track hypothesis spends two degrees of freedom on its calibration (slope and offset), so 2–4 labels mostly fix
   the calibration. On Siraj, 2 measurements were below the label-free default in every scenario; 4 beat it only when
   matched tracks were hidden; 8 beat it in every scenario.
-- The applicability check permutes the `k` labels, which have only `k!` orderings (24 for `k = 4`), so it needs about
-  8 labels to reach small P values.
+- The applicability check permutes the `k` labels, which have only `k!` orderings (24 for `k = 4`), so with few
+  labels it has little power to tell a real track from chance.
 - Accuracy kept rising up to 16 labels, most in cell types far from every profiled one (Kircher mouse-cell regions:
   0.243 at `k = 8`, 0.265 at `k = 16`, all-track mean 0.246).
 - Measure in rounds: `trackpilot suggest PREDICTIONS -k 8 --measured first_round.tsv -o next.tsv` proposes 8 more
