@@ -316,8 +316,7 @@ regions at $k=8$, with 7/11 regions harmed (post hoc): it helped where the match
 matched mean 0.24, \tp{} 0.51) but lost where they were good (\textit{SORT1}: 0.65 against 0.48). With the prior, chosen on development
 elements before these runs, it was level with the matched mean ($+0.001$, one region harmed; $+0.018$ and none harmed
 at $k=16$). The obvious shortcut, re-fitting the matched mean to the same few labels, lowered accuracy on Siraj
-($-0.082$ on random panels, $-0.010$ on pilot panels; better at only 1/125 loci with either panel), because the fitted slope is poorly determined and can flip
-sign. On the same panel, \tp{} was slightly ahead of \texttt{meta\_ridge} on Siraj ($+0.007$, 97/125 loci) and tied
+($-0.082$ on random panels, $-0.010$ on pilot panels), because the fitted slope is poorly determined and can flip sign. On the same panel, \tp{} was slightly ahead of \texttt{meta\_ridge} on Siraj ($+0.007$, 97/125 loci) and tied
 with it on Kircher.
 
 \begin{table*}[t]
@@ -457,8 +456,10 @@ held-out neuron regions it judged 43--46\% of runs to have no trackable signal, 
 0.010 (65/109 regions, $P = 0.002$; A1) and stayed within 0.004 of the default. On the 85 held-out Siraj loci it
 intervened in 5--8\% of runs and kept the gains: $+0.056$ over the all-track mean without matched tracks and $+0.011$
 over the matched mean with them (A2; Supplementary Table~S11). The overall neuron results had been seen before the
-check was designed, so A1 is weaker evidence than the other pre-registered tests. With Enformer predictions
-(secondary) the check gained 0.019 over unchecked \tp{} but stayed 0.015 below the default.
+check was designed, so A1 is weaker evidence. With Enformer predictions (secondary) the check gained 0.019 over unchecked \tp{} but stayed 0.015 below the default: without signal the
+permutation $P$ is uniform, so half of the runs pass by chance. A stricter threshold (0.2, an option of \tp{}),
+equally good on development units, cut this loss to at most 0.007 for both models and cost at most 0.004 on Siraj
+(post hoc; Supplementary Table~S12).
 
 \subsection{Worked example}
 
@@ -488,7 +489,7 @@ non-inferior to the matched tracks when they existed and recovered 0.04--0.05 in
 missing or only approximate. On an assay that no track predicted it did not help, and an applicability check on the
 same measurements identified such cases and returned the default.
 
-Three lessons appear to hold beyond this setting. First, which variants are measured matters as much as how they are
+Three lessons appear general. First, which variants are measured matters as much as how they are
 modelled; random measurements made the same inference worse than not measuring. Second, re-fitting a default
 predictor to a handful of labels is harmful, and a prior centred on the default avoids this. Third, the output should
 be an average: among a thousand correlated heads, the posterior-weighted prediction beat the single most probable
@@ -498,8 +499,7 @@ many output heads, as the Enformer results suggest.
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome, so on Siraj the unprofiled scenarios are simulated by
 hiding tracks. The one barely profiled cell type we tested in a pre-registered way, induced neurons, came with an
 assay that the tracks did not predict, so the case of an unprofiled cell type with a predictable assay rests on a few
-Kircher elements. With eight labels the applicability check has limited power: it recovered only part of the loss on
-the neuron assay and occasionally discards a useful fit. The evaluation is retrospective. Non-inferiority on average does not exclude
+Kircher elements. With eight labels the applicability check has limited power. The evaluation is retrospective. Non-inferiority on average does not exclude
 losses at single loci (3/125 worse by more than 0.05, the largest $-0.26$). Absolute
 correlations are moderate (0.44--0.49 on Siraj), and gains are small where the assay has few significant variants.
 \tp{} helps only if at least one track, or a mixture of tracks, is roughly proportional to the assay.

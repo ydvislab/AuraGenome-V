@@ -8,6 +8,7 @@ usage (from the repository root, package installed):
   python pilot/scripts/applicability_check.py run --stage test     # test units (only after p* is committed)
   python pilot/scripts/applicability_check.py evaluate --pstar P   # A1, A2 and secondary results
   python pilot/scripts/applicability_check.py enformer --pstar P   # secondary: neuron test regions, Enformer
+  python pilot/scripts/applicability_check.py curve                # post hoc: test units across thresholds
 Output: pilot/results/applicability/<stage>.tsv.gz, results/a1/applicability/*.
 """
 import os, sys, glob, argparse
@@ -103,7 +104,7 @@ def lower_bound(x):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["run", "choose", "evaluate", "enformer"])
+    ap.add_argument("cmd", choices=["run", "choose", "evaluate", "enformer", "curve"])
     ap.add_argument("--stage", choices=["dev", "test"])
     ap.add_argument("--pstar", type=float)
     ap.add_argument("--jobs", type=int, default=10)
@@ -134,6 +135,17 @@ if __name__ == "__main__":
         open(f"{REPORT}/secondary_enformer.txt", "w").write(text + "\n")
         print(text)
         print(u.groupby("scenario")[["rho_tp", "rho_default", "gated"]].mean().round(3))
+    elif a.cmd == "curve":
+        d = pd.concat([pd.read_csv(f"{OUT}/test.tsv.gz", sep="\t"),
+                       pd.read_csv(f"{OUT}/test_neuron_enformer.tsv.gz", sep="\t").assign(dataset="neuron_enformer")])
+        rows = []
+        for ps in GRID + [1.0]:
+            u = unit_means(d, ps)
+            g = u.assign(diff=u.gated - u.rho_default).groupby(["dataset", "scenario"])["diff"].mean()
+            rows.append(dict(pstar=ps, **{f"{i}|{j}": v for (i, j), v in g.items()}))
+        os.makedirs(REPORT, exist_ok=True)
+        pd.DataFrame(rows).round(4).to_csv(f"{REPORT}/threshold_curve.tsv", sep="\t", index=False)
+        print(pd.DataFrame(rows).round(3).to_string(index=False))
     elif a.cmd == "choose":
         d = pd.read_csv(f"{OUT}/dev.tsv.gz", sep="\t")
         rows = []

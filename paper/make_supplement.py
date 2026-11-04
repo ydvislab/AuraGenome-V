@@ -236,5 +236,20 @@ parts.append(table("tab:s11", "Applicability check (pre-registered extension; te
                    "(lower bound $-0.020$).",
                    ["Data", "View", "Unchecked", "Checked", "Default", "No signal"], rows, "llrrrr"))
 
+# S12: threshold of the applicability check (post hoc, descriptive; applicability_check.py curve)
+cur = tsv("applicability/threshold_curve.tsv")
+cols = [("siraj|all", "Siraj C1"), ("siraj|hide_matched", "Siraj C3"), ("kircher|all", "Kircher C1"),
+        ("kircher|hide_matched", "Kircher C3"), ("neuron|all", "Neurons C1"), ("neuron|hide_matched", "Neurons C3"),
+        ("neuron_enformer|all", "Neurons C1, Enf."), ("neuron_enformer|hide_matched", "Neurons C3, Enf.")]
+rows = [["none" if r.pstar == 1 else f"{r.pstar:g}"] + [f(r[c]) for c, _ in cols] for _, r in cur.iterrows()]
+parts.append(table("tab:s12", "Threshold of the applicability check (post hoc, descriptive; test units, $k=8$, 20 "
+                   "repeats). Mean difference in Spearman correlation between the checked prediction and the label-free "
+                   "default for each threshold (fall back to the default when the permutation $P$ exceeds it); "
+                   "``none'': no check. The frozen threshold is 0.5; on the development units 0.2, 0.3 and 0.5 scored "
+                   "within 0.0005 of each other. On the neuron assay the permutation $P$ values were close to uniform, "
+                   "as expected when no track carries the signal, so a threshold $p^*$ lets about a share $p^*$ of runs "
+                   "through by chance.",
+                   ["$p^*$"] + [n for _, n in cols], rows, "l" + "r" * len(cols)))
+
 open("paper/supp_tables.tex", "w").write("\n".join(parts))
 print("wrote paper/supp_tables.tex")

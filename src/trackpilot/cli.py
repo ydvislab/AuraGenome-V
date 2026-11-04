@@ -61,7 +61,7 @@ def predict(a):
     y = y[y.index.isin(tp.variants)]
     fit = tp.fit(y)
     p = tp.signal_check(y)
-    checked = (tp.prior_prediction() if p > SIGNAL_P else fit.predict()).rename("prediction_checked")
+    checked = (tp.prior_prediction() if p > a.check_p else fit.predict()).rename("prediction_checked")
     out = pd.concat([fit.predict(), checked, fit.predict_no_offset(), fit.predict_map(), tp.prior_prediction(),
                      y.rename("measured")], axis=1)
     out.index.name = "variant_id"
@@ -72,7 +72,7 @@ def predict(a):
     if a.report:
         from .report import write_report
         write_report(a.report, tp, fit, post, out)
-    verdict = ("no track carries the assay's signal: prediction_checked is the label-free default" if p > SIGNAL_P
+    verdict = ("no track carries the assay's signal: prediction_checked is the label-free default" if p > a.check_p
                else "the measurements follow the tracks: prediction_checked is the posterior average")
     print(summary(tp, fit, post) + f"\napplicability check P = {p:.2f} ({verdict})\n({time.time() - t0:.1f}s)",
           file=sys.stderr)
@@ -128,6 +128,9 @@ def main(argv=None):
     p.add_argument("-o", "--out", default="", help="predictions per variant (default: stdout)")
     p.add_argument("--posterior", default="", help="write the posterior over tracks here")
     p.add_argument("--report", default="", help="write an HTML report here")
+    p.add_argument("--check-p", type=float, default=SIGNAL_P, help="applicability check: fall back to the default "
+                   f"when the permutation P exceeds this (paper: {SIGNAL_P}; 0.2 is stricter, for assays that may be "
+                   "weak)")
     p.set_defaults(func=predict)
     g = sub.add_parser("score-alphagenome", help="score every substitution of a region with AlphaGenome (ISM)")
     g.add_argument("--region", required=True, help="chrom:start-end, 1-based inclusive, GRCh38")

@@ -41,7 +41,7 @@ pos = variants("data/variants_grch38.tsv")
 pos = pos[pos.element == E].set_index("key").pos.reindex(y.index)
 pos = pos - pos.min() + 1
 plt.rcParams.update({"font.size": 7, "axes.spines.top": False, "axes.spines.right": False})
-fig, ax = plt.subplots(1, 3, figsize=(7.0, 2.0), gridspec_kw=dict(width_ratios=[1.35, 1.0, 0.9]), layout="constrained")
+fig, ax = plt.subplots(1, 3, figsize=(7.0, 1.8), gridspec_kw=dict(width_ratios=[1.35, 1.0, 0.9]), layout="constrained")
 a = ax[0]
 a.scatter(pos, y, s=2, c="0.75", lw=0)
 a.scatter(pos[panel], y[panel], s=22, c="#c2410c", lw=0.5, edgecolor="white", zorder=3)
