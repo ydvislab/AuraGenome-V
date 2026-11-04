@@ -53,7 +53,8 @@ The conclusions held with model checkpoints that had not been trained on the tes
 foundation model, Enformer, without changing any parameter. The whole panel can be chosen in a single round. In a
 third pre-registered test, a reporter assay in induced neurons that no track predicted (matched tracks $\rho=0.07$),
 \tp{} fell 0.01--0.04 below the defaults. A pre-registered applicability check on the same eight measurements detects
-such assays and falls back to the default, recovering 0.010 there while keeping the gains on the other data.\\
+such assays and falls back to the default, recovering 0.010 there while keeping the gains on the other data. In mouse
+cell lines that no human track profiles, pilot panels beat random ones but not the all-track mean.\\
 \textbf{Availability and implementation:} \tp{} is a Python package and command-line tool (MIT licence) at
 \url{https://github.com/ydvislab/AuraGenome-V} \todo{final repository, PyPI name, Zenodo DOI of the submitted version}.
 Pre-registrations and all derived results are in the same repository.\\
@@ -99,7 +100,7 @@ Here we present \tp{}, a tool that turns a few measured variants into a decision
 starts from the metadata-matched tracks and moves away from them only when the measurements contradict them; (iii)
 chooses the variants to measure by the classical criterion for discriminating between models
 \citep{box1967discrimination}; and (iv) reports a posterior-weighted prediction rather than one selected track. We
-evaluated it in pre-registered tests on three mutagenesis reporter datasets, including one where it failed, checked
+evaluated it in pre-registered tests on three mutagenesis reporter datasets, including two that it did not pass, checked
 the dependence on the model's training exposure, and compared it with simpler panels, few-label regression and active model selection methods.
 
 %===============================================================================
@@ -234,7 +235,7 @@ non-inferiority to the matched mean in the profiled scenario at $k=8$ (one-sided
 $-0.02$); P2, at most 15\% of loci worse by more than 0.05; P3, improvement over the all-track mean when unprofiled at
 $k=8$ of at least 0.03; P4, improvement over the related-cell mean when related-only at $k=16$. A third, for the neurons (N1--N4: the
 analogues of P3, S1, P1--P2 and P4, all at $k=8$), was committed before any variant was scored, and a fourth, for the applicability check (A1, A2; Section~\ref{sec:boundary}),
-before its test units were run. Analyses added later
+before its test units were run; a fifth, for Kircher experiments in mouse cell lines (M1--M3), before scoring. Analyses added later
 are labelled post hoc.
 \textbf{Training data, test sets and homology.} \tp{} trains no model; AlphaGenome is used frozen, and the only labels
 are the $k$ measured variants of the element being predicted. No measurement from another element and no evaluation
@@ -277,6 +278,10 @@ Five Kircher test regions were measured in cell lines without tracks of their ow
 glioblastoma lines); a related biosample, chosen before any run, served as matched tracks. There (post hoc), \tp{} kept
 their accuracy ($+0.002$ with AlphaGenome, $+0.010$ with Enformer) and, with them hidden,
 beat the all-track mean by 0.12 and 0.16 and random panels by 0.10--0.11 in 5/5 regions (Supplementary Table~S13).
+A pre-registered test on five further regions, in mouse cell lines with a human proxy named from metadata, was not
+supported with either model (Supplementary Table~S14). With the proxy hidden, pilot panels beat random ones
+(AlphaGenome $+0.086$, Enformer $+0.102$) but not the all-track mean ($-0.004$, $+0.022$; required 0.03). With it,
+\tp{} corrected a poor proxy (\textit{ZFAND3}: $+0.17$, $+0.14$) but lost 0.068 at \textit{RET} with AlphaGenome.
 
 \begin{table*}[t]
 \centering
@@ -306,12 +311,10 @@ all labels & best single track (reference) & 0.454 & --- & --- \\
 
 \subsection{With informative matched tracks, \tp{} is non-inferior to them}
 
-A laboratory working in a profiled cell type would simply use the matched tracks, so the first requirement is not to
-do worse than them. On Siraj, with all tracks kept, eight measurements were non-inferior to the matched mean (P1:
+In a profiled cell type, \tp{} must not do worse than the matched tracks. On Siraj, with all tracks kept, eight measurements were non-inferior to the matched mean (P1:
 $+0.010$, one-sided lower bound $+0.005$ against a margin of $-0.02$), and only 3/125 loci were worse by more than 0.05
 (P2: upper bound 6.1\% against 15\%). At $k=16$ the difference was $+0.019$ with one locus harmed. All four
-pre-registered hypotheses held. Non-inferiority holds on average, not at every locus: the largest losses were $-0.26$
-(one HepG2 locus) and $-0.15$ (one K562 locus).
+pre-registered hypotheses held.
 
 The metadata prior is what keeps \tp{} level with the matched tracks. Without it, \tp{} was 0.029 below the matched mean on the Kircher test
 regions at $k=8$, with 7/11 regions harmed (post hoc): it helped where the matched tracks were poor (\textit{LDLR}:
@@ -356,9 +359,8 @@ pre-registered harm threshold ($-0.05$).}
 
 Measuring random variants was worse than not measuring: in the unprofiled scenario on Siraj, the same inference
 reached 0.342 with random panels, below the label-free all-track mean (0.391), and the pilot panel beat random panels
-at 122/125 loci (S1). The specific criterion mattered less (post hoc; Supplementary Table~S4). Choosing variants by
-the expected information gain about which track is correct matched the pilot panel (differences $\le 0.003$, also with
-a more accurate approximation; Supplementary Table~S6). Panels of the largest predicted effects were as good when matched tracks
+at 122/125 loci (S1). The specific criterion mattered less: choosing by the expected information gain about which track is
+correct matched the pilot panel (differences $\le 0.003$; post hoc; Supplementary Tables~S4, S6). Panels of the largest predicted effects were as good when matched tracks
 were kept, but worse without them (Siraj unprofiled: $-0.028$, 97/125 loci). Most useful in practice, a panel chosen
 in one round, before any measurement, was within 0.005 of sequential choice on both datasets, inside our pre-declared
 equivalence margin of 0.02. A laboratory can therefore order the whole panel at once.
@@ -385,9 +387,9 @@ Kircher regions the pilot panel's advantage over random panels grew ($+0.093$, 1
 over the all-track mean shrank ($+0.054$, $P = 0.062$).
 \textbf{Label definition.} Using the published centring of the Siraj effects instead of the reference oligo changed
 each pre-registered contrast by at most 0.002 (Supplementary Table~S1).
-\textbf{Direction of effects.} On Siraj the share of significant held-out variants with the correct sign agreed with
-the rank results; on Kircher \tp{} called fewer signs correctly than the matched mean ($-0.133$), and $-0.071$ (95\%
-interval $-0.21$ to $+0.01$) without the fitted offsets, which it therefore also reports (Supplementary Table~S2).
+\textbf{Direction of effects.} On Siraj sign accuracy agreed with the rank results; on Kircher \tp{} called fewer
+signs correctly than the matched mean ($-0.133$; $-0.071$ without the fitted offsets, which it therefore also reports;
+Supplementary Table~S2).
 \textbf{Sharing across loci.} A laboratory often studies several loci in one cell type. In a pre-registered extension,
 the prior of a new locus mixed the frozen prior with the mean posterior of ten other loci after their own eight-variant
 panels (weight 0.75, chosen on 40 development loci). On 85 test loci with the cell type unprofiled, this added 0.012
@@ -493,8 +495,8 @@ track, and at \textit{HBG1} even the best single track chosen with all labels.
 
 \textbf{Limitations.} K562 and HepG2 are profiled by AlphaGenome, so on Siraj the unprofiled scenarios are simulated by
 hiding tracks. The one barely profiled cell type we tested in a pre-registered way, induced neurons, came with an
-assay that the tracks did not predict, so the case of an unprofiled cell type with a predictable assay rests on five
-Kircher regions (Supplementary Table~S13). With eight labels the applicability check has limited power. The evaluation is retrospective, but a panel chosen in one round, before any label, was as accurate
+assay that the tracks did not predict; in mouse cell lines eight measurements did not beat the all-track mean, so the
+positive evidence for a truly unprofiled cell type is post hoc (Supplementary Tables~S13, S14). With eight labels the applicability check has limited power. The evaluation is retrospective, but a panel chosen in one round, before any label, was as accurate
 (Section~\ref{sec:panel}), so a laboratory can follow the protocol as evaluated. Non-inferiority on average does not exclude
 losses at single loci (3/125 worse by more than 0.05, the largest $-0.26$). Absolute
 correlations are moderate (0.44--0.49 on Siraj), and gains are small where the assay has few significant variants.

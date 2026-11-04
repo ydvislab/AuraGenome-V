@@ -1,0 +1,5 @@
+Kircher mouse-cell experiments, alphagenome: 5 regions
+M1 C3 k=8: TrackPilot - all-track mean = -0.0039 (>= 0.03?), 2/5 > 0 (>= 4?) -> FAILS
+M2 C3 k=8: pilot - random panel = +0.0860, 4/5 > 0 (>= 4?) -> HOLDS
+M3 C1 k=8: TrackPilot - proxy mean = +0.0247 (>= -0.02?), worst region -0.0676 (>= -0.05?) -> FAILS
+DECISION: NOT SUPPORTED (M1 and M3)

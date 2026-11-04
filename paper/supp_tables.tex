@@ -426,3 +426,24 @@ Enformer & TERT (glioblastoma) & glioblastoma (alt.) & 0.594 & 0.592 & 0.616 & 0
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[!ht]
+\caption{Pre-registered test: Kircher experiments measured in mouse cell lines, which no human track profiles (five regions; the two ZRS experiments averaged). A human proxy was named from metadata before any scoring (neuroblastoma lines for Neuro-2a, endocrine-pancreas precursors for MIN6, fibroblasts for NIH/3T3). Frozen TrackPilot, $k=8$, 200 repeats. Hypotheses: M1, proxy hidden, TP $-$ all-track mean $\ge 0.03$ and $\ge 4/5$ regions $>0$; M2, proxy hidden, pilot $-$ random panel $\ge 4/5$ regions $>0$; M3, with proxy, TP $-$ proxy mean $\ge -0.02$ and no region below $-0.05$; supported if M1 and M3 hold. AlphaGenome: M1 fails, M2 holds, M3 fails; Enformer: M1 fails, M2 holds, M3 holds. Neither model met the pre-registered criterion. Best track: best single track chosen with all labels (post hoc).}\label{tab:s14}
+\centering\small
+\begin{tabular}{lllrrrrrr}
+\toprule
+Model & Region & Cell line & Proxy mean & TP, with proxy & All-track mean & TP, proxy hidden & Random panel & Best track \\
+\midrule
+AlphaGenome & RET & Neuro-2a & 0.237 & 0.170 & 0.106 & 0.060 & 0.071 & 0.256 \\
+AlphaGenome & TCF7L2 & MIN6 & 0.136 & 0.143 & 0.139 & 0.168 & 0.085 & 0.255 \\
+AlphaGenome & UC88 & Neuro-2a & 0.327 & 0.332 & 0.334 & 0.318 & 0.189 & 0.356 \\
+AlphaGenome & ZFAND3 & MIN6 & 0.240 & 0.406 & 0.426 & 0.451 & 0.341 & 0.513 \\
+AlphaGenome & ZRS & NIH/3T3 & 0.223 & 0.235 & 0.228 & 0.216 & 0.097 & 0.305 \\
+Enformer & RET & Neuro-2a & 0.228 & 0.184 & 0.172 & 0.165 & 0.086 & 0.256 \\
+Enformer & TCF7L2 & MIN6 & 0.115 & 0.115 & 0.105 & 0.117 & 0.041 & 0.204 \\
+Enformer & UC88 & Neuro-2a & 0.213 & 0.213 & 0.185 & 0.202 & 0.095 & 0.283 \\
+Enformer & ZFAND3 & MIN6 & 0.186 & 0.321 & 0.302 & 0.423 & 0.273 & 0.483 \\
+Enformer & ZRS & NIH/3T3 & 0.219 & 0.214 & 0.203 & 0.169 & 0.068 & 0.281 \\
+\bottomrule
+\end{tabular}
+\end{table}

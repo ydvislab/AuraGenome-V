@@ -263,5 +263,27 @@ parts.append(table("tab:s13", "Kircher test regions measured in human cell lines
                    ["Model", "Region", "Cell line", "Proxy mean", "TP, with proxy", "All-track mean", "TP, proxy hidden",
                     "Random panel"], rows, "lllrrrrr"))
 
+# S14: pre-registered fourth test, Kircher experiments in mouse cell lines (kircher_mouse_report.py)
+cell = {"RET": "Neuro-2a", "UC88": "Neuro-2a", "TCF7L2": "MIN6", "ZFAND3": "MIN6", "ZRS": "NIH/3T3"}
+rows, verdicts = [], []
+for model, name in [("alphagenome", "AlphaGenome"), ("enformer", "Enformer")]:
+    m = tsv(f"kircher_mouse_{model}/by_region.tsv")
+    rows += [[name, r.region, cell[r.region], f(r.proxy_mean, sign=False), f(r.tp_c1, sign=False),
+              f(r.all_mean, sign=False), f(r.tp_c3, sign=False), f(r.random_c3, sign=False), f(r.oracle, sign=False)]
+             for _, r in m.iterrows()]
+    lines = open(f"{R}/kircher_mouse_{model}/decision.txt").read().splitlines()
+    v = [re.search(r"-> (\w+)", l).group(1).lower() for l in lines[1:4]]
+    verdicts.append(f"{name}: M1 {v[0]}, M2 {v[1]}, M3 {v[2]}")
+parts.append(table("tab:s14", "Pre-registered test: Kircher experiments measured in mouse cell lines, which no "
+                   "human track profiles (five regions; the two ZRS experiments averaged). A human proxy was named from "
+                   "metadata before any scoring (neuroblastoma lines for Neuro-2a, endocrine-pancreas precursors for "
+                   "MIN6, fibroblasts for NIH/3T3). Frozen TrackPilot, $k=8$, 200 repeats. Hypotheses: M1, proxy hidden, "
+                   "TP $-$ all-track mean $\\ge 0.03$ and $\\ge 4/5$ regions $>0$; M2, proxy hidden, pilot $-$ random "
+                   "panel $\\ge 4/5$ regions $>0$; M3, with proxy, TP $-$ proxy mean $\\ge -0.02$ and no region below "
+                   "$-0.05$; supported if M1 and M3 hold. " + "; ".join(verdicts) + ". Neither model met the "
+                   "pre-registered criterion. Best track: best single track chosen with all labels (post hoc).",
+                   ["Model", "Region", "Cell line", "Proxy mean", "TP, with proxy", "All-track mean", "TP, proxy hidden",
+                    "Random panel", "Best track"], rows, "lllrrrrrr"))
+
 open("paper/supp_tables.tex", "w").write("\n".join(parts))
 print("wrote paper/supp_tables.tex")
