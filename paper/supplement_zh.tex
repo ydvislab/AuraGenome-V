@@ -1,0 +1,60 @@
+% TrackPilot 补充材料中文对照译本（对应 supplement.tex）。仅供阅读和改写时对照，投稿以英文版为准。
+% 表 S1--S14 来自 supp_tables_zh.tex，由 paper/make_supplement_zh.py 从 supp_tables.tex 生成（脚本核对数字不变）。
+% 编译：cd paper && tectonic supplement_zh.tex（需要 XeTeX 和系统中文字体；Overleaf 上请选 XeLaTeX 并替换字体名）。
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=1.6cm,landscape]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{xeCJK}
+\setCJKmainfont[AutoFakeBold=2.5,AutoFakeSlant=0.15]{STSong}
+\setCJKsansfont[AutoFakeBold=2.5]{Hiragino Sans GB}
+\setCJKmonofont{Hiragino Sans GB}
+\xeCJKsetup{CJKspace=false}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+\setlength{\LTcapwidth}{\textwidth}
+\renewcommand{\thetable}{S\arabic{table}}
+\title{补充材料\\[2pt]\large TrackPilot：用少量实测变异，为一种细胞类型选择可信的基因组基础模型轨道\\[2pt]
+\normalsize（中文对照译本，仅供参考，以英文稿为准）}
+\date{}
+\begin{document}
+\maketitle
+\noindent 所有表格均由 \texttt{paper/make\_supplement.py} 从代码仓库 \texttt{results/a1} 下的结果表生成。Spearman 相关指留出变异的预测效应与实测效应之间的相关；差值在同一单位内配对（Kircher 为基因组区域；Siraj 为位点，两种细胞取平均）。场景：C1 已测绘（保留全部轨道），C2 仅有相近细胞（隐藏自身细胞系），C3 未测绘（隐藏自身及相近细胞类型）。v1 为预注册 Kircher 检验所用的早期版本（均匀先验），v2 为冻结的 \mbox{TrackPilot}。由 Siraj 数据派生的表格以 CC-BY-NC 4.0 许可发布。表~S6 分为两部分（S6a、S6b）。表~S15 的数字抄自其来源中注明的结果文件。表中的方法代号（如 disc、batch\_kb、matched\_cal）保留英文，含义见各表说明。
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.55\textwidth]{figures/fig_s1_kircher_curve.pdf}
+\renewcommand{\thefigure}{S1}
+\caption{Kircher 检验集，隐藏自身及相近细胞类型：留出变异上的 Spearman 相关随实测变异数 $k$ 的变化，对 11 个检验区域取平均（同一区域的多个实验先取平均，与正文表~2 相同）。所有曲线使用同一轨道后验（预注册版本）。虚线：不用标签的全轨道平均，以及用全部标签选出的最佳单条轨道（作为参考）。来源：\texttt{paper/make\_fig\_s1.py}。}
+\end{figure}
+
+\input{supp_tables_zh}
+
+\begin{table}[H]
+\centering
+% results/a1/enformer_siraj/siraj_decision.txt, results/a1/enformer_kircher/kircher_decision.txt;
+% AlphaGenome columns: results/a1/siraj_ref (same 40 loci) and proxy_select_v2/p0.95_fam (Kircher test)
+\caption{冻结的 TrackPilot 在两个模型上的结果。Siraj：随机抽取的 40 个位点，两种细胞取平均；Kircher：11 个检验区域，未测绘场景。数值为留出变异上 Spearman 相关的差值；括号内为为正的区域或位点数，或单侧 $P$；$^a$未测绘，$^b$仅有相近细胞。Kircher 中相对随机组的 $P$：0.002（AlphaGenome），0.001（Enformer）。两列都使用带族先验的冻结方法；正文表~2 展示的是预注册版本。数字抄自来源中注明的判定文件。}
+\label{tab:enformer}
+{\small\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+TrackPilot 减去 & AlphaGenome & Enformer \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{Siraj，40 个位点}} \\
+匹配轨道平均，$k=8$ & $+0.006$ & $+0.022$ \\
+\quad 差了 $>0.05$ 的位点 & 1/40 & 1/40 \\
+全轨道平均$^a$，$k=8$ & $+0.032$（$3\mathrm{e}{-4}$） & $+0.052$（$4\mathrm{e}{-4}$） \\
+相近细胞平均$^b$，$k=16$ & $+0.036$（$4\mathrm{e}{-10}$） & $+0.047$（$5\mathrm{e}{-7}$） \\
+匹配轨道平均（绝对值） & 0.473 & 0.404 \\
+\multicolumn{3}{@{}l}{\textit{Kircher，11 个区域$^a$，$k=8$}} \\
+随机组 & $+0.090$（9/11） & $+0.097$（10/11） \\
+全轨道平均 & $+0.077$（8/11） & $+0.109$（8/11） \\
+TrackPilot（绝对值） & 0.373 & 0.324 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+\end{document}
