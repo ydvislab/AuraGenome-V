@@ -110,25 +110,34 @@ and checked the dependence on the model's training exposure.
 
 \begin{figure*}[t]
 \centering
-\begin{tikzpicture}[node distance=0.55cm and 0.5cm, every node/.style={font=\footnotesize},
-  box/.style={draw, rounded corners=2pt, align=center, inner sep=4pt, text width=3.0cm, minimum height=1.25cm},
-  arr/.style={-{Stealth[length=2mm]}, thick}]
-\node[box] (tracks) {Foundation-model predictions\\ variants $\times$ tracks\\ (here AlphaGenome, 1,018 tracks)};
-\node[box, right=of tracks] (prior) {Prior over tracks\\ metadata-matched tracks as default\\ + track families};
+\begin{minipage}[b]{0.335\textwidth}
+\includegraphics[width=\linewidth]{figures/fig1_problem.pdf}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.645\textwidth}
+\centering
+\begin{tikzpicture}[node distance=0.45cm and 0.32cm, every node/.style={font=\scriptsize},
+  box/.style={draw, rounded corners=2pt, align=center, inner sep=3pt, text width=2.3cm, minimum height=1.05cm},
+  arr/.style={-{Stealth[length=1.6mm]}, thick}]
+\node[box] (tracks) {Model predictions\\ variants $\times$ tracks\\ (here 1,018 AlphaGenome tracks)};
+\node[box, right=of tracks] (prior) {Prior over tracks\\ metadata-matched tracks as default + track families};
 \node[box, right=of prior] (post) {Posterior over tracks\\ calibration $a, b$\\ integrated out};
 \node[box, right=of post] (pick) {\texttt{trackpilot suggest}\\ pilot panel: variants where the tracks disagree};
-\node[box, below=0.6cm of post] (out) {\texttt{trackpilot predict}\\ posterior-weighted prediction for every unmeasured
-variant};
+\node[box, below=0.4cm of post, text width=4.6cm, minimum height=0.7cm] (out) {\texttt{trackpilot predict}\\
+posterior-weighted prediction for every unmeasured variant};
 \draw[arr] (tracks) -- (prior);
 \draw[arr] (prior) -- (post);
 \draw[arr] (post) -- (pick);
 \draw[arr] (pick.north) to[out=135, in=45] node[above, align=center] {measure $y_j$ in the assay} (post.north);
 \draw[arr] (post.south) -- (out.north);
+\node[anchor=north west, font=\footnotesize\bfseries] at ([yshift=0.75cm]tracks.north west) {(b)};
 \end{tikzpicture}
-\caption{\tp{}. Each track is a hypothesis that the measured effect is an affine function of the track's predicted
-effect. Starting from a prior that favours the metadata-matched tracks, \tp{} proposes a panel of variants on which
-the tracks disagree, updates the posterior with their measured effects and predicts every other variant.
-\todo{redraw as a two-panel figure: (a) the problem, tracks disagreeing in sign at one locus; (b) the workflow.}}
+\end{minipage}
+\caption{The problem and \tp{}. (a) Spearman correlation of each of the 1,018 AlphaGenome tracks with the measured
+effects of all 1,353 substitutions in the \textit{IRF4} enhancer (SK-MEL-28; Fig.~\ref{fig:example}), using every label;
+24\% predict the opposite direction (red). Ticks: the seven matched tracks; dashed: mean of the matched and of all
+tracks. (b) Each track is a hypothesis that the measured effect is an affine function of its prediction. From a prior
+favouring the matched tracks, \tp{} proposes about eight variants on which the tracks disagree, updates the posterior with
+their measured effects and predicts every other variant.}
 \label{fig:overview}
 \end{figure*}
 
@@ -196,14 +205,13 @@ signal; with a panel chosen sequentially from the labels, as in our evaluation, 
 
 \subsection{Implementation}
 
-\tp{} is a Python package with a command-line interface \todo{finalise once the package is released; keep in step
-with the README}. Its input is a table of predicted effects (variants $\times$ tracks) with track metadata, so it is
+\tp{} is a Python package with a command-line interface, installed with \texttt{pip} from the repository. Its input is a table of predicted effects (variants $\times$ tracks) with track metadata, so it is
 not tied to one model; an optional module scores a region with AlphaGenome using the user's own API key (not yet run
 from the package with a live key). \texttt{trackpilot suggest} returns a pilot panel of $k$ variants from a pool;
 Its size is set with \texttt{-k}, and \texttt{--measured} adds a further round to labels already measured.
 \texttt{trackpilot predict} takes any number of measured effects and returns the posterior over tracks, predictions for all
-variants, the prediction after the applicability check and a report. A 1,353-variant element with 1,018 tracks takes under five seconds on a laptop. A script recomputes with the package every frozen \tp{} result of the first repeat (Kircher and Siraj, 4,734
-numbers; not the earlier version used in the Kircher test) with no difference.
+variants, the prediction after the applicability check and a report. A 1,353-variant element with 1,018 tracks takes under five seconds on a laptop. A script recomputes with the package all 4,734 frozen \tp{} results of the first repeat (Kircher and Siraj) with
+no difference.
 
 \subsection{Data and predictions}
 
@@ -393,8 +401,8 @@ information gain.
 \subsection{A second foundation model}
 \label{sec:general}
 
-\tp{} uses only the matrix of predictions and the track metadata, so it should carry over to other models. We
-re-ran the frozen method, with no parameter changed, on Enformer predictions. The hypotheses and thresholds, the same as
+\tp{} uses only the prediction matrix and the track metadata, so we re-ran the frozen method unchanged on
+Enformer predictions. The hypotheses and thresholds, the same as
 in the AlphaGenome tests, were committed before scoring; Siraj was restricted to 40 randomly drawn loci for compute.
 All six hypotheses held (Supplementary Table~S15). With matched tracks, eight measurements were non-inferior to them
 ($+0.022$, one-sided lower bound $+0.007$; 1/40 loci worse by more than 0.05). Without them, eight measurements
@@ -489,11 +497,9 @@ correlations are moderate (0.44--0.49 on Siraj).
 \section{Conclusion}
 
 A handful of well-chosen measurements can guide which of a thousand foundation-model tracks to rely on for a cell
-type, as long as the decision starts from the metadata default, the measurements are chosen to discriminate, and
-some track close to the cell type carries the assay's signal. For cell types far from every profiled one, more
-measurements or new profiles are needed.
-\tp{} makes this a two-command step: one to choose the panel and one to turn its measurements into predictions,
-with a fallback to the default when the measurements fit no track better than shuffled labels.
+type, if the decision starts from the metadata default, the measurements are chosen to discriminate and some track
+close to the cell type carries the assay's signal; for cell types far from every profiled one, more measurements or new profiles are needed. \tp{} makes this
+a two-command step, with a fallback to the default when the measurements fit no track better than shuffled labels.
 
 \section*{Acknowledgements}
 \todo{acknowledgements}
@@ -509,8 +515,8 @@ with a fallback to the default when the measurements fit no track better than sh
 None declared.
 
 \section*{Data availability}
-Kircher et al. data are available from the original publication \citep{kircher2019saturation}
-\todo{database accession}. Siraj et al. saturation mutagenesis data are available from Zenodo under CC-BY-NC
+Kircher et al. data are in GEO (GSE126550) \citep{kircher2019saturation}; we used the authors' effect
+estimates at \url{https://github.com/kircherlab/MPRA_SaturationMutagenesis}. Siraj et al. saturation mutagenesis data are available from Zenodo under CC-BY-NC
 \citep{siraj2025data}; they are not redistributed. The neuron MPRA data are ENCODE experiment ENCSR548AQS (files
 ENCFF958ZLG and ENCFF752NFF, CC BY 4.0) \citep{kosicki2025mpra}. Predictions can be regenerated with the scripts in the repository. Pre-registrations, code and all derived tables are at
 \url{https://github.com/ydvislab/AuraGenome-V}.

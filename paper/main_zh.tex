@@ -68,22 +68,29 @@
 
 \begin{figure*}[t]
 \centering
-\begin{tikzpicture}[node distance=0.55cm and 0.5cm, every node/.style={font=\footnotesize},
-  box/.style={draw, rounded corners=2pt, align=center, inner sep=4pt, text width=3.0cm, minimum height=1.25cm},
-  arr/.style={-{Stealth[length=2mm]}, thick}]
-\node[box] (tracks) {基础模型预测\\ 变异 $\times$ 轨道\\（此处为 AlphaGenome，1,018 条轨道）};
-\node[box, right=of tracks] (prior) {轨道先验\\ 以元数据匹配的轨道为默认\\ + 轨道族};
+\begin{minipage}[b]{0.335\textwidth}
+\includegraphics[width=\linewidth]{figures/fig1_problem.pdf}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.645\textwidth}
+\centering
+\begin{tikzpicture}[node distance=0.45cm and 0.32cm, every node/.style={font=\scriptsize},
+  box/.style={draw, rounded corners=2pt, align=center, inner sep=3pt, text width=2.3cm, minimum height=1.05cm},
+  arr/.style={-{Stealth[length=1.6mm]}, thick}]
+\node[box] (tracks) {模型预测\\ 变异 $\times$ 轨道\\（此处为 1,018 条 AlphaGenome 轨道）};
+\node[box, right=of tracks] (prior) {轨道先验\\ 以元数据匹配的轨道为默认 + 轨道族};
 \node[box, right=of prior] (post) {轨道后验\\ 校准参数 $a, b$\\ 被积分掉};
 \node[box, right=of post] (pick) {\texttt{trackpilot suggest}\\ 试点变异组：各轨道意见分歧的变异};
-\node[box, below=0.6cm of post] (out) {\texttt{trackpilot predict}\\ 为每个未测变异给出按后验加权的预测};
+\node[box, below=0.4cm of post, text width=4.6cm, minimum height=0.7cm] (out) {\texttt{trackpilot predict}\\
+为每个未测变异给出按后验加权的预测};
 \draw[arr] (tracks) -- (prior);
 \draw[arr] (prior) -- (post);
 \draw[arr] (post) -- (pick);
 \draw[arr] (pick.north) to[out=135, in=45] node[above, align=center] {在实验中测量 $y_j$} (post.north);
 \draw[arr] (post.south) -- (out.north);
+\node[anchor=north west, font=\footnotesize\bfseries] at ([yshift=0.75cm]tracks.north west) {(b)};
 \end{tikzpicture}
-\caption{\tp{} 流程。每条轨道是一个假设：实测效应是该轨道预测效应的仿射函数。\tp{} 从偏向元数据匹配轨道的先验出发，提出一组各轨道意见分歧的变异，用它们的实测效应更新后验，再预测其余所有变异。
-\todo{重画为两栏图：(a) 问题，某一位点上各轨道方向不一致；(b) 流程。}}
+\end{minipage}
+\caption{问题与 \tp{}。(a) 在 \textit{IRF4} 增强子（SK-MEL-28；图~\ref{fig:example}）的全部 1,353 个替换上，1,018 条 AlphaGenome 轨道各自与实测效应的 Spearman 相关（用全部标签计算）；24\% 的轨道预测的方向相反（红色）。刻度线：7 条匹配轨道；虚线：匹配轨道平均和全部轨道平均。(b) 每条轨道是一个假设：实测效应是该轨道预测的仿射函数。\tp{} 从偏向匹配轨道的先验出发，提出约 8 个各轨道意见分歧的变异，用它们的实测效应更新后验，再预测其余所有变异。}
 \label{fig:overview}
 \end{figure*}
 
@@ -124,7 +131,7 @@ y_S \mid t \sim N\!\left(0,\ s^2\left[(1-\beta)I + \alpha \mathbf{1}\mathbf{1}^\
 
 \subsection{实现}
 
-\tp{} 是一个带命令行界面的 Python 包 \todo{软件包发布后定稿，并与 README 保持一致}。它的输入是一张预测效应表（变异 $\times$ 轨道）和轨道元数据，因此不绑定某一个模型；一个可选模块可以用用户自己的 API 密钥调用 AlphaGenome 为某个区域打分（尚未在软件包中用真实密钥运行过）。\texttt{trackpilot suggest} 从变异池中返回 $k$ 个试点变异，大小用 \texttt{-k} 设定，\texttt{--measured} 可以在已测标签的基础上再追加一轮。\texttt{trackpilot predict} 接受任意数量的实测效应，返回轨道后验、所有变异的预测、经过适用性检查后的预测以及一份报告。在笔记本电脑上，一个含 1,353 个变异、1,018 条轨道的元件不到 5 秒即可完成。一个脚本用软件包重算了第一次重复中所有冻结版 \tp{} 的结果（Kircher 和 Siraj，共 4,734 个数字；不包括 Kircher 检验所用的早期版本），结果完全一致。
+\tp{} 是一个带命令行界面的 Python 包，可用 \texttt{pip} 从代码仓库安装。它的输入是一张预测效应表（变异 $\times$ 轨道）和轨道元数据，因此不绑定某一个模型；一个可选模块可以用用户自己的 API 密钥调用 AlphaGenome 为某个区域打分（尚未在软件包中用真实密钥运行过）。\texttt{trackpilot suggest} 从变异池中返回 $k$ 个试点变异，大小用 \texttt{-k} 设定，\texttt{--measured} 可以在已测标签的基础上再追加一轮。\texttt{trackpilot predict} 接受任意数量的实测效应，返回轨道后验、所有变异的预测、经过适用性检查后的预测以及一份报告。在笔记本电脑上，一个含 1,353 个变异、1,018 条轨道的元件不到 5 秒即可完成。一个脚本用软件包重算了第一次重复中全部 4,734 个冻结版 \tp{} 结果（Kircher 和 Siraj），结果完全一致。
 
 \subsection{数据与预测}
 
@@ -229,7 +236,7 @@ S3 & 已测绘，$k=8$：\texttt{matched\_cal}（随机变异组）$-$ 匹配轨
 \subsection{第二个基础模型}
 \label{sec:general}
 
-\tp{} 只使用预测矩阵和轨道元数据，因此应当能迁移到其他模型。我们在 Enformer 的预测上重新运行了冻结的方法，没有改任何参数。假设和阈值与 AlphaGenome 检验相同，并在打分前提交；为节省计算，Siraj 只用了随机抽取的 40 个位点。六条假设全部成立（补充表~S15）。有匹配轨道时，8 个测量值不劣于它们（$+0.022$，单侧下界 $+0.007$；1/40 个位点差了 0.05 以上）。没有匹配轨道时，8 个测量值在 Siraj 上比全轨道平均高 0.052（$P = 4\times10^{-4}$），在 Kircher 上高 0.109（8/11 个区域），比 8 个随机测量值高 0.097（10/11 个区域，$P = 0.001$）。两个模型都用这些区域以及 K562 和 HepG2 训练过，所以这里检验的是换模型，而不是换细胞类型。
+\tp{} 只使用预测矩阵和轨道元数据，因此我们在 Enformer 的预测上原样重新运行了冻结的方法。假设和阈值与 AlphaGenome 检验相同，并在打分前提交；为节省计算，Siraj 只用了随机抽取的 40 个位点。六条假设全部成立（补充表~S15）。有匹配轨道时，8 个测量值不劣于它们（$+0.022$，单侧下界 $+0.007$；1/40 个位点差了 0.05 以上）。没有匹配轨道时，8 个测量值在 Siraj 上比全轨道平均高 0.052（$P = 4\times10^{-4}$），在 Kircher 上高 0.109（8/11 个区域），比 8 个随机测量值高 0.097（10/11 个区域，$P = 0.001$）。两个模型都用这些区域以及 K562 和 HepG2 训练过，所以这里检验的是换模型，而不是换细胞类型。
 
 \subsection{稳健性}
 
@@ -265,7 +272,7 @@ Kircher 检验集中有 5 个区域是在没有自身轨道的人类细胞系中
 %===============================================================================
 \section{结论}
 
-只要决定从元数据默认出发、测量的变异是为区分轨道而挑选的、并且有某条接近该细胞类型的轨道带有实验信号，少量挑选得当的测量值就能指导我们在上千条基础模型轨道中依靠哪些。对于与所有已测绘细胞类型都相距甚远的细胞类型，则需要更多测量或新的图谱。\tp{} 把这件事变成两条命令：一条选择变异组，一条把测量结果转化为预测；当测量结果与任何轨道的吻合都不比打乱的标签更好时，它会退回默认预测。
+只要决定从元数据默认出发、测量的变异是为区分轨道而挑选的、并且有某条接近该细胞类型的轨道带有实验信号，少量挑选得当的测量值就能指导我们在上千条基础模型轨道中依靠哪些；对于与所有已测绘细胞类型都相距甚远的细胞类型，则需要更多测量或新的图谱。\tp{} 把这件事变成两条命令；当测量结果与任何轨道的吻合都不比打乱的标签更好时，它会退回默认预测。
 
 \section*{致谢}
 \todo{致谢}
@@ -281,7 +288,7 @@ Kircher 检验集中有 5 个区域是在没有自身轨道的人类细胞系中
 无。
 
 \section*{数据可用性}
-Kircher 等的数据可从原始文献获得 \citep{kircher2019saturation} \todo{数据库登录号}。Siraj 等的饱和诱变数据以 CC-BY-NC 许可发布于 Zenodo \citep{siraj2025data}，本文不再分发。神经元 MPRA 数据为 ENCODE 实验 ENCSR548AQS（文件 ENCFF958ZLG 和 ENCFF752NFF，CC BY 4.0）\citep{kosicki2025mpra}。预测可用仓库中的脚本重新生成。预注册文件、代码和所有派生表格见 \url{https://github.com/ydvislab/AuraGenome-V}。
+Kircher 等的数据存放于 GEO（GSE126550）\citep{kircher2019saturation}；我们使用的是作者在 \url{https://github.com/kircherlab/MPRA_SaturationMutagenesis} 发布的效应估计。Siraj 等的饱和诱变数据以 CC-BY-NC 许可发布于 Zenodo \citep{siraj2025data}，本文不再分发。神经元 MPRA 数据为 ENCODE 实验 ENCSR548AQS（文件 ENCFF958ZLG 和 ENCFF752NFF，CC BY 4.0）\citep{kosicki2025mpra}。预测可用仓库中的脚本重新生成。预注册文件、代码和所有派生表格见 \url{https://github.com/ydvislab/AuraGenome-V}。
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
