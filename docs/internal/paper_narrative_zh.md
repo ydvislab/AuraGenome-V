@@ -150,3 +150,12 @@ Bioinformatics 的 Original Paper 审稿，通常落在这五点上：
 5. S14：写明比较的是平均准确率，且描述性结果不改变对未加检查方法的判定。
 6. 讨论"恢复 0.04–0.05"限定为 Siraj；方法中"不用其他元件的测量值"限定为单位点分析。
 
+**第 3 轮评审（9/10）及修改**：评审确认第 2 轮的 6 处修改都已改正，没有发现需要改动的科学内容，也不需要新实验。剩下的是排版和生成脚本的问题，均已照改：
+1. `make_supplement.py` 改用 `r["first"]`、`r["view"]`：在 pandas 2.x 上，`first` 和 `view` 会被解析成方法，导致生成失败。改后生成的表格与原来完全一致。
+2. 补充表改为不浮动（`[H]`），S1–S15 按顺序排列。
+3. 补充材料标题改为 "Supplementary Data" 加论文的正式标题；S6a 去掉"as in the main text"。
+4. Siraj P1 统一为 +0.010。逐位点均值是 0.00953，补充表原先用已四舍五入到 4 位的 0.0095 再取整，得到 +0.009。
+5. 参考文献：MODEL SELECTOR、MODEL PICKER 补上 PMLR 卷号，CODA 去掉 arXiv 注释，Siraj 数据集的 Zenodo DOI 现在能显示出来。
+
+LaTeX 源文件打包在 `Genome+/TrackPilot_LaTeX_2026-11-16/`（另有同名 zip）。
+

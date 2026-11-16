@@ -1,11 +1,11 @@
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Siraj test (125 loci): effects relative to the measured reference oligo (primary) and centred on all oligos of the element as published (original analysis). P1--P4 are the pre-registered hypotheses; all held under both definitions. Secondary rows give the mean difference over loci and its 95\% bootstrap interval. S3b was added with the reference-relative labels.}\label{tab:s1}
 \centering\small
 \begin{tabular}{llll}
 \toprule
  & Quantity & Reference-relative & Published centring \\
 \midrule
-P1 $k=8$ & mean D (lower bound) & +0.009 (+0.005) & +0.010 (+0.005) \\
+P1 $k=8$ & mean D (lower bound) & +0.010 (+0.005) & +0.010 (+0.005) \\
 P2 $k=8$ & harmed (upper bound) & 3/125 (0.061) & 3/125 (0.061) \\
 P1 $k=16$ & mean D (lower bound) & +0.019 (+0.013) & +0.020 (+0.013) \\
 P2 $k=16$ & harmed (upper bound) & 1/125 (0.037) & 1/125 (0.037) \\
@@ -25,7 +25,7 @@ S7 K562 C3 k=8 & v2 $-$ all\_mean & +0.043 [+0.029 to +0.058] & +0.044 [+0.031 t
 \end{tabular}
 \end{table}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Directional accuracy (post hoc): fraction of significant held-out variants ($P<10^{-5}$, $|\text{effect}|\ge0.1$) whose predicted sign is correct. Labelled methods use the posterior-average prediction; \emph{no offset} drops the fitted offsets (diagnostic). Interval: 95\% bootstrap over units; last column, units better/worse.}\label{tab:s2}
 \centering\small
 \begin{tabular}{llllrrrrll}
@@ -53,14 +53,14 @@ Kircher (v2) & v2 C3 k=8 vs random & disc@8 & random@8 & 11 & 0.694 & 0.693 & +0
 \end{tabular}
 \end{table}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Siraj test repeated with, for each locus, the AlphaGenome checkpoint that held out its genomic fold (labels relative to the reference oligo). Columns give the pre-registered contrast with the distilled checkpoint (ALL\_FOLDS) and with the held-out checkpoint, and the paired change with its 95\% bootstrap interval over loci.}\label{tab:s3}
 \centering\small
 \begin{tabular}{lrrll}
 \toprule
 Hypothesis & ALL\_FOLDS & Held-out fold & Change [95\% CI] & Verdict \\
 \midrule
-P1 $k=8$ & +0.009 & +0.024 & +0.014 [+0.008 to +0.022] & holds \\
+P1 $k=8$ & +0.010 & +0.024 & +0.014 [+0.008 to +0.022] & holds \\
 P1 $k=16$ & +0.019 & +0.037 & +0.018 [+0.009 to +0.027] & holds \\
 P3 $k=8$ & +0.047 & +0.050 & +0.003 [$-$0.006 to +0.013] & holds \\
 P4 $k=16$ & +0.040 & +0.053 & +0.013 [+0.006 to +0.021] & holds \\
@@ -198,8 +198,8 @@ Kircher & C3 & 16 & v2 $-$ coda (average) & 11 & +0.011 & $-$0.008 to +0.028 & 6
 
 \renewcommand{\thetable}{S6a}
 
-\begin{table}[!ht]
-\caption{EIG convergence check (post hoc), coverage: posterior mass held by the hypotheses kept, median over units (minimum), at the first step and the lowest over the eight steps of a $k=8$ panel. E0: the 100 most probable hypotheses, 96 quadrature points (as in the main text); E1: 300 hypotheses; E2 (not shown) keeps $\ge$99\% of the mass at every step with 192 points.}\label{tab:s6a}
+\begin{table}[H]
+\caption{EIG convergence check (post hoc), coverage: posterior mass held by the hypotheses kept, median over units (minimum), at the first step and the lowest over the eight steps of a $k=8$ panel. E0: the 100 most probable hypotheses, 96 quadrature points (the setting used for Table S4); E1: 300 hypotheses; E2 (not shown) keeps $\ge$99\% of the mass at every step with 192 points.}\label{tab:s6a}
 \centering\small
 \begin{tabular}{llrrrr}
 \toprule
@@ -271,7 +271,7 @@ Kircher & no\_anchor & 16 & E1 $-$ E0 & 11 & $-$0.0013 & $-$0.006 to +0.002 & eq
 
 \renewcommand{\thetable}{S\arabic{table}}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Label efficiency on Siraj (post hoc, descriptive; 125 loci, 200 repeats). Mean Spearman correlation of the posterior-average prediction after $k$ pilot or random measurements, the label-free default and the best single track chosen with all labels (oracle). Gap closed: share of the default-to-oracle gap recovered by the pilot panel.}\label{tab:s7}
 \centering\small
 \begin{tabular}{lrrrrrr}
@@ -297,7 +297,7 @@ C3 unprofiled & 16 & 0.461 & 0.404 & 0.391 & 0.518 & 55\% \\
 \end{tabular}
 \end{table}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Where the gain is (post hoc, descriptive): Siraj loci split into quartiles of the gap between the label-free default and the oracle track (which needs all labels), gain of the pilot panel over the default at $k=8$, and loci worse than the default by more than 0.05.}\label{tab:s8}
 \centering\small
 \begin{tabular}{lrrrrrr}
@@ -320,7 +320,7 @@ C3 unprofiled & 4 & 31 & 0.244 & +0.133 & 54\% & 2 \\
 \end{tabular}
 \end{table}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Cross-locus prior (pre-registered extension; 85 test loci, 20 repeats, $\lambda=0.75$ chosen on 40 development loci). The prior of a new locus mixes the frozen prior with the mean posterior of $m$ other loci in the same cell type after their own 8-variant pilot panels. X1 (C3, $k=8$, cross-locus minus single locus at least 0.02): +0.0116, 65/85 loci positive, one-sided Wilcoxon $P=4\times10^{-8}$; not met. X2 (C1, $k=8$, non-inferior to the matched mean): +0.0141, lower bound +0.0069, 3/85 loci worse by more than 0.05 (upper bound 0.089); met. }\label{tab:s9}
 \centering\small
 \begin{tabular}{lrrrrrr}
@@ -346,7 +346,7 @@ C1 profiled & 8 & 30 & -- & 0.491 & +0.0068 & -- \\
 \end{tabular}
 \end{table}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Neuron MPRA (pre-registered third dataset; WTC11-NGN2 induced excitatory neurons, 159 regions, 200 repeats). Mean Spearman correlation of TrackPilot after $k$ pilot or random measurements and of the label-free default (matched, related or all-track mean). AlphaGenome: N1 $-$0.014 (not met), N2 +0.009 ($P=0.027$, held), N3 $-$0.019, lower bound $-$0.028, 47/159 regions worse by more than 0.05 (not met), N4 $-$0.015 (not met); Enformer: N1 $-$0.035 (not met), N2 +0.005 ($P=0.17$, not met), N3 $-$0.030, lower bound $-$0.038, 48/159 regions worse by more than 0.05 (not met), N4 $-$0.021 (not met). Decision (N1 and N3): not supported for either model. The best single track chosen with all labels reached 0.32 and 0.32 (AlphaGenome, Enformer), mostly selection among about 1,000 tracks on about 34 held-out variants per tile.}\label{tab:s10}
 \centering\small
 \begin{tabular}{lrrrrrrr}
@@ -372,7 +372,7 @@ C3 unprofiled & 16 & 0.033 & 0.027 & 0.044 & 0.023 & 0.018 & 0.054 \\
 \end{tabular}
 \end{table}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Applicability check (pre-registered extension; test units, $k=8$, 20 repeats, threshold $P>0.5$ chosen on development units). After the pilot panel is measured, a permutation test (200 shuffles of the eight labels) compares the mixture's log evidence with that of shuffled labels; if the labels are explained no better, the label-free default is returned. Mean Spearman correlation of TrackPilot without and with the check, of the default, and the share of runs in which the fallback was triggered. Evaluated with sequentially chosen panels. A1 (neurons: checked $-$ unchecked $>0$; checked non-inferior to the default, margin 0.02) and A2 (Siraj: gains over the defaults kept; checked non-inferior to unchecked, margin 0.01) both held; see the repository for the exact statistics. Secondary, neuron test regions with Enformer predictions: checked $-$ unchecked $+0.019$ ($P=2\times10^{-4}$), checked $-$ default $-0.015$ (lower bound $-0.020$).}\label{tab:s11}
 \centering\small
 \begin{tabular}{llrrrr}
@@ -389,7 +389,7 @@ Siraj (85 loci) & C3 unprofiled & 0.436 & 0.438 & 0.382 & 8\% \\
 \end{tabular}
 \end{table}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Threshold of the applicability check (post hoc, descriptive; test units, $k=8$, 20 repeats). Mean difference in Spearman correlation between the checked prediction and the label-free default for each threshold (fall back to the default when the permutation $P$ exceeds it); ``none'': no check. The frozen threshold is 0.5; on the development units 0.2, 0.3 and 0.5 scored within 0.0005 of each other. On the neuron assay the permutation $P$ values were empirically close to uniform, so a threshold $p^*$ let about a share $p^*$ of runs pass.}\label{tab:s12}
 \centering\small
 \begin{tabular}{lrrrrrrrr}
@@ -406,7 +406,7 @@ none & +0.009 & +0.054 & $-$0.001 & +0.069 & $-$0.017 & $-$0.011 & $-$0.030 & $-
 \end{tabular}
 \end{table}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Kircher test regions measured in human cell lines without tracks of their own (post hoc subgroup; the cell lines were flagged as unprofiled, and a related biosample chosen as their proxy, when the variant table was built, before any run). Frozen TrackPilot, $k=8$, 200 repeats. With proxy: the proxy tracks are the matched tracks; proxy hidden: proxy and related tracks hidden. AlphaGenome, 5 regions, with proxy tracks: TrackPilot $-$ proxy mean = +0.002 (3/5 $>0$). AlphaGenome, 5 regions, proxy hidden: TrackPilot $-$ all-track mean = +0.124 (3/5 $>0$). AlphaGenome, 5 regions, proxy hidden: pilot $-$ random panel = +0.108 (5/5 $>0$). Enformer, 5 regions, with proxy tracks: TrackPilot $-$ proxy mean = +0.010 (4/5 $>0$). Enformer, 5 regions, proxy hidden: TrackPilot $-$ all-track mean = +0.160 (4/5 $>0$). Enformer, 5 regions, proxy hidden: pilot $-$ random panel = +0.101 (5/5 $>0$).}\label{tab:s13}
 \centering\small
 \begin{tabular}{lllrrrrr}
@@ -427,7 +427,7 @@ Enformer & TERT (glioblastoma) & glioblastoma (alt.) & 0.594 & 0.592 & 0.616 & 0
 \end{tabular}
 \end{table}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \caption{Pre-registered test: Kircher experiments measured in mouse cell lines, which no human track profiles (five regions; the two ZRS experiments averaged). A human proxy was named from metadata before any scoring (neuroblastoma lines for Neuro-2a, endocrine-pancreas precursors for MIN6, fibroblasts for NIH/3T3). Frozen TrackPilot, $k=8$, 200 repeats. Hypotheses: M1, proxy hidden, TP $-$ all-track mean $\ge 0.03$ and $\ge 4/5$ regions $>0$; M2, proxy hidden, pilot $-$ random panel $\ge 4/5$ regions $>0$; M3, with proxy, TP $-$ proxy mean $\ge -0.02$ and no region below $-0.05$; supported if M1 and M3 hold. AlphaGenome: M1 fails, M2 holds, M3 fails; Enformer: M1 fails, M2 holds, M3 holds. Neither model met the pre-registered criterion. Best track: best single track chosen with all labels (post hoc). Descriptive, as pre-registered (20 repeats), share of runs in which the applicability check fell back to the default: AlphaGenome 5\% with the proxy, 21\% without; Enformer 21\% with the proxy, 29\% without; the mean accuracy of the checked prediction was not below that of unchecked TrackPilot. These descriptive results do not alter the verdict on the unchecked method.}\label{tab:s14}
 \centering\small
 \begin{tabular}{lllrrrrrr}

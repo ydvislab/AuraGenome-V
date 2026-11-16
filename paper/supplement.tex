@@ -2,11 +2,13 @@
 \usepackage[a4paper,margin=1.6cm,landscape]{geometry}
 \usepackage{booktabs}
 \usepackage{longtable}
+\usepackage{float}
 \usepackage{amsmath}
 \usepackage{graphicx}
 \setlength{\LTcapwidth}{\textwidth}
 \renewcommand{\thetable}{S\arabic{table}}
-\title{Supplementary Figure and Tables\\[2pt]\large Label-efficient choice of proxy tracks for variant-effect prediction}
+\title{Supplementary Data\\[2pt]\large TrackPilot: choosing which genomic foundation-model tracks to trust for a cell
+type from a few measured variants}
 \date{}
 \begin{document}
 \maketitle
@@ -28,7 +30,7 @@ label-free all-track mean and the best single track chosen with all labels (a re
 
 \input{supp_tables}
 
-\begin{table}[!ht]
+\begin{table}[H]
 \centering
 % results/a1/enformer_siraj/siraj_decision.txt, results/a1/enformer_kircher/kircher_decision.txt;
 % AlphaGenome columns: results/a1/siraj_ref (same 40 loci) and proxy_select_v2/p0.95_fam (Kircher test)

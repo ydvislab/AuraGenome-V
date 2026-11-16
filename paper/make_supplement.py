@@ -28,7 +28,7 @@ def table(label, caption, cols, rows, spec=None):
         return (f"{{\\small\\begin{{longtable}}{{{spec}}}\n\\caption{{{caption}}}\\label{{{label}}}\\\\\n"
                 f"\\toprule\n{head}\n\\midrule\n\\endfirsthead\n\\toprule\n{head}\n\\midrule\n\\endhead\n"
                 f"{body}\n\\bottomrule\n\\end{{longtable}}}}\n")
-    return (f"\\begin{{table}}[!ht]\n\\caption{{{caption}}}\\label{{{label}}}\n\\centering\\small\n"
+    return (f"\\begin{{table}}[H]\n\\caption{{{caption}}}\\label{{{label}}}\n\\centering\\small\n"
             f"\\begin{{tabular}}{{{spec}}}\n\\toprule\n{' & '.join(cols)} \\\\\n\\midrule\n{body}\n"
             f"\\bottomrule\n\\end{{tabular}}\n\\end{{table}}\n")
 
@@ -51,6 +51,10 @@ parts = []
 ref, pub = decision("siraj_ref/siraj_decision.txt"), decision("siraj_decision.txt")
 what = {"P1": "mean D (lower bound)", "P2": "harmed (upper bound)", "P3": "v2 $-$ all-track mean ($P$)",
         "P4": "v2 $-$ related mean ($P$)"}
+# P1 k=8, reference-relative: the decision file rounds the mean to 4 dp (0.0095), which formats as +0.009 after a second
+# rounding; the per-locus mean (0.00953, as in the main text) gives +0.010.
+p1_ref = tsv("siraj_ref/siraj_by_locus.tsv").C1_D_k8.mean()
+ref["P1 $k=8$"][0][0] = str(float(p1_ref))
 rows = []
 for key in ref:
     def cell(n):
@@ -74,7 +78,7 @@ parts.append(table("tab:s1", "Siraj test (125 loci): effects relative to the mea
 d = tsv("direction/direction_contrasts.tsv")
 names = {"siraj": "Siraj", "kircher_v1": "Kircher (v1)", "kircher_v2": "Kircher (v2)",
          "kircher_v2_no_offset": "Kircher (v2, no offset)", "kircher_v2_with_offset_c3": "Kircher (v2)"}
-rows = [[names[r.set], r.contrast, r.first.replace("_", r"\_"), r.second.replace("_", r"\_"), r.units,
+rows = [[names[r.set], r.contrast, r["first"].replace("_", r"\_"), r.second.replace("_", r"\_"), r.units,
          f(r.acc_first, sign=False), f(r.acc_second, sign=False), f(r["mean"]), ci(r.ci_low, r.ci_high),
          f"{r.positive}/{r.negative}"] for _, r in d.iterrows()]
 parts.append(table("tab:s2", "Directional accuracy (post hoc): fraction of significant held-out variants "
@@ -91,7 +95,7 @@ lab = {"C1_D_k8": "P1 $k=8$", "C1_D_k16": "P1 $k=16$", "C3_D_k8": "P3 $k=8$", "C
 rows = []
 for _, r in delta.iterrows():
     n, verdict = c1[lab[r.contrast]]
-    rows.append([lab[r.contrast], f(r.all_folds), f(r.held_out), f"{f(r.change)} [{ci(r.ci_low, r.ci_high)}]",
+    rows.append([lab[r.contrast], f(p1_ref if r.contrast == "C1_D_k8" else r.all_folds), f(r.held_out), f"{f(r.change)} [{ci(r.ci_low, r.ci_high)}]",
                  verdict.lower()])
 for key in ["P2 $k=8$", "P2 $k=16$"]:
     rows.append([key, f"{decision('siraj_ref/siraj_decision.txt')[key][0][1]} harmed", f"{c1[key][0][1]} harmed",
@@ -107,7 +111,7 @@ rows = []
 for name, path in [("Siraj", "siraj_ref/cmp/cmp_siraj_contrasts.tsv"), ("Kircher", "cmp/cmp_test_contrasts.tsv")]:
     t = tsv(path)
     for _, r in t.iterrows():
-        rows.append([name, r.view.replace("_", r"\_"), r.k, r.contrast.replace("_", r"\_").replace(" - ", " $-$ "),
+        rows.append([name, r["view"].replace("_", r"\_"), r.k, r.contrast.replace("_", r"\_").replace(" - ", " $-$ "),
                      r.units, f(r["mean"]), ci(r.ci_low, r.ci_high), r.reading.replace("within 0.02", "")])
 parts.append(table("tab:s4", "Acquisition comparators (post hoc; frozen v2 inference, 50 repeats). Siraj views C1--C3; "
                    "Kircher test regions with matched tracks kept (deploy) or without an anchor (no\\_anchor). "
@@ -120,7 +124,7 @@ for name, path in [("Siraj", "coda/coda_siraj_contrasts.tsv"), ("Kircher", "coda
     t = tsv(path)
     view = {"all": "C1", "hide_exact": "C2", "hide_matched": "C3"}
     for _, r in t.iterrows():
-        rows.append([name, view[r.view], r.k, r.contrast.replace("_", r"\_").replace(" - ", " $-$ "), r.units,
+        rows.append([name, view[r["view"]], r.k, r.contrast.replace("_", r"\_").replace(" - ", " $-$ "), r.units,
                      f(r["mean"]), ci(r.ci_low, r.ci_high), r.positive, r.reading.replace("within 0.02", "")])
 parts.append(table("tab:s5", "CODA- and MODEL SELECTOR-style baselines (post hoc; 50 repeats). Both use the calibrated "
                    "likelihood, no metadata and the information-gain panel; CODA uses a consensus prior "
@@ -143,14 +147,14 @@ for (data, view), g in cov.groupby(["data", "view"], sort=False):
 parts.append("\\renewcommand{\\thetable}{S6a}\n")
 parts.append(table("tab:s6a", "EIG convergence check (post hoc), coverage: posterior mass held by the hypotheses kept, "
                    "median over units (minimum), at the first step and the lowest over the eight steps of a $k=8$ "
-                   "panel. E0: the 100 most probable hypotheses, 96 quadrature points (as in the main text); E1: 300 "
+                   "panel. E0: the 100 most probable hypotheses, 96 quadrature points (the setting used for Table S4); E1: 300 "
                    "hypotheses; E2 (not shown) keeps $\\ge$99\\% of the mass at every step with 192 points.",
                    ["Data", "View", "E0 first", "E0 lowest", "E1 first", "E1 lowest"], rows, "llrrrr"))
 rows = []
 for name, path in [("Siraj", "eigconv/eigconv_siraj_contrasts.tsv"), ("Kircher", "eigconv/eigconv_test_contrasts.tsv")]:
     t = tsv(path)
     for _, r in t.iterrows():
-        rows.append([name, r.view.replace("_", r"\_"), r.k, r.contrast.replace(" - ", " $-$ "), r.units,
+        rows.append([name, r["view"].replace("_", r"\_"), r.k, r.contrast.replace(" - ", " $-$ "), r.units,
                      f(r["mean"], 4), ci(r.ci_low, r.ci_high), r.reading.replace("within 0.02", "")])
 parts.append("\\addtocounter{table}{-1}\\renewcommand{\\thetable}{S6b}\n")
 parts.append(table("tab:s6b", "EIG convergence check, accuracy: differences in Spearman correlation of the "
